@@ -27,7 +27,6 @@ export const routes: Routes = [
       .then(m => m.ReservaComponent)
   },
   { path: 'login',
-    canActivate: [authGuard], data: {roles: [Roles.Admin, Roles.Recepcionista, Roles.Cliente]},
     loadComponent: () => import('./components/login-component/login-component')
       .then(m => m.LoginComponent)
   },

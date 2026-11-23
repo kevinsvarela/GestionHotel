@@ -1,0 +1,6 @@
+<div class="fondos" aria-hidden="true">
+    @for (fondo of fondos; track fondo; let i = $index) {
+        <div class="fondo" [class.visible]="i === fondoActual()"
+            [style.background-image]="'url(' + fondo + ')'"></div>
+    }
+</div>

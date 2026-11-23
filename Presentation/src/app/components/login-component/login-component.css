@@ -1,0 +1,34 @@
+/* El login ocupa todo el espacio entre el encabezado y el pie de página */
+:host {
+    position: absolute;
+    inset: 0;
+    display: block;
+    overflow: hidden;
+}
+
+.fondos {
+    position: absolute;
+    inset: 0;
+    background-color: #352D39;
+}
+
+/* Todas las fotos están apiladas; solo la "visible" se muestra */
+.fondo {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0;
+    transition: opacity 1.5s ease-in-out;
+}
+
+.fondo.visible {
+    opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fondo {
+        transition: none;
+    }
+}
