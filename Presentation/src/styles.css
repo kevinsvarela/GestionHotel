@@ -257,3 +257,11 @@
     background: #F7F9F6;
     border-top: 1px solid #EEF1EC;
 }
+
+.sidenav .mat-drawer-inner-container {
+    scrollbar-width: none;
+}
+
+.sidenav .mat-drawer-inner-container::-webkit-scrollbar {
+    display: none;
+}
