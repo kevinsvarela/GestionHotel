@@ -30,6 +30,13 @@ final class UsuarioValidator {
                 ->regex('/^[A-Za-zÑñÁÉÍÓÚáéíóúÜü ]{2,120}$/u'),
                 'mensaje' => 'Los apellidos son obligatorios y deben tener entre 2 y 120 caracteres, solo letras y espacios.',
             ],
+            'identificacion' => [
+                'regla' => v::stringType()
+                ->notBlank()
+                ->length(v::between(5,20))
+                ->regex('/^[A-Za-z0-9-]{5,20}$/'),
+                'mensaje' => 'La cédula o pasaporte es obligatoria para los clientes y debe tener entre 5 y 20 letras, números o guiones.',
+            ],
             'email' => [
                 'regla' => v::stringType()
                 ->notBlank()
@@ -79,6 +86,10 @@ final class UsuarioValidator {
             $mensaje = $config['mensaje'];
             if(($campo === 'telefono' || $campo === 'activo' || $campo === 'username')
                 && ($valor === null || $valor === '')){
+                continue;
+            }
+            if($campo === 'identificacion' && ($valor === null || $valor === '')
+                && (int) ($data['rol_id'] ?? 0) !== RolMiddleware::CLIENTE){
                 continue;
             }
             if($campo === 'password' && ($valor === null || $valor === '')

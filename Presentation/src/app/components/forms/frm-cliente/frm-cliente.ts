@@ -31,6 +31,7 @@ export class FrmCliente implements OnInit {
   objCliente = signal<ClienteInput>({
     nombre: '',
     apellidos: '',
+    identificacion: '',
     email: '',
     telefono: '',
   });
@@ -50,6 +51,11 @@ export class FrmCliente implements OnInit {
     maxLength(s.apellidos, 120, { message: 'Los apellidos no pueden superar 120 caracteres' });
     pattern(s.apellidos, /^[A-Za-zÑñÁÉÍÓÚáéíóúÜü ]{2,120}$/, {
       message: 'Los apellidos solo pueden tener letras y espacios',
+    });
+
+    required(s.identificacion, { message: 'La cédula o pasaporte es requerida' });
+    pattern(s.identificacion, /^[A-Za-z0-9-]{5,20}$/, {
+      message: 'Entre 5 y 20 letras, números o guiones (ej. 1-0234-0567)',
     });
 
     required(s.email, { message: 'El correo es requerido' });
@@ -72,6 +78,7 @@ export class FrmCliente implements OnInit {
         this.dialogRef.close({
           nombre: cliente.nombre.trim(),
           apellidos: cliente.apellidos.trim(),
+          identificacion: cliente.identificacion.trim().toUpperCase(),
           email: cliente.email.trim().toLowerCase(),
           telefono: cliente.telefono?.trim() ?? '',
         });
@@ -85,6 +92,7 @@ export class FrmCliente implements OnInit {
       this.objCliente.set({
         nombre: this.data.data.nombre,
         apellidos: this.data.data.apellidos,
+        identificacion: this.data.data.identificacion ?? '',
         email: this.data.data.email,
         telefono: this.data.data.telefono ?? '',
       });

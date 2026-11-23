@@ -18,6 +18,7 @@ import { FrmCliente } from '../forms/frm-cliente/frm-cliente';
 import { DialogoGeneral } from '../forms/dialogo-general/dialogo-general';
 
 type FilterForm = {
+  identificacion: string;
   nombre: string;
   apellidos: string;
   email: string;
@@ -32,7 +33,7 @@ type FilterForm = {
   templateUrl: './cliente-component.html',
 })
 export class ClienteComponent implements OnInit {
-  displayedColumns: string[] = ['id', 'nombre', 'email', 'telefono', 'botonera'];
+  displayedColumns: string[] = ['id', 'identificacion', 'nombre', 'email', 'telefono', 'botonera'];
   dataSource = signal<ClienteModel[]>([]);
   total = signal(0);
 
@@ -46,7 +47,7 @@ export class ClienteComponent implements OnInit {
   private accion: 'editar' | 'info' = 'editar';
 
   panelFilterState = signal(false);
-  objFilter = signal<FilterForm>({ nombre: '', apellidos: '', email: '', telefono: '' });
+  objFilter = signal<FilterForm>({ identificacion: '', nombre: '', apellidos: '', email: '', telefono: '' });
   frmFilter = form(this.objFilter);
 
   constructor() {
@@ -85,6 +86,7 @@ export class ClienteComponent implements OnInit {
   private filtrarClientes(): void {
     const filtro = this.objFilter();
     this.srvCliente.filtrar({
+      identificacion: filtro.identificacion.trim(),
       nombre: filtro.nombre.trim(),
       apellidos: filtro.apellidos.trim(),
       email: filtro.email.trim(),
@@ -93,7 +95,7 @@ export class ClienteComponent implements OnInit {
   }
 
   private resetearFiltro(): void {
-    this.objFilter.set({ nombre: '', apellidos: '', email: '', telefono: '' });
+    this.objFilter.set({ identificacion: '', nombre: '', apellidos: '', email: '', telefono: '' });
     this.filtrarClientes();
   }
 

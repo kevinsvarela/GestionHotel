@@ -51,6 +51,7 @@ class Usuario {
                 'nombre' => trim((string) ($params['nombre'] ?? '')),
                 'apellidos' => trim((string) ($params['apellidos'] ?? '')),
                 'email' => trim((string) ($params['email'] ?? '')),
+                'identificacion' => trim((string) ($params['identificacion'] ?? '')),
                 'username' => trim((string) ($params['username'] ?? '')),
                 'telefono' => trim((string) ($params['telefono'] ?? '')),
                 'rol' => trim((string) ($params['rol'] ?? '')),

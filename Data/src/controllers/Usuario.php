@@ -21,7 +21,7 @@ class Usuario {
         $this->container->get('eloquent');
         if(isset($args['id'])){
             $usuario = UsuarioModel::query()
-                ->select(['id', 'rol_id', 'nombre', 'apellidos', 'email', 'username', 'telefono', 'activo'])
+                ->select(['id', 'rol_id', 'nombre', 'apellidos', 'identificacion', 'email', 'username', 'telefono', 'activo'])
                 ->find($args['id']);
  
             if ($usuario === null) {
@@ -32,7 +32,7 @@ class Usuario {
         }
  
         $usuarios = UsuarioModel::query()
-                ->select(['id', 'rol_id', 'nombre', 'apellidos', 'email', 'username', 'telefono', 'activo'])
+                ->select(['id', 'rol_id', 'nombre', 'apellidos', 'identificacion', 'email', 'username', 'telefono', 'activo'])
                 ->get()
                 ->toArray();
             return $this->json($response, ['data' => $usuarios], 200);
@@ -48,6 +48,7 @@ class Usuario {
         $rolId = filter_var($data['rol_id'] ?? '', FILTER_VALIDATE_INT);
         $nombre = trim((string) ($data['nombre'] ?? ''));
         $apellidos = trim((string) ($data['apellidos'] ?? ''));
+        $identificacion = isset($data['identificacion']) ? mb_strtoupper(trim((string) $data['identificacion'])) : null;
         $email = trim((string) ($data['email'] ?? ''));
         $username = isset($data['username']) ? trim((string) $data['username']) : null;
         $password = (string) ($data['password'] ?? '');
@@ -65,6 +66,12 @@ class Usuario {
         }
         if ($email === '' || mb_strlen($email) > 150) {
             $errors['email'] = 'Es obligatorio y debe tener máximo 150 caracteres.';
+        }
+        if ($identificacion !== null && mb_strlen($identificacion) > 20) {
+            $errors['identificacion'] = 'Debe tener máximo 20 caracteres.';
+        }
+        if ($identificacion !== null && $identificacion === '') {
+            $identificacion = null;
         }
         if ($username !== null && mb_strlen($username) > 50) {
             $errors['username'] = 'Debe tener máximo 50 caracteres.';
@@ -98,6 +105,7 @@ class Usuario {
                 'rol_id' => $rolId,
                 'nombre' => $nombre,
                 'apellidos' => $apellidos,
+                'identificacion' => $identificacion,
                 'email' => $email,
                 'username' => $username,
                 'password' => password_hash($password, PASSWORD_DEFAULT),
@@ -108,6 +116,9 @@ class Usuario {
             if ((int) ($exception->errorInfo[1] ?? 0) === 1062) { #1062: el valor ya existe en una columna UNIQUE
                 $message = (string) ($exception->errorInfo[2] ?? '');
 
+                if (str_contains($message, 'identificacion')) {
+                    return $this->json($response, ['error' => 'La identificación ya está registrada.'], 409);
+                }
                 if (str_contains($message, 'username')) {
                     return $this->json($response, ['error' => 'El nombre de usuario ya está registrado.'], 409);
                 }
@@ -125,6 +136,7 @@ class Usuario {
             'rol_id' => $usuario->rol_id,
             'nombre' => $usuario->nombre,
             'apellidos' => $usuario->apellidos,
+            'identificacion' => $usuario->identificacion,
             'email' => $usuario->email,
             'username' => $usuario->username,
             'telefono' => $usuario->telefono,
@@ -148,6 +160,7 @@ class Usuario {
         $nombre = trim((string) ($params['nombre'] ?? ''));
         $apellidos = trim((string) ($params['apellidos'] ?? ''));
         $email = trim((string) ($params['email'] ?? ''));
+        $identificacion = trim((string) ($params['identificacion'] ?? ''));
         $username = trim((string) ($params['username'] ?? ''));
         $telefono = trim((string) ($params['telefono'] ?? ''));
         $rol = trim((string) ($params['rol'] ?? ''));
@@ -161,6 +174,7 @@ class Usuario {
                 'roles.nombre as rol_nombre',
                 'usuarios.nombre',
                 'usuarios.apellidos',
+                'usuarios.identificacion',
                 'usuarios.email',
                 'usuarios.username',
                 'usuarios.telefono',
@@ -176,6 +190,9 @@ class Usuario {
         }
         if ($email !== '') {
             $query->where('usuarios.email', 'like', "%{$email}%");
+        }
+        if ($identificacion !== '') {
+            $query->where('usuarios.identificacion', 'like', "%{$identificacion}%");
         }
         if ($username !== '') {
             $query->where('usuarios.username', 'like', "%{$username}%");
@@ -249,6 +266,14 @@ class Usuario {
                 $usuario->apellidos = $apellidos;
             }
 
+            if (array_key_exists('identificacion', $data)) {
+                $identificacion = mb_strtoupper(trim((string) $data['identificacion']));
+                if (mb_strlen($identificacion) > 20) {
+                    return $this->json($response, ['error' => 'Identificación inválida.'], 422);
+                }
+                $usuario->identificacion = $identificacion === '' ? null : $identificacion;
+            }
+
             if (isset($data['email'])) {
                 $email = trim((string) $data['email']);
                 if ($email === '' || mb_strlen($email) > 150) {
@@ -295,6 +320,9 @@ class Usuario {
                 if ((int) ($exception->errorInfo[1] ?? 0) === 1062) { #1062: el valor ya existe en una columna UNIQUE
                     $message = (string) ($exception->errorInfo[2] ?? '');
 
+                    if (str_contains($message, 'identificacion')) {
+                        return $this->json($response, ['error' => 'La identificación ya está registrada.'], 409);
+                    }
                     if (str_contains($message, 'username')) {
                         return $this->json($response, ['error' => 'El nombre de usuario ya está registrado.'], 409);
                     }
@@ -312,6 +340,7 @@ class Usuario {
                 'rol_id' => $usuario->rol_id,
                 'nombre' => $usuario->nombre,
                 'apellidos' => $usuario->apellidos,
+                'identificacion' => $usuario->identificacion,
                 'email' => $usuario->email,
                 'username' => $usuario->username,
                 'telefono' => $usuario->telefono,

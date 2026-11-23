@@ -30,6 +30,15 @@
             }
         </mat-form-field>
         <mat-form-field appearance="outline">
+            <mat-label>Cédula o pasaporte</mat-label>
+            <input matInput type="text" placeholder="1-0234-0567" [formField]="frmUsuario.identificacion!">
+            @if (frmUsuario.identificacion!().touched() && frmUsuario.identificacion!().invalid()) {
+                @for (error of frmUsuario.identificacion!().errors(); track error.kind) {
+                    <mat-error>{{error.message}}</mat-error>
+                }
+            }
+        </mat-form-field>
+        <mat-form-field appearance="outline">
             <mat-label>Correo</mat-label>
             <input matInput type="email" placeholder="correo@hotel.com" [formField]="frmUsuario.email">
             @if (frmUsuario.email().touched() && frmUsuario.email().invalid()) {

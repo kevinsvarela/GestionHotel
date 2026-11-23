@@ -26,6 +26,16 @@
     </div>
 
     <mat-form-field appearance="outline">
+      <mat-label>Cédula o pasaporte</mat-label>
+      <input matInput placeholder="1-0234-0567" autocomplete="off" [formField]="frmCliente.identificacion" />
+      @if (frmCliente.identificacion().touched() && frmCliente.identificacion().invalid()) {
+        @for (error of frmCliente.identificacion().errors(); track error.kind) {
+          <mat-error>{{ error.message }}</mat-error>
+        }
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
       <mat-label>Correo</mat-label>
       <input matInput type="email" placeholder="cliente@correo.com" autocomplete="off" [formField]="frmCliente.email" />
       @if (frmCliente.email().touched() && frmCliente.email().invalid()) {

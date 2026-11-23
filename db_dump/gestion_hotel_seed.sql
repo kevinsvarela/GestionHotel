@@ -12,11 +12,11 @@
 
 SET NAMES utf8mb4;
 
-INSERT IGNORE INTO usuarios (id, rol_id, nombre, apellidos, email, username, password, telefono, activo) VALUES
-  (1, 1, 'Administrador', 'Del Hotel', 'admin@hotel.com', 'adminhotel', '$2y$10$AKQrrfGlTV1ZxKiQ91flVeTmjj10AkDtAmbo.Ox7yETz.MxMpNZoC', '2758-1000', 1),
-  (2, 2, 'Recepción', 'Del Hotel', 'recepcion@hotel.com', 'recepcion01', '$2y$10$qiBB4ezOnnjsEUZHoIDjUuBq6Feoc9ZyUXr4ERaqvsrKzii/2iH0C', '2758-1001', 1),
-  (3, 3, 'María', 'Rodríguez Mora', 'maria.rodriguez@correo.com', 'mariarod01', '$2y$10$4UNBKudma3xhvNM7nZkG.OivFXrNxiG.Msqwb.0CyISEXUavT2zVG', '8811-2233', 1),
-  (4, 3, 'José', 'Campos Vargas', 'jose.campos@correo.com', 'josecampos', '$2y$10$4UNBKudma3xhvNM7nZkG.OivFXrNxiG.Msqwb.0CyISEXUavT2zVG', '8722-3344', 1);
+INSERT IGNORE INTO usuarios (id, rol_id, nombre, apellidos, identificacion, email, username, password, telefono, activo) VALUES
+  (1, 1, 'Administrador', 'Del Hotel', '7-0123-0456', 'admin@hotel.com', 'adminhotel', '$2y$10$AKQrrfGlTV1ZxKiQ91flVeTmjj10AkDtAmbo.Ox7yETz.MxMpNZoC', '2758-1000', 1),
+  (2, 2, 'Recepción', 'Del Hotel', '7-0234-0567', 'recepcion@hotel.com', 'recepcion01', '$2y$10$qiBB4ezOnnjsEUZHoIDjUuBq6Feoc9ZyUXr4ERaqvsrKzii/2iH0C', '2758-1001', 1),
+  (3, 3, 'María', 'Rodríguez Mora', '1-0987-0654', 'maria.rodriguez@correo.com', 'mariarod01', '$2y$10$4UNBKudma3xhvNM7nZkG.OivFXrNxiG.Msqwb.0CyISEXUavT2zVG', '8811-2233', 1),
+  (4, 3, 'José', 'Campos Vargas', 'P12345678', 'jose.campos@correo.com', 'josecampos', '$2y$10$4UNBKudma3xhvNM7nZkG.OivFXrNxiG.Msqwb.0CyISEXUavT2zVG', '8722-3344', 1);
 
 INSERT IGNORE INTO tipos_habitacion (id, nombre, descripcion, capacidad, precio_noche, activo) VALUES
   (1, 'Sencilla', 'Una cama individual, baño privado y aire acondicionado.', 1, 25000.00, 1),

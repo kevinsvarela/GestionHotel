@@ -15,6 +15,7 @@ class UsuarioModel extends Model {
         'rol_id',
         'nombre',
         'apellidos',
+        'identificacion',
         'email',
         'username',
         'password',

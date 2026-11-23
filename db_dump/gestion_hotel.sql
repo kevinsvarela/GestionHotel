@@ -68,6 +68,7 @@ CREATE TABLE usuarios (
   rol_id         INT UNSIGNED  NOT NULL,
   nombre         VARCHAR(80)   NOT NULL,
   apellidos      VARCHAR(120)  NOT NULL,
+  identificacion VARCHAR(20)   NULL,
   email          VARCHAR(150)  NOT NULL,
   username       VARCHAR(50)   NULL,
   password       VARCHAR(255)  NOT NULL,
@@ -75,6 +76,7 @@ CREATE TABLE usuarios (
   activo         BOOLEAN       NOT NULL DEFAULT 1,
   CONSTRAINT uq_usuarios_email UNIQUE (email),
   CONSTRAINT uq_usuarios_username UNIQUE (username),
+  CONSTRAINT uq_usuarios_identificacion UNIQUE (identificacion),
   CONSTRAINT fk_usuarios_rol FOREIGN KEY (rol_id)
     REFERENCES roles (id) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

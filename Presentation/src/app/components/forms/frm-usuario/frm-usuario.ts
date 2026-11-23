@@ -34,6 +34,7 @@ export class FrmUsuario implements OnInit {
     rol_id: 0,
     nombre: '',
     apellidos: '',
+    identificacion: '',
     email: '',
     telefono: '',
     username: '',
@@ -61,6 +62,10 @@ frmUsuario = form(this.objUsuario, (s) => {
   maxLength(s.apellidos, 120, {message: 'Los apellidos no pueden superar 120 caracteres.'});
   pattern(s.apellidos, /^[A-Za-zÑñÁÉÍÓÚáéíóúÜü ]{2,120}$/, {
     message: 'Los apellidos solo pueden tener letras y espacios.',
+  });
+  pattern(s.identificacion!, /^[A-Za-z0-9-]{5,20}$/, {
+    message: 'La cédula o pasaporte debe tener entre 5 y 20 letras, números o guiones.',
+    when: (context) => context.value() !== '',
   });
   required(s.email, {message: "El correo es requerido"});
   maxLength(s.email, 150, {message: 'El correo no puede superar 150 caracteres.'});

@@ -20,7 +20,7 @@ import { FrmUsuario } from '../forms/frm-usuario/frm-usuario';
 })
 export class UsuarioComponent implements OnInit {
   displayedColumns: string[] =
-  ['id', 'nombre', 'email', 'rol_nombre', 'telefono', 'botonera'];
+  ['id', 'identificacion', 'nombre', 'email', 'rol_nombre', 'telefono', 'botonera'];
 
   dataSource = signal<UsuarioModel[]>([]);
 
