@@ -11,32 +11,37 @@
 }
 
 .sidenav{
-    width: 220px;
+    width: 260px;
     padding-top: 12px;
-    background-color: #ffffff;
-    border-right: 4px solid #155600;
+    background-color: #155600 !important;
+    border-right: none;
+    --mat-list-list-item-label-text-color: #ffffff;
+    --mat-list-list-item-hover-label-text-color: #ffffff;
+    --mat-list-list-item-focus-label-text-color: #ffffff;
+    --mat-list-list-item-leading-icon-color: #ffffff;
+    --mat-divider-color: rgba(255, 255, 255, 0.2);
 }
 
 .usuario{
-    background-color: #FCDC4D;
-    color: #352D39;
+    background-color: rgba(255, 255, 255, 0.14);
+    color: #ffffff;
     font-weight: 600;
     border-radius: 0 24px 24px 0;
     margin-right: 12px;
 }
 
 .opcion{
-    color: #352D39;
+    color: #ffffff;
     border-radius: 0 24px 24px 0;
     margin-right: 12px;
 }
 
 .opcion mat-icon{
-    color: #155600;
+    color: #ffffff;
 }
 
 .opcion:hover{
-    background-color: rgba(21, 86, 0, 0.08);
+    background-color: rgba(255, 255, 255, 0.1);
 }
 
 .grupo{
@@ -45,11 +50,11 @@
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: #1E9C99;
+    color: rgba(255, 255, 255, 0.65);
 }
 
 .activo{
-    background-color: rgba(21, 86, 0, 0.15);
+    background-color: rgba(255, 255, 255, 0.22);
     font-weight: 600;
 }
 
