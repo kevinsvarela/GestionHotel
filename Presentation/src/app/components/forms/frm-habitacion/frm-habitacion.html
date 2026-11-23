@@ -1,0 +1,66 @@
+<h2 mat-dialog-title class="py-5! text-center font-bold! text-[#155600]!">{{ titulo }}</h2>
+<mat-divider class="border-2 border-[#155600]!"></mat-divider>
+
+<mat-dialog-content>
+  <form id="frmHabitacion" [formRoot]="frmHabitacion" class="grid gap-4 py-2">
+    <mat-form-field appearance="outline">
+      <mat-label>Tipo de habitación</mat-label>
+      <mat-select [formField]="frmHabitacion.tipo_habitacion_id">
+        @for (tipo of srvTipo.tipos.value()?.data ?? []; track tipo.id) {
+          <mat-option [value]="tipo.id">{{ tipo.nombre }} ({{ tipo.capacidad }} pers.)</mat-option>
+        }
+      </mat-select>
+      @if (frmHabitacion.tipo_habitacion_id().touched() && frmHabitacion.tipo_habitacion_id().invalid()) {
+        @for (error of frmHabitacion.tipo_habitacion_id().errors(); track error.kind) {
+          <mat-error>{{ error.message }}</mat-error>
+        }
+      }
+    </mat-form-field>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <mat-form-field appearance="outline">
+        <mat-label>Número</mat-label>
+        <input matInput placeholder="101" [formField]="frmHabitacion.numero" />
+        @if (frmHabitacion.numero().touched() && frmHabitacion.numero().invalid()) {
+          @for (error of frmHabitacion.numero().errors(); track error.kind) {
+            <mat-error>{{ error.message }}</mat-error>
+          }
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Piso</mat-label>
+        <input matInput type="number" placeholder="1" [formField]="frmHabitacion.piso" />
+        @if (frmHabitacion.piso().touched() && frmHabitacion.piso().invalid()) {
+          @for (error of frmHabitacion.piso().errors(); track error.kind) {
+            <mat-error>{{ error.message }}</mat-error>
+          }
+        }
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Estado</mat-label>
+      <mat-select [formField]="frmHabitacion.estado">
+        @for (estado of estados; track estado.valor) {
+          <mat-option [value]="estado.valor">{{ estado.texto }}</mat-option>
+        }
+      </mat-select>
+      @if (frmHabitacion.estado().touched() && frmHabitacion.estado().invalid()) {
+        @for (error of frmHabitacion.estado().errors(); track error.kind) {
+          <mat-error>{{ error.message }}</mat-error>
+        }
+      }
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-divider class="border-2 border-[#155600]!"></mat-divider>
+<mat-dialog-actions align="end">
+  @if (soloLectura) {
+    <button mat-flat-button type="button" class="bg-[#1E9C99]! text-white!" [mat-dialog-close]="false">Cerrar</button>
+  } @else {
+    <button mat-button type="button" class="text-[#A72608]!" [mat-dialog-close]="false">Cancelar</button>
+    <button mat-flat-button type="submit" form="frmHabitacion" class="bg-[#155600]! text-white!">Guardar</button>
+  }
+</mat-dialog-actions>
