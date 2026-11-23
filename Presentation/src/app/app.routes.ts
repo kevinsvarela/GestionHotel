@@ -75,8 +75,9 @@ export const routes: Routes = [
 
   //Personas
   { path: 'cliente',
-    canActivate: [authGuard], data: {roles: personal, titulo: 'Clientes'},
-    loadComponent: pendiente
+    canActivate: [authGuard], data: {roles: personal},
+    loadComponent: () => import('./components/cliente-component/cliente-component')
+      .then(m => m.ClienteComponent)
   },
   { path: 'usuario',
     canActivate: [authGuard], data: {roles: soloAdmin},

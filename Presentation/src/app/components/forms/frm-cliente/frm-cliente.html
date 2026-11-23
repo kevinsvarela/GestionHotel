@@ -1,0 +1,58 @@
+<h2 mat-dialog-title class="py-5! text-center font-bold! text-[#155600]!">{{ titulo }}</h2>
+<mat-divider class="border-2 border-[#155600]!"></mat-divider>
+
+<mat-dialog-content>
+  <form id="frmCliente" [formRoot]="frmCliente" class="grid gap-4 py-2">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <mat-form-field appearance="outline">
+        <mat-label>Nombre</mat-label>
+        <input matInput placeholder="Nombre" autocomplete="off" [formField]="frmCliente.nombre" />
+        @if (frmCliente.nombre().touched() && frmCliente.nombre().invalid()) {
+          @for (error of frmCliente.nombre().errors(); track error.kind) {
+            <mat-error>{{ error.message }}</mat-error>
+          }
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Apellidos</mat-label>
+        <input matInput placeholder="Apellidos" autocomplete="off" [formField]="frmCliente.apellidos" />
+        @if (frmCliente.apellidos().touched() && frmCliente.apellidos().invalid()) {
+          @for (error of frmCliente.apellidos().errors(); track error.kind) {
+            <mat-error>{{ error.message }}</mat-error>
+          }
+        }
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Correo</mat-label>
+      <input matInput type="email" placeholder="cliente@correo.com" autocomplete="off" [formField]="frmCliente.email" />
+      @if (frmCliente.email().touched() && frmCliente.email().invalid()) {
+        @for (error of frmCliente.email().errors(); track error.kind) {
+          <mat-error>{{ error.message }}</mat-error>
+        }
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Teléfono</mat-label>
+      <input matInput placeholder="####-####" autocomplete="off" [formField]="frmCliente.telefono!" />
+      @if (frmCliente.telefono!().touched() && frmCliente.telefono!().invalid()) {
+        @for (error of frmCliente.telefono!().errors(); track error.kind) {
+          <mat-error>{{ error.message }}</mat-error>
+        }
+      }
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-divider class="border-2 border-[#155600]!"></mat-divider>
+<mat-dialog-actions align="end">
+  @if (soloLectura) {
+    <button mat-flat-button type="button" class="bg-[#1E9C99]! text-white!" [mat-dialog-close]="false">Cerrar</button>
+  } @else {
+    <button mat-button type="button" class="text-[#A72608]!" [mat-dialog-close]="false">Cancelar</button>
+    <button mat-flat-button type="submit" form="frmCliente" class="bg-[#155600]! text-white!">Guardar</button>
+  }
+</mat-dialog-actions>
