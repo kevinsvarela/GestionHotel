@@ -6,3 +6,9 @@
 .cdk-overlay-backdrop.login-backdrop {
     background-color: rgba(0, 0, 0, 0.25);
 }
+
+/* Contenedor del diálogo de login sin fondo blanco, para que la tarjeta sea transparente */
+.login-panel {
+    --mat-dialog-container-color: transparent;
+    --mat-dialog-container-elevation-shadow: none;
+}

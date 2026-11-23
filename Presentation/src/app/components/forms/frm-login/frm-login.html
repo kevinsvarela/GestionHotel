@@ -1,7 +1,7 @@
 <form [formRoot] = "frmLogin">
-    <mat-card>
-        <mat-card-header class="h-15 flex items-center justify-center mb-4 bg-[#1F7B00] text-white">
-            <mat-card-title>Iniciar sesión</mat-card-title>
+    <mat-card class="tarjeta-login">
+        <mat-card-header class="h-15 flex items-center justify-center mb-4 encabezado-login">
+            <mat-card-title class="uppercase tracking-wider">Iniciar sesión</mat-card-title>
         </mat-card-header>
         <mat-card-content>
             <div class="flex flex-col">
@@ -28,9 +28,9 @@
         </mat-card-content>
 
         <mat-card-actions class="mb-5">
-            <button type="submit" matFab extended  class="flex flex-1 mx-7 bg-[#1F7B00]! text-white! hover:bg-[#186200]!"
+            <button type="submit" matFab extended  class="flex flex-1 mx-7 boton-login uppercase tracking-wider"
                 [disabled]="frmLogin().invalid()">
-                Iniciar Sesión
+                Iniciar sesión
             </button>
         </mat-card-actions>
     </mat-card>

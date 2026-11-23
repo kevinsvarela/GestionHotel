@@ -54,6 +54,7 @@ export class LoginComponent implements OnInit, OnDestroy {
       maxWidth: '400px',
       disableClose: true,
       backdropClass: 'login-backdrop',
+      panelClass: 'login-panel',
     });
   }
 }

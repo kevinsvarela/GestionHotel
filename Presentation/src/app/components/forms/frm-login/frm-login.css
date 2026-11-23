@@ -1,0 +1,49 @@
+/* Ventana del login: oscura y transparente para que se vea la foto de fondo */
+.tarjeta-login {
+    background-color: rgba(20, 18, 22, 0.6) !important;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    overflow: hidden;
+    --mat-card-title-text-color: #ffffff;
+
+    /* Campos de texto adaptados al fondo oscuro */
+    --mat-form-field-filled-container-color: rgba(255, 255, 255, 0.08);
+    --mat-form-field-filled-input-text-color: #ffffff;
+    --mat-form-field-filled-caret-color: #FCDC4D;
+    --mat-form-field-filled-label-text-color: rgba(255, 255, 255, 0.75);
+    --mat-form-field-filled-hover-label-text-color: #ffffff;
+    --mat-form-field-filled-focus-label-text-color: #FCDC4D;
+    --mat-form-field-filled-active-indicator-color: rgba(255, 255, 255, 0.5);
+    --mat-form-field-filled-hover-active-indicator-color: #ffffff;
+    --mat-form-field-filled-focus-active-indicator-color: #FCDC4D;
+    --mat-form-field-error-text-color: #ff8a70;
+}
+
+.encabezado-login {
+    background-color: rgba(31, 123, 0, 0.75);
+    color: #ffffff;
+}
+
+/* Botón: verde normal; al pasar el mouse se desliza un degradado verde → amarillo */
+.boton-login {
+    background-color: #1F7B00 !important;
+    background-image: linear-gradient(90deg, #1F7B00 0%, #1F7B00 50%, #FCDC4D 100%);
+    background-size: 200% 100%;
+    background-position: left center;
+    color: #ffffff !important;
+    font-weight: 600;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+    transition: background-position 0.5s ease, box-shadow 0.3s ease;
+}
+
+.boton-login:hover:not(:disabled) {
+    background-position: right center;
+    box-shadow: 0 4px 14px rgba(252, 220, 77, 0.35);
+}
+
+.boton-login:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
