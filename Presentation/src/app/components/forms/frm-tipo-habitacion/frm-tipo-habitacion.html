@@ -1,0 +1,68 @@
+<h2 mat-dialog-title class="py-5! text-center font-bold! text-[#155600]!">{{ titulo }}</h2>
+<mat-divider class="border-2 border-[#155600]!"></mat-divider>
+
+<mat-dialog-content>
+  <form id="frmTipo" [formRoot]="frmTipo" class="grid gap-4 py-2">
+    <mat-form-field appearance="outline">
+      <mat-label>Nombre</mat-label>
+      <input matInput placeholder="Doble" autocomplete="off" [formField]="frmTipo.nombre" />
+      @if (frmTipo.nombre().touched() && frmTipo.nombre().invalid()) {
+        @for (error of frmTipo.nombre().errors(); track error.kind) {
+          <mat-error>{{ error.message }}</mat-error>
+        }
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Descripción</mat-label>
+      <textarea matInput rows="3" placeholder="Camas, vista, comodidades..." [formField]="frmTipo.descripcion"></textarea>
+      @if (frmTipo.descripcion().touched() && frmTipo.descripcion().invalid()) {
+        @for (error of frmTipo.descripcion().errors(); track error.kind) {
+          <mat-error>{{ error.message }}</mat-error>
+        }
+      }
+    </mat-form-field>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <mat-form-field appearance="outline">
+        <mat-label>Capacidad (personas)</mat-label>
+        <input matInput type="number" [formField]="frmTipo.capacidad" />
+        @if (frmTipo.capacidad().touched() && frmTipo.capacidad().invalid()) {
+          @for (error of frmTipo.capacidad().errors(); track error.kind) {
+            <mat-error>{{ error.message }}</mat-error>
+          }
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Precio por noche</mat-label>
+        <span matTextPrefix>₡&nbsp;</span>
+        <input matInput type="number" step="0.01" [formField]="frmTipo.precio_noche" />
+        @if (frmTipo.precio_noche().touched() && frmTipo.precio_noche().invalid()) {
+          @for (error of frmTipo.precio_noche().errors(); track error.kind) {
+            <mat-error>{{ error.message }}</mat-error>
+          }
+        }
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Estado</mat-label>
+      <mat-select [formField]="frmTipo.activo">
+        <mat-option [value]="1">Activo</mat-option>
+        <mat-option [value]="0">Inactivo</mat-option>
+      </mat-select>
+      <mat-hint>Los tipos inactivos no se ofrecen al registrar habitaciones nuevas</mat-hint>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-divider class="border-2 border-[#155600]!"></mat-divider>
+<mat-dialog-actions align="end">
+  @if (soloLectura) {
+    <button mat-flat-button type="button" class="bg-[#1E9C99]! text-white!" [mat-dialog-close]="false">Cerrar</button>
+  } @else {
+    <button mat-button type="button" class="text-[#A72608]!" [mat-dialog-close]="false">Cancelar</button>
+    <button mat-flat-button type="submit" form="frmTipo" class="bg-[#155600]! text-white!">Guardar</button>
+  }
+</mat-dialog-actions>

@@ -82,7 +82,6 @@ export class App {
       {label: 'Programación', icon: 'calendar_month', route: 'tour-programado', rol: [1, 2]},
       {label: 'Guías', icon: 'hiking', route: 'guia', rol: [1]},
       {label: 'Idiomas', icon: 'translate', route: 'idioma', rol: [1]},
-      {label: 'Servicios incluidos', icon: 'checklist', route: 'servicio-incluido', rol: [1]},
     ]},
     {titulo: 'Personas', items: [
       {label: 'Clientes', icon: 'person_search', route: 'cliente', rol: [1, 2]},

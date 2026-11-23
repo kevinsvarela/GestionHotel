@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
@@ -31,6 +31,12 @@ export class FrmHabitacion implements OnInit {
   readonly srvTipo = inject(TipoHabitacionService);
   //En modo info el formulario solo se muestra, no se puede guardar
   readonly soloLectura = this.data.info === true;
+
+  readonly tiposDisponibles = computed(() => {
+    const actual = this.data.data?.tipo_habitacion_id;
+    return (this.srvTipo.tipos.value()?.data ?? [])
+      .filter((tipo) => Number(tipo.activo ?? 1) === 1 || tipo.id === actual);
+  });
 
   readonly estados = [
     { valor: 'DISPONIBLE', texto: 'Disponible' },

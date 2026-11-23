@@ -1,0 +1,115 @@
+<mat-card class="m-6 bg-white!">
+  <div class="p-6 bg-white border-t-8 border-[#155600] rounded-lg shadow-sm">
+    <mat-card-header class="bg-[#155600] h-13 justify-center rounded-t-md">
+      <mat-card-title class="font-extrabold! text-[1.5rem]! text-white!">
+        Tipos de habitación
+      </mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content class="relative overflow-x-auto shadow-sm sm:rounded-lg">
+      <div class="flex justify-end mt-3 mb-3">
+        <button type="button" (click)="toggleFilterPanel()" [attr.aria-expanded]="panelFilterState()"
+          class="flex items-center gap-2 px-4 py-1.5 rounded-lg text-sm font-medium border-2 border-[#155600] cursor-pointer transition-colors"
+          [class]="panelFilterState() ? 'bg-[#155600] text-white hover:bg-[#0F4000]' : 'bg-white text-[#155600] hover:bg-[#155600]/10'">
+          <mat-icon>{{ panelFilterState() ? 'filter_list_off' : 'filter_list' }}</mat-icon>
+          {{ panelFilterState() ? 'Quitar filtro' : 'Filtrar' }}
+        </button>
+      </div>
+
+      @if (panelFilterState()) {
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-x-4 p-4 pb-0 mb-3 rounded-lg bg-[#155600]/5 border border-[#155600]/20">
+          <mat-form-field>
+            <mat-label>Nombre</mat-label>
+            <input matInput [formField]="frmFilter.nombre" (input)="onFilterChange();">
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Capacidad</mat-label>
+            <input matInput type="number" [formField]="frmFilter.capacidad" (input)="onFilterChange();">
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Estado</mat-label>
+            <mat-select [formField]="frmFilter.activo" (selectionChange)="onFilterChange();">
+              <mat-option value="">Todos</mat-option>
+              <mat-option value="1">Activos</mat-option>
+              <mat-option value="0">Inactivos</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      }
+
+      <table mat-table [dataSource]="dataSource()" class="mat-shadow-2">
+        <caption class="sr-only">Listado de tipos de habitación</caption>
+
+        <ng-container matColumnDef="id">
+          <th mat-header-cell *matHeaderCellDef class="font-bold! text-[#352D39]!"> Id </th>
+          <td mat-cell *matCellDef="let tipo"> {{tipo.id}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="nombre">
+          <th mat-header-cell *matHeaderCellDef class="font-bold! text-[#352D39]!"> Nombre </th>
+          <td mat-cell *matCellDef="let tipo"> {{tipo.nombre}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="capacidad">
+          <th mat-header-cell *matHeaderCellDef class="font-bold! text-[#352D39]!"> Capacidad </th>
+          <td mat-cell *matCellDef="let tipo"> {{tipo.capacidad}} {{ tipo.capacidad == 1 ? 'persona' : 'personas' }} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="precio_noche">
+          <th mat-header-cell *matHeaderCellDef class="font-bold! text-[#352D39]!"> Precio por noche </th>
+          <td mat-cell *matCellDef="let tipo"> {{ tipo.precio_noche | currency:'CRC':'symbol-narrow':'1.0-2' }} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="activo">
+          <th mat-header-cell *matHeaderCellDef class="font-bold! text-[#352D39]!"> Estado </th>
+          <td mat-cell *matCellDef="let tipo">
+            <span class="px-2 py-1 rounded-full text-xs font-medium"
+              [class]="tipo.activo == 1 ? 'bg-[#155600]/15 text-[#0F4000]' : 'bg-[#352D39]/10 text-[#352D39]'">
+              {{ tipo.activo == 1 ? 'Activo' : 'Inactivo' }}
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="botonera">
+          <th mat-header-cell *matHeaderCellDef style="text-align: center;">
+            <button (click)="onCreate()" title="Nuevo tipo de habitación" aria-label="Nuevo tipo de habitación"
+              class="text-white bg-[#155600] hover:bg-[#0F4000] focus:ring-4 focus:ring-[#155600]/30 font-medium rounded-lg text-sm px-10 py-1 cursor-pointer">
+              <mat-icon>add</mat-icon>
+            </button>
+          </th>
+          <td mat-cell *matCellDef="let tipo">
+            <div class="flex justify-center gap-1">
+              <button (click)="onInfo(tipo.id)" title="Información" aria-label="Información"
+                class="flex content-center items-center focus:outline-none text-white bg-[#1E9C99] hover:bg-[#178582] focus:ring-4 focus:ring-[#1E9C99]/30 font-medium rounded-lg text-sm px-2 py-1 cursor-pointer">
+                <mat-icon>info</mat-icon>
+              </button>
+              <button (click)="onEdit(tipo.id)" title="Editar" aria-label="Editar"
+                class="flex content-center items-center focus:outline-none text-white bg-[#155600] hover:bg-[#0F4000] focus:ring-4 focus:ring-[#155600]/30 font-medium rounded-lg text-sm px-2 py-1 cursor-pointer">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button (click)="onDelete(tipo)" title="Eliminar" aria-label="Eliminar"
+                class="flex content-center items-center focus:outline-none text-white bg-[#A72608] hover:bg-[#8C1F06] focus:ring-4 focus:ring-[#A72608]/30 font-medium rounded-lg text-sm px-2 py-1 cursor-pointer">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns" class="bg-[#155600]/10!"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="hover:bg-[#155600]/5!"></tr>
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell p-4 text-center" [attr.colspan]="displayedColumns.length">
+            @if (srvTipo.tiposFiltrados.isLoading()) { Cargando... } @else { No hay tipos de habitación para mostrar }
+          </td>
+        </tr>
+      </table>
+
+      <mat-paginator [length]="total()" [pageSize]="srvTipo.limit()"
+        [pageIndex]="srvTipo.offset() / srvTipo.limit()" [pageSizeOptions]="[5, 10, 20]"
+        (page)="onPage($event)" aria-label="Seleccionar página de tipos de habitación">
+      </mat-paginator>
+    </mat-card-content>
+  </div>
+</mat-card>

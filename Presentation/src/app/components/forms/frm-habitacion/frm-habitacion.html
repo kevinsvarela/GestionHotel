@@ -6,7 +6,7 @@
     <mat-form-field appearance="outline">
       <mat-label>Tipo de habitación</mat-label>
       <mat-select [formField]="frmHabitacion.tipo_habitacion_id">
-        @for (tipo of srvTipo.tipos.value()?.data ?? []; track tipo.id) {
+        @for (tipo of tiposDisponibles(); track tipo.id) {
           <mat-option [value]="tipo.id">{{ tipo.nombre }} ({{ tipo.capacidad }} pers.)</mat-option>
         }
       </mat-select>

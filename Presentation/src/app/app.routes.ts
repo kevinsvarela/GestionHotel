@@ -43,8 +43,9 @@ export const routes: Routes = [
       .then(m => m.HabitacionComponent)
   },
   { path: 'tipo-habitacion',
-    canActivate: [authGuard], data: {roles: soloAdmin, titulo: 'Tipos de habitación'},
-    loadComponent: pendiente
+    canActivate: [authGuard], data: {roles: soloAdmin},
+    loadComponent: () => import('./components/tipo-habitacion-component/tipo-habitacion-component')
+      .then(m => m.TipoHabitacionComponent)
   },
   { path: 'servicio-habitacion',
     canActivate: [authGuard], data: {roles: soloAdmin, titulo: 'Servicios de habitación'},
@@ -66,10 +67,6 @@ export const routes: Routes = [
   },
   { path: 'idioma',
     canActivate: [authGuard], data: {roles: soloAdmin, titulo: 'Idiomas'},
-    loadComponent: pendiente
-  },
-  { path: 'servicio-incluido',
-    canActivate: [authGuard], data: {roles: soloAdmin, titulo: 'Servicios incluidos'},
     loadComponent: pendiente
   },
 
