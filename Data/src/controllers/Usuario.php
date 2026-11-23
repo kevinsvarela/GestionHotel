@@ -9,6 +9,8 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Container\ContainerInterface;
  
 class Usuario {
+    private const ROL_CLIENTE = 3;
+
     private ContainerInterface $container;
  
     public function __construct(ContainerInterface $c){
@@ -69,6 +71,9 @@ class Usuario {
         }
         if ($username !== null && $username === '') {
             $username = null;
+        }
+        if ($password === '' && $rolId === self::ROL_CLIENTE) {
+            $password = bin2hex(random_bytes(24));
         }
         if (mb_strlen($password) < 8 || mb_strlen($password) > 64) {
             $errors['password'] = 'Es obligatoria y debe tener entre 8 y 64 caracteres.';

@@ -5,6 +5,7 @@ namespace App\Validators;
 
 use Respect\Validation\ValidatorBuilder as v;
 use Respect\Validation\Exceptions\ValidationException;
+use App\Services\RolMiddleware;
 
 final class UsuarioValidator {
     private function reglas(): array {
@@ -78,6 +79,10 @@ final class UsuarioValidator {
             $mensaje = $config['mensaje'];
             if(($campo === 'telefono' || $campo === 'activo' || $campo === 'username')
                 && ($valor === null || $valor === '')){
+                continue;
+            }
+            if($campo === 'password' && ($valor === null || $valor === '')
+                && (int) ($data['rol_id'] ?? 0) === RolMiddleware::CLIENTE){
                 continue;
             }
             if($regla->validate($valor)->hasFailed()){
