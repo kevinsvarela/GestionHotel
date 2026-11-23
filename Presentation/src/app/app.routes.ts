@@ -48,8 +48,9 @@ export const routes: Routes = [
       .then(m => m.TipoHabitacionComponent)
   },
   { path: 'servicio-habitacion',
-    canActivate: [authGuard], data: {roles: soloAdmin, titulo: 'Servicios de habitación'},
-    loadComponent: pendiente
+    canActivate: [authGuard], data: {roles: soloAdmin},
+    loadComponent: () => import('./components/servicio-habitacion-component/servicio-habitacion-component')
+      .then(m => m.ServicioHabitacionComponent)
   },
 
   //Tours

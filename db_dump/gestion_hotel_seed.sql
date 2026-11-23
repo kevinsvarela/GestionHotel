@@ -33,3 +33,15 @@ INSERT IGNORE INTO habitaciones (id, tipo_habitacion_id, numero, piso, estado) V
   (6, 3, '203', 2, 'DISPONIBLE'),
   (7, 3, '301', 3, 'FUERA_SERVICIO'),
   (8, 4, '302', 3, 'DISPONIBLE');
+
+INSERT IGNORE INTO servicios_habitacion (id, nombre) VALUES
+  (1, 'Wi-Fi'),
+  (2, 'Aire acondicionado'),
+  (3, 'Televisión por cable'),
+  (4, 'Agua caliente'),
+  (5, 'Desayuno incluido'),
+  (6, 'Minibar'),
+  (7, 'Caja fuerte'),
+  (8, 'Balcón'),
+  (9, 'Vista al mar'),
+  (10, 'Jacuzzi');
