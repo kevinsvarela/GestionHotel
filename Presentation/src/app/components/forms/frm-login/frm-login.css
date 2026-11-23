@@ -21,8 +21,9 @@
     --mat-form-field-error-text-color: #ff8a70;
 }
 
+/* Encabezado sin color propio: usa el mismo fondo oscuro de la ventana */
 .encabezado-login {
-    background-color: rgba(31, 123, 0, 0.75);
+    background-color: transparent;
     color: #ffffff;
 }
 
