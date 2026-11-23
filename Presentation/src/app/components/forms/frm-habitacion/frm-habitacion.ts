@@ -1,8 +1,8 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import {
@@ -18,7 +18,7 @@ interface HabitacionDialogData {
 }
 
 @Component({
-  imports: [MatDialogModule, MatDividerModule, MatButtonModule, MatFormFieldModule,
+  imports: [MatDialogModule, MatIconModule, MatButtonModule, MatFormFieldModule,
             MatInputModule, MatSelectModule, FormRoot, FormField],
   selector: 'app-frm-habitacion',
   styleUrl: './frm-habitacion.css',

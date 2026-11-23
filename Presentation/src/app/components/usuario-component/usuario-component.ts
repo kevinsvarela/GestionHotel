@@ -3,7 +3,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import {MatTableModule} from '@angular/material/table';
 import { UsuarioService } from '../../shared/services/usuario-service';
 import { UsuarioModel } from '../../shared/models/usuario-model';
-import { MatCardModule } from '@angular/material/card';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -11,7 +11,7 @@ import { FrmUsuario } from '../forms/frm-usuario/frm-usuario';
 
 
 @Component({
-  imports: [MatTableModule, MatCardModule,MatButtonModule, MatIconModule,
+  imports: [MatTableModule, MatTooltipModule, MatButtonModule, MatIconModule,
             MatDialogModule
 ],
   selector: 'app-usuario-component',
@@ -40,8 +40,10 @@ export class UsuarioComponent implements OnInit {
 
   public mostrarDialogo(titulo: string, datos? : UsuarioModel, info? : boolean){
     const dialogRef= this.dialog.open(FrmUsuario, {
-       width: '50vw',
-       maxWidth: '35rem',
+      width: '92vw',
+      maxWidth: '36rem',
+      panelClass: 'dialogo-hotel',
+      autoFocus: false,
       data: {
         title: titulo,
         data: datos,

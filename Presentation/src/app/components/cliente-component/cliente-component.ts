@@ -1,7 +1,7 @@
-import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, effect, inject, OnInit, signal, untracked } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -25,7 +25,7 @@ type FilterForm = {
 };
 
 @Component({
-  imports: [MatCardModule, MatButtonModule, MatIconModule, MatTableModule, MatDialogModule,
+  imports: [MatTooltipModule, MatButtonModule, MatIconModule, MatTableModule, MatDialogModule,
     MatFormFieldModule, MatInputModule, MatPaginatorModule, FormField],
   selector: 'app-cliente-component',
   styleUrl: './cliente-component.css',
@@ -50,6 +50,11 @@ export class ClienteComponent implements OnInit {
   frmFilter = form(this.objFilter);
 
   constructor() {
+    effect(() => {
+      const filtro = this.objFilter();
+      untracked(() => this.filtrarClientes(filtro));
+    });
+
     effect(() => {
       const respuesta = this.srvCliente.clientes.value();
       if (respuesta !== undefined) {
@@ -82,8 +87,7 @@ export class ClienteComponent implements OnInit {
     });
   }
 
-  private filtrarClientes(): void {
-    const filtro = this.objFilter();
+  private filtrarClientes(filtro: FilterForm): void {
     this.srvCliente.filtrar({
       identificacion: filtro.identificacion.trim(),
       nombre: filtro.nombre.trim(),
@@ -95,7 +99,6 @@ export class ClienteComponent implements OnInit {
 
   private resetearFiltro(): void {
     this.objFilter.set({ identificacion: '', nombre: '', apellidos: '', email: '', telefono: '' });
-    this.filtrarClientes();
   }
 
   private alertar(icono: string, mensaje: string) {
@@ -130,8 +133,10 @@ export class ClienteComponent implements OnInit {
 
   public mostrarDialogo(titulo: string, datos?: ClienteModel, info?: boolean, id?: number) {
     const dialogRef = this.dialog.open<FrmCliente, unknown, ClienteInput | false | undefined>(FrmCliente, {
-      width: '50vw',
-      maxWidth: '35rem',
+      width: '92vw',
+      maxWidth: '36rem',
+      panelClass: 'dialogo-hotel',
+      autoFocus: false,
       data: { title: titulo, data: datos, info: info },
       disableClose: true,
     });
@@ -199,9 +204,6 @@ export class ClienteComponent implements OnInit {
     this.srvCliente.cambiarPagina(evento.pageIndex * evento.pageSize, evento.pageSize);
   }
 
-  onFilterChange(): void {
-    this.filtrarClientes();
-  }
 
   onFilterClose(): void {
     this.resetearFiltro();

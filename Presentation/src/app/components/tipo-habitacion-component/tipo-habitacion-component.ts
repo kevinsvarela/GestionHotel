@@ -1,8 +1,8 @@
-import { Component, effect, inject, OnInit, signal } from '@angular/core';
+import { Component, effect, inject, OnInit, signal, untracked } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -23,7 +23,7 @@ type FilterForm = {
 };
 
 @Component({
-  imports: [MatCardModule, MatButtonModule, MatIconModule, MatTableModule, MatDialogModule,
+  imports: [MatTooltipModule, MatButtonModule, MatIconModule, MatTableModule, MatDialogModule,
     MatFormFieldModule, MatInputModule, MatSelectModule, MatPaginatorModule, FormField, CurrencyPipe],
   selector: 'app-tipo-habitacion-component',
   styleUrl: './tipo-habitacion-component.css',
@@ -45,6 +45,11 @@ export class TipoHabitacionComponent implements OnInit {
   frmFilter = form(this.objFilter);
 
   constructor() {
+    effect(() => {
+      const filtro = this.objFilter();
+      untracked(() => this.filtrarTipos(filtro));
+    });
+
     effect(() => {
       const respuesta = this.srvTipo.tiposFiltrados.value();
       if (respuesta !== undefined) {
@@ -77,8 +82,7 @@ export class TipoHabitacionComponent implements OnInit {
     });
   }
 
-  private filtrarTipos(): void {
-    const filtro = this.objFilter();
+  private filtrarTipos(filtro: FilterForm): void {
     this.srvTipo.filtrar({
       nombre: filtro.nombre.trim(),
       capacidad: filtro.capacidad,
@@ -88,7 +92,6 @@ export class TipoHabitacionComponent implements OnInit {
 
   private resetearFiltro(): void {
     this.objFilter.set({ nombre: '', capacidad: '', activo: '' });
-    this.filtrarTipos();
   }
 
   private alertar(icono: string, mensaje: string) {
@@ -123,8 +126,10 @@ export class TipoHabitacionComponent implements OnInit {
 
   public mostrarDialogo(titulo: string, datos?: TipoHabitacionModel, info?: boolean, id?: number) {
     const dialogRef = this.dialog.open<FrmTipoHabitacion, unknown, TipoHabitacionInput | false | undefined>(FrmTipoHabitacion, {
-      width: '50vw',
-      maxWidth: '35rem',
+      width: '92vw',
+      maxWidth: '36rem',
+      panelClass: 'dialogo-hotel',
+      autoFocus: false,
       data: { title: titulo, data: datos, info: info },
       disableClose: true,
     });
@@ -192,9 +197,6 @@ export class TipoHabitacionComponent implements OnInit {
     this.srvTipo.cambiarPagina(evento.pageIndex * evento.pageSize, evento.pageSize);
   }
 
-  onFilterChange(): void {
-    this.filtrarTipos();
-  }
 
   onFilterClose(): void {
     this.resetearFiltro();

@@ -1,0 +1,196 @@
+.tarjeta-a {
+    background: #ffffff;
+    border: 1px solid #E6E9E4;
+    border-radius: 16px;
+    box-shadow: 0 1px 3px rgba(53, 45, 57, 0.08);
+    overflow: hidden;
+}
+
+.icono-titulo {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(21, 86, 0, 0.1);
+    color: #155600;
+}
+
+.boton-borde,
+.boton-lleno {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 10px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.boton-borde {
+    border: 1px solid #CFD6CC;
+    background: #ffffff;
+    color: #352D39;
+}
+
+.boton-borde:hover {
+    background: #F3F6F1;
+}
+
+.boton-lleno {
+    border: 1px solid #155600;
+    background: #155600;
+    color: #ffffff;
+}
+
+.boton-lleno:hover {
+    background: #0F4000;
+}
+
+.boton-borde mat-icon,
+.boton-lleno mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+}
+
+.tabla-a {
+    --mat-table-background-color: #ffffff;
+    --mat-table-row-item-outline-color: #EEF1EC;
+    --mat-table-header-headline-color: rgba(53, 45, 57, 0.6);
+    --mat-table-row-item-label-text-color: #352D39;
+    width: 100%;
+}
+
+.tabla-a th.mat-mdc-header-cell {
+    background: #F7F9F6;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.tabla-a tr.mat-mdc-row:hover {
+    background: rgba(21, 86, 0, 0.04);
+}
+
+.tabla-a th:first-child,
+.tabla-a td:first-child {
+    padding-left: 20px;
+}
+
+.tabla-a th:last-child,
+.tabla-a td:last-child {
+    padding-right: 20px;
+}
+
+.estado {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.punto {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.estado-verde {
+    background: rgba(21, 86, 0, 0.1);
+    color: #155600;
+}
+
+.estado-amarillo {
+    background: rgba(252, 220, 77, 0.35);
+    color: #6B5500;
+}
+
+.estado-rojo {
+    background: rgba(167, 38, 8, 0.1);
+    color: #A72608;
+}
+
+.accion {
+    color: rgba(53, 45, 57, 0.55);
+}
+
+.accion-info:hover {
+    color: #1E9C99;
+}
+
+.accion-editar:hover {
+    color: #155600;
+}
+
+.accion-borrar:hover {
+    color: #A72608;
+}
+
+.titulo-b {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #352D39;
+    padding-bottom: 4px;
+    border-bottom: 4px solid #155600;
+}
+
+.tarjeta-b {
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 4px 14px rgba(53, 45, 57, 0.1);
+    background: #ffffff;
+}
+
+.tabla-b {
+    --mat-table-background-color: #ffffff;
+    --mat-table-row-item-outline-color: transparent;
+    --mat-table-header-headline-color: #ffffff;
+    --mat-table-row-item-label-text-color: #352D39;
+    width: 100%;
+}
+
+.tabla-b th.mat-mdc-header-cell {
+    background: #155600;
+    font-weight: 700;
+}
+
+.tabla-b tr.mat-mdc-row:nth-child(even) {
+    background: rgba(21, 86, 0, 0.04);
+}
+
+.tabla-b tr.mat-mdc-row:hover {
+    background: rgba(30, 156, 153, 0.08);
+}
+
+.grupo-acciones {
+    display: flex;
+    justify-content: center;
+    gap: 2px;
+    width: fit-content;
+    margin: 0 auto;
+    padding: 2px;
+    border: 1px solid #E6E9E4;
+    border-radius: 999px;
+    background: #ffffff;
+}
+
+.grupo-acciones .accion-info {
+    color: #1E9C99;
+}
+
+.grupo-acciones .accion-editar {
+    color: #155600;
+}
+
+.grupo-acciones .accion-borrar {
+    color: #A72608;
+}

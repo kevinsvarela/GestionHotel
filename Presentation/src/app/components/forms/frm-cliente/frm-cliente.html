@@ -1,8 +1,17 @@
-<h2 mat-dialog-title class="py-5! text-center font-bold! text-[#155600]!">{{ titulo }}</h2>
-<mat-divider class="border-2 border-[#155600]!"></mat-divider>
+<div class="dlg-encabezado">
+  <span class="icono-titulo"><mat-icon>person</mat-icon></span>
+  <div class="flex-1">
+    <h2 class="dlg-titulo">{{ titulo }}</h2>
+    <p class="dlg-subtitulo">{{ soloLectura ? 'Información registrada' : 'Complete los datos del cliente' }}</p>
+  </div>
+  <button mat-icon-button type="button" class="dlg-cerrar" [mat-dialog-close]="false" aria-label="Cerrar">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
 
-<mat-dialog-content>
-  <form id="frmCliente" [formRoot]="frmCliente" class="grid gap-4 py-2">
+<mat-dialog-content class="dlg-contenido">
+  <form id="frmCliente" [formRoot]="frmCliente" class="grid gap-3 pt-3">
+    <p class="dlg-seccion">Datos personales</p>
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <mat-form-field appearance="outline">
         <mat-label>Nombre</mat-label>
@@ -35,6 +44,7 @@
       }
     </mat-form-field>
 
+    <p class="dlg-seccion">Contacto</p>
     <mat-form-field appearance="outline">
       <mat-label>Correo</mat-label>
       <input matInput type="email" placeholder="cliente@correo.com" autocomplete="off" [formField]="frmCliente.email" />
@@ -57,12 +67,11 @@
   </form>
 </mat-dialog-content>
 
-<mat-divider class="border-2 border-[#155600]!"></mat-divider>
-<mat-dialog-actions align="end">
+<div class="dlg-pie">
   @if (soloLectura) {
-    <button mat-flat-button type="button" class="bg-[#1E9C99]! text-white!" [mat-dialog-close]="false">Cerrar</button>
+    <button type="button" class="boton-borde" [mat-dialog-close]="false">Cerrar</button>
   } @else {
-    <button mat-button type="button" class="text-[#A72608]!" [mat-dialog-close]="false">Cancelar</button>
-    <button mat-flat-button type="submit" form="frmCliente" class="bg-[#155600]! text-white!">Guardar</button>
+    <button type="button" class="boton-borde" [mat-dialog-close]="false">Cancelar</button>
+    <button type="submit" form="frmCliente" class="boton-lleno"><mat-icon>check</mat-icon>Guardar</button>
   }
-</mat-dialog-actions>
+</div>

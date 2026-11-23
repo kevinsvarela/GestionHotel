@@ -1,0 +1,56 @@
+<div class="dp-encabezado">
+  <span class="dp-icono"><mat-icon>bed</mat-icon></span>
+  <div class="flex-1">
+    <h2 class="dp-titulo">{{ data.titulo }}</h2>
+    <p class="dp-subtitulo">Complete los datos de la habitación</p>
+  </div>
+  <button mat-icon-button mat-dialog-close class="dp-cerrar" aria-label="Cerrar"><mat-icon>close</mat-icon></button>
+</div>
+
+<mat-dialog-content class="dp-contenido">
+  <p class="dp-seccion">Datos generales</p>
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
+    <mat-form-field appearance="outline" class="sm:col-span-2">
+      <mat-label>Tipo de habitación</mat-label>
+      <mat-select value="2">
+        <mat-option value="1">Estándar sencilla (1 pers.)</mat-option>
+        <mat-option value="2">Estándar doble (2 pers.)</mat-option>
+        <mat-option value="3">Familiar (4 pers.)</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Número</mat-label>
+      <mat-icon matPrefix class="dp-prefijo">tag</mat-icon>
+      <input matInput value="203">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Piso</mat-label>
+      <mat-icon matPrefix class="dp-prefijo">stairs</mat-icon>
+      <input matInput type="number" value="2">
+    </mat-form-field>
+  </div>
+
+  <p class="dp-seccion">Estado</p>
+  <mat-form-field appearance="outline" class="w-full">
+    <mat-label>Estado</mat-label>
+    <mat-select value="DISPONIBLE">
+      <mat-option value="DISPONIBLE">Disponible</mat-option>
+      <mat-option value="MANTENIMIENTO">Mantenimiento</mat-option>
+      <mat-option value="FUERA_SERVICIO">Fuera de servicio</mat-option>
+    </mat-select>
+    <mat-hint>Solo las habitaciones disponibles se pueden reservar</mat-hint>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="w-full mt-2">
+    <mat-label>Número con error (ejemplo)</mat-label>
+    <input matInput value="abc">
+    <mat-error>Solo letras mayúsculas, números y guiones</mat-error>
+  </mat-form-field>
+</mat-dialog-content>
+
+<div class="dp-pie">
+  <button mat-button mat-dialog-close class="dp-cancelar">Cancelar</button>
+  <button mat-flat-button mat-dialog-close class="dp-guardar"><mat-icon>check</mat-icon>Guardar</button>
+</div>

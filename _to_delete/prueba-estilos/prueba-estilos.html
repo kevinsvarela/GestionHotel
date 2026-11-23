@@ -1,0 +1,112 @@
+<div class="p-6 max-w-6xl mx-auto">
+  <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+    <div>
+      <h1 class="text-[1.4rem] font-extrabold text-[#155600]">Prueba de estilos</h1>
+      <p class="text-sm text-[#352D39]/70">Datos de ejemplo. Esta página no cambia nada del sistema.</p>
+    </div>
+    <mat-button-toggle-group [value]="variante()" (change)="variante.set($event.value)" aria-label="Estilo de tabla">
+      <mat-button-toggle value="A">Opción A</mat-button-toggle>
+      <mat-button-toggle value="B">Opción B</mat-button-toggle>
+    </mat-button-toggle-group>
+  </div>
+
+  @if (variante() === 'A') {
+    <section class="tarjeta-a">
+      <header class="flex flex-wrap items-center justify-between gap-3 p-5">
+        <div class="flex items-center gap-3">
+          <span class="icono-titulo"><mat-icon>bed</mat-icon></span>
+          <div>
+            <h2 class="text-[1.15rem] font-bold text-[#352D39]">Habitaciones</h2>
+            <p class="text-sm text-[#352D39]/60">{{ habitaciones.length }} registros</p>
+          </div>
+        </div>
+        <div class="flex gap-2">
+          <button type="button" class="boton-borde"><mat-icon>filter_list</mat-icon>Filtrar</button>
+          <button type="button" class="boton-lleno" (click)="abrirFormulario('Nueva habitación')"><mat-icon>add</mat-icon>Nueva habitación</button>
+        </div>
+      </header>
+
+      <table mat-table [dataSource]="habitaciones" class="tabla-a">
+        <caption class="sr-only">Opción A de tabla</caption>
+        <ng-container matColumnDef="numero">
+          <th mat-header-cell *matHeaderCellDef>Número</th>
+          <td mat-cell *matCellDef="let h" class="font-semibold">{{ h.numero }}</td>
+        </ng-container>
+        <ng-container matColumnDef="tipo">
+          <th mat-header-cell *matHeaderCellDef>Tipo</th>
+          <td mat-cell *matCellDef="let h">{{ h.tipo }}</td>
+        </ng-container>
+        <ng-container matColumnDef="piso">
+          <th mat-header-cell *matHeaderCellDef>Piso</th>
+          <td mat-cell *matCellDef="let h">{{ h.piso }}</td>
+        </ng-container>
+        <ng-container matColumnDef="estado">
+          <th mat-header-cell *matHeaderCellDef>Estado</th>
+          <td mat-cell *matCellDef="let h">
+            <span class="estado" [class]="estados[h.estado].clase"><span class="punto"></span>{{ estados[h.estado].texto }}</span>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="acciones">
+          <th mat-header-cell *matHeaderCellDef class="text-right!">Acciones</th>
+          <td mat-cell *matCellDef="let h">
+            <div class="flex justify-end gap-1">
+              <button mat-icon-button class="accion accion-info" matTooltip="Ver información" aria-label="Ver información"><mat-icon>visibility</mat-icon></button>
+              <button mat-icon-button class="accion accion-editar" matTooltip="Editar" aria-label="Editar" (click)="abrirFormulario('Editar habitación')"><mat-icon>edit</mat-icon></button>
+              <button mat-icon-button class="accion accion-borrar" matTooltip="Eliminar" aria-label="Eliminar"><mat-icon>delete_outline</mat-icon></button>
+            </div>
+          </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+      <mat-paginator [length]="8" [pageSize]="5" [pageSizeOptions]="[5, 10, 20]" aria-label="Páginas"></mat-paginator>
+    </section>
+  } @else {
+    <section>
+      <div class="flex flex-wrap items-end justify-between gap-3 mb-4">
+        <h2 class="titulo-b">Habitaciones</h2>
+        <div class="flex gap-2">
+          <button type="button" class="boton-borde"><mat-icon>filter_list</mat-icon>Filtrar</button>
+          <button type="button" class="boton-lleno" (click)="abrirFormulario('Nueva habitación')"><mat-icon>add</mat-icon>Nueva</button>
+        </div>
+      </div>
+
+      <div class="tarjeta-b">
+        <table mat-table [dataSource]="habitaciones" class="tabla-b">
+          <caption class="sr-only">Opción B de tabla</caption>
+          <ng-container matColumnDef="numero">
+            <th mat-header-cell *matHeaderCellDef>Número</th>
+            <td mat-cell *matCellDef="let h" class="font-semibold">{{ h.numero }}</td>
+          </ng-container>
+          <ng-container matColumnDef="tipo">
+            <th mat-header-cell *matHeaderCellDef>Tipo</th>
+            <td mat-cell *matCellDef="let h">{{ h.tipo }}</td>
+          </ng-container>
+          <ng-container matColumnDef="piso">
+            <th mat-header-cell *matHeaderCellDef>Piso</th>
+            <td mat-cell *matCellDef="let h">{{ h.piso }}</td>
+          </ng-container>
+          <ng-container matColumnDef="estado">
+            <th mat-header-cell *matHeaderCellDef>Estado</th>
+            <td mat-cell *matCellDef="let h">
+              <span class="estado" [class]="estados[h.estado].clase"><span class="punto"></span>{{ estados[h.estado].texto }}</span>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="acciones">
+            <th mat-header-cell *matHeaderCellDef class="text-center!">Acciones</th>
+            <td mat-cell *matCellDef="let h">
+              <div class="grupo-acciones">
+                <button mat-icon-button class="accion-info" matTooltip="Ver información" aria-label="Ver información"><mat-icon>visibility</mat-icon></button>
+                <button mat-icon-button class="accion-editar" matTooltip="Editar" aria-label="Editar" (click)="abrirFormulario('Editar habitación')"><mat-icon>edit</mat-icon></button>
+                <button mat-icon-button class="accion-borrar" matTooltip="Eliminar" aria-label="Eliminar"><mat-icon>delete_outline</mat-icon></button>
+              </div>
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+        <mat-paginator [length]="8" [pageSize]="5" [pageSizeOptions]="[5, 10, 20]" aria-label="Páginas"></mat-paginator>
+      </div>
+    </section>
+  }
+</div>

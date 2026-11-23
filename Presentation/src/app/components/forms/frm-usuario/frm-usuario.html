@@ -1,7 +1,15 @@
-<h2 mat-dialog-title class="py-5! text-center font-bold! text-[#155600]!"> {{titulo}} </h2>
-<mat-divider class= "border-2 border-[#155600]!"></mat-divider>
-<mat-dialog-content>
-    <form id="frmUsuario" [formRoot]="frmUsuario" (submit)="guardar($event)" class="grid gap-4 py-2">
+<div class="dlg-encabezado">
+  <span class="icono-titulo"><mat-icon>manage_accounts</mat-icon></span>
+  <div class="flex-1">
+    <h2 class="dlg-titulo">{{ titulo }}</h2>
+    <p class="dlg-subtitulo">Complete los datos del usuario del sistema</p>
+  </div>
+  <button mat-icon-button type="button" class="dlg-cerrar" (click)="dialogRef.close()" aria-label="Cerrar">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+<mat-dialog-content class="dlg-contenido">
+    <form id="frmUsuario" [formRoot]="frmUsuario" (submit)="guardar($event)" class="grid gap-3 pt-3">
         <mat-form-field appearance="outline">
             <mat-label>Rol</mat-label>
             <input matInput type="number" placeholder="1 Admin, 2 Recepcionista, 3 Cliente" [formField]="frmUsuario.rol_id">
@@ -76,8 +84,7 @@
         </mat-form-field>
     </form>
 </mat-dialog-content>
-<mat-divider class= "border-2 border-[#155600]!"></mat-divider>
-<mat-dialog-actions>
-    <button mat-button type="button" class="text-[#A72608]!" (click)="dialogRef.close()">Cancelar</button>
-    <button mat-flat-button type="submit" form="frmUsuario" class="bg-[#155600]! text-white!">Guardar</button>
-</mat-dialog-actions>
+<div class="dlg-pie">
+    <button type="button" class="boton-borde" (click)="dialogRef.close()">Cancelar</button>
+    <button type="submit" form="frmUsuario" class="boton-lleno"><mat-icon>check</mat-icon>Guardar</button>
+</div>

@@ -1,8 +1,8 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import {
   disabled, form, FormField, FormRoot, maxLength, minLength, pattern, required,
@@ -16,7 +16,7 @@ interface ClienteDialogData {
 }
 
 @Component({
-  imports: [MatDialogModule, MatDividerModule, MatButtonModule, MatFormFieldModule,
+  imports: [MatDialogModule, MatIconModule, MatButtonModule, MatFormFieldModule,
             MatInputModule, FormRoot, FormField],
   selector: 'app-frm-cliente',
   styleUrl: './frm-cliente.css',

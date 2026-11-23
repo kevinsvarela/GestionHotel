@@ -1,7 +1,7 @@
-import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, effect, inject, OnInit, signal, untracked } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -26,7 +26,7 @@ type FilterForm = {
 };
 
 @Component({
-  imports: [MatCardModule, MatButtonModule, MatIconModule, MatTableModule, MatDialogModule,
+  imports: [MatTooltipModule, MatButtonModule, MatIconModule, MatTableModule, MatDialogModule,
     MatFormFieldModule, MatInputModule, MatSelectModule, MatPaginatorModule,
     FormField],
   selector: 'app-habitacion-component',
@@ -62,6 +62,11 @@ export class HabitacionComponent implements OnInit {
 
   constructor() {
     effect(() => {
+      const filtro = this.objFilter();
+      untracked(() => this.filtrarHabitaciones(filtro));
+    });
+
+    effect(() => {
       const respuesta = this.srvHabitacion.habitaciones.value();
       if (respuesta !== undefined) {
         this.dataSource.set(respuesta.data);
@@ -94,8 +99,7 @@ export class HabitacionComponent implements OnInit {
     });
   }
 
-  private filtrarHabitaciones(): void {
-    const filtro = this.objFilter();
+  private filtrarHabitaciones(filtro: FilterForm): void {
     this.srvHabitacion.filtrar({
       numero: filtro.numero.trim().toUpperCase(),
       piso: filtro.piso,
@@ -106,7 +110,6 @@ export class HabitacionComponent implements OnInit {
 
   private resetearFiltro(): void {
     this.objFilter.set({ numero: '', piso: '', estado: '', tipo_habitacion_id: '' });
-    this.filtrarHabitaciones();
   }
 
   private alertar(icono: string, mensaje: string) {
@@ -141,8 +144,10 @@ export class HabitacionComponent implements OnInit {
 
   public mostrarDialogo(titulo: string, datos?: HabitacionModel, info?: boolean, id?: number) {
     const dialogRef = this.dialog.open<FrmHabitacion, unknown, HabitacionCreateInput | false | undefined>(FrmHabitacion, {
-      width: '50vw',
-      maxWidth: '35rem',
+      width: '92vw',
+      maxWidth: '36rem',
+      panelClass: 'dialogo-hotel',
+      autoFocus: false,
       data: { title: titulo, data: datos, info: info },
       disableClose: true,
     });
@@ -210,9 +215,6 @@ export class HabitacionComponent implements OnInit {
     this.srvHabitacion.cambiarPagina(evento.pageIndex * evento.pageSize, evento.pageSize);
   }
 
-  onFilterChange(): void {
-    this.filtrarHabitaciones();
-  }
 
   onFilterClose(): void {
     this.resetearFiltro();
@@ -230,9 +232,9 @@ export class HabitacionComponent implements OnInit {
   //Colores de la etiqueta de estado (verde, amarillo o rojo)
   claseEstado(estado: string): string {
     switch (estado) {
-      case 'DISPONIBLE': return 'bg-[#155600]/15 text-[#0F4000]';
-      case 'MANTENIMIENTO': return 'bg-[#FCDC4D]/30 text-[#352D39]';
-      default: return 'bg-[#A72608]/15 text-[#8C1F06]';
+      case 'DISPONIBLE': return 'estado-verde';
+      case 'MANTENIMIENTO': return 'estado-amarillo';
+      default: return 'estado-rojo';
     }
   }
 

@@ -12,13 +12,13 @@ import {
 } from '@angular/forms/signals';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { MatDividerModule } from '@angular/material/divider';
+import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { UsuarioCreateInput } from '../../../shared/models/usuario-model';
 
 @Component({
-  imports: [MatDialogModule, MatDividerModule, MatButtonModule,
+  imports: [MatDialogModule, MatIconModule, MatButtonModule,
             MatFormFieldModule, MatInputModule, FormRoot, FormField],
   selector: 'app-frm-usuario',
   styleUrl: './frm-usuario.css',
