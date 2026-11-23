@@ -6,7 +6,7 @@
 @use '@angular/material' as mat;
 
 // Paleta del hotel (hotel_colores.pdf)
-// Verde principal: #1F7B00 | Texto: #352D39 | Turquesa: #1E9C99
+// Verde principal: #155600 | Texto: #352D39 | Turquesa: #1E9C99
 // Amarillo: #FCDC4D | Rojo: #A72608 | Fondo: blanco
 
 html {
@@ -25,7 +25,7 @@ html {
   // Se reemplazan los colores del sistema de Material por los de la paleta del hotel
   @include mat.theme-overrides(
     (
-      primary: #1f7b00,
+      primary: #155600,
       on-primary: #ffffff,
       primary-container: #d8f5c9,
       on-primary-container: #0b3000,

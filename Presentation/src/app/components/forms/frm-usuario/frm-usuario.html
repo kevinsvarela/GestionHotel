@@ -1,5 +1,5 @@
-<h2 mat-dialog-title class="py-5! text-center font-bold! text-[#1F7B00]!"> {{titulo}} </h2>
-<mat-divider class= "border-2 border-[#1F7B00]!"></mat-divider>
+<h2 mat-dialog-title class="py-5! text-center font-bold! text-[#155600]!"> {{titulo}} </h2>
+<mat-divider class= "border-2 border-[#155600]!"></mat-divider>
 <mat-dialog-content>
     <form id="frmUsuario" [formRoot]="frmUsuario" (submit)="guardar($event)" class="grid gap-4 py-2">
         <mat-form-field appearance="outline">
@@ -67,8 +67,8 @@
         </mat-form-field>
     </form>
 </mat-dialog-content>
-<mat-divider class= "border-2 border-[#1F7B00]!"></mat-divider>
+<mat-divider class= "border-2 border-[#155600]!"></mat-divider>
 <mat-dialog-actions>
     <button mat-button type="button" class="text-[#A72608]!" (click)="dialogRef.close()">Cancelar</button>
-    <button mat-flat-button type="submit" form="frmUsuario" class="bg-[#1F7B00]! text-white!">Guardar</button>
+    <button mat-flat-button type="submit" form="frmUsuario" class="bg-[#155600]! text-white!">Guardar</button>
 </mat-dialog-actions>

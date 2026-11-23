@@ -1,6 +1,6 @@
 <mat-card class="m-6 bg-white!">
-  <div class="p-6 bg-white border-t-8 border-[#1F7B00] rounded-lg shadow-sm">
-  <mat-card-header class="bg-[#1F7B00] h-13 justify-center rounded-t-md">
+  <div class="p-6 bg-white border-t-8 border-[#155600] rounded-lg shadow-sm">
+  <mat-card-header class="bg-[#155600] h-13 justify-center rounded-t-md">
     <mat-card-title class="font-extrabold! text-[1.5rem]! text-white!">
       Catálogo Usuarios
     </mat-card-title>
@@ -43,7 +43,7 @@
    <!-- Botonera Column -->
   <ng-container matColumnDef="botonera">
     <th mat-header-cell *matHeaderCellDef style="text-align: center;">
-    <button (click)="onCreate()" class=" text-white bg-[#1F7B00] hover:bg-[#186200] focus:ring-4 focus:ring-[#1F7B00]/30 font-medium rounded-lg text-sm px-10 py-1 cursor-pointer">
+    <button (click)="onCreate()" class=" text-white bg-[#155600] hover:bg-[#0F4000] focus:ring-4 focus:ring-[#155600]/30 font-medium rounded-lg text-sm px-10 py-1 cursor-pointer">
         <mat-icon>add</mat-icon>
     </button>
   </th>
@@ -52,7 +52,7 @@
         <button (click)="onInfo(usuario.id)" title="Información" class=" flex content-center items-center focus:outline-none text-white bg-[#1E9C99] hover:bg-[#178582] focus:ring-4 focus:ring-[#1E9C99]/30 font-medium rounded-lg text-sm px-2 py-1 cursor-pointer">
           <mat-icon>info</mat-icon>
         </button>
-        <button (click)="onEdit(usuario.id)" title="Editar" class=" flex content-center items-center focus:outline-none text-white bg-[#1F7B00] hover:bg-[#186200] focus:ring-4 focus:ring-[#1F7B00]/30 font-medium rounded-lg text-sm px-2 py-1 cursor-pointer">
+        <button (click)="onEdit(usuario.id)" title="Editar" class=" flex content-center items-center focus:outline-none text-white bg-[#155600] hover:bg-[#0F4000] focus:ring-4 focus:ring-[#155600]/30 font-medium rounded-lg text-sm px-2 py-1 cursor-pointer">
           <mat-icon>edit</mat-icon>
         </button>
         <button (click)="onResetPassword(usuario.id)" title="Restablecer contraseña" class=" flex content-center items-center focus:outline-none text-[#352D39] bg-[#FCDC4D] hover:bg-[#F0CC2E] focus:ring-4 focus:ring-[#FCDC4D]/40 font-medium rounded-lg text-sm px-2 py-1 cursor-pointer">
@@ -65,8 +65,8 @@
     </td>
   </ng-container>
 
-  <tr mat-header-row *matHeaderRowDef="displayedColumns" class="bg-[#1F7B00]/10!"></tr>
-  <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="hover:bg-[#1F7B00]/5!"></tr>
+  <tr mat-header-row *matHeaderRowDef="displayedColumns" class="bg-[#155600]/10!"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="hover:bg-[#155600]/5!"></tr>
 </table>
 </mat-card-content>
 </div>
