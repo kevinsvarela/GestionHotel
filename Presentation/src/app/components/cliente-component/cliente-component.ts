@@ -3,7 +3,6 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -27,7 +26,7 @@ type FilterForm = {
 
 @Component({
   imports: [MatCardModule, MatButtonModule, MatIconModule, MatTableModule, MatDialogModule,
-    MatExpansionModule, MatFormFieldModule, MatInputModule, MatPaginatorModule, FormField],
+    MatFormFieldModule, MatInputModule, MatPaginatorModule, FormField],
   selector: 'app-cliente-component',
   styleUrl: './cliente-component.css',
   templateUrl: './cliente-component.html',
@@ -210,7 +209,11 @@ export class ClienteComponent implements OnInit {
   }
 
   toggleFilterPanel(): void {
-    this.panelFilterState.update((abierto) => !abierto);
+    if (this.panelFilterState()) {
+      this.onFilterClose();
+    } else {
+      this.panelFilterState.set(true);
+    }
   }
 
   ngOnInit(): void {

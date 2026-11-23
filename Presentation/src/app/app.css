@@ -61,6 +61,7 @@
 .contenido{
     background-color: #ffffff;
     color: #352D39;
+    scrollbar-gutter: stable;
 }
 
 section{
