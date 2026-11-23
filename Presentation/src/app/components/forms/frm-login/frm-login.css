@@ -27,10 +27,10 @@
     color: #ffffff;
 }
 
-/* Botón: verde normal; al pasar el mouse se desliza un degradado verde (#2F4A3A) → amarillo */
+/* Botón: verde normal; al pasar el mouse se desliza un degradado verde (#134C00) → amarillo */
 .boton-login {
-    background-color: #2F4A3A !important;
-    background-image: linear-gradient(90deg, #2F4A3A 0%, #2F4A3A 50%, #FCDC4D 100%);
+    background-color: #134C00 !important;
+    background-image: linear-gradient(90deg, #134C00 0%, #134C00 50%, #FCDC4D 100%);
     background-size: 200% 100%;
     background-position: left center;
     color: #ffffff !important;
