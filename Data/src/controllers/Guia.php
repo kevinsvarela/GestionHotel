@@ -94,6 +94,7 @@ class Guia {
         $nombre = trim((string) ($params['nombre'] ?? ''));
         $telefono = trim((string) ($params['telefono'] ?? ''));
         $activo = filter_var($params['activo'] ?? '', FILTER_VALIDATE_INT);
+        $idiomaId = filter_var($params['idioma_id'] ?? '', FILTER_VALIDATE_INT);
 
         $query = GuiaModel::query()
             ->select([
@@ -111,6 +112,13 @@ class Guia {
         }
         if ($activo !== false) {
             $query->where('activo', $activo);
+        }
+        if ($idiomaId !== false) {
+            $query->whereIn('id', function ($subconsulta) use ($idiomaId) {
+                $subconsulta->select('guia_id')
+                    ->from('idiomas_guia')
+                    ->where('idioma_id', $idiomaId);
+            });
         }
 
         $total = (clone $query)->count('id');

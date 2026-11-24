@@ -49,7 +49,8 @@ class Guia {
             $query = [
                 'nombre' => trim((string) ($params['nombre'] ?? '')),
                 'telefono' => trim((string) ($params['telefono'] ?? '')),
-                'activo' => trim((string) ($params['activo'] ?? ''))
+                'activo' => trim((string) ($params['activo'] ?? '')),
+                'idioma_id' => trim((string) ($params['idioma_id'] ?? ''))
             ];
 
             $dataservice = $this->container->get(DataService::class);
