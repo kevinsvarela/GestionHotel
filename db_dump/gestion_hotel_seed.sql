@@ -58,6 +58,23 @@ INSERT IGNORE INTO guias (id, nombre, telefono, activo) VALUES
   (2, 'Carolina Hernández Ruiz', '8744-5566', 1),
   (3, 'Esteban Martínez Lobo', '8655-6677', 0);
 
+INSERT IGNORE INTO idiomas (id, nombre) VALUES
+  (1, 'Español'),
+  (2, 'Inglés'),
+  (3, 'Francés'),
+  (4, 'Alemán'),
+  (5, 'Italiano'),
+  (6, 'Portugués');
+
+INSERT IGNORE INTO idiomas_guia (guia_id, idioma_id) VALUES
+  (1, 1),
+  (1, 2),
+  (2, 1),
+  (2, 2),
+  (2, 3),
+  (3, 1),
+  (3, 4);
+
 INSERT IGNORE INTO tours_programados (id, tour_id, guia_id, fecha_hora_inicio, cupo, estado) VALUES
   (1, 1, 1, '2026-12-05 08:00:00', 15, 'PROGRAMADO'),
   (2, 2, 2, '2026-12-06 06:30:00', 12, 'PROGRAMADO'),

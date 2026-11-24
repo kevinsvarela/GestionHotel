@@ -65,8 +65,9 @@ export const routes: Routes = [
       .then(m => m.TourProgramadoComponent)
   },
   { path: 'guia',
-    canActivate: [authGuard], data: {roles: soloAdmin, titulo: 'Guías'},
-    loadComponent: pendiente
+    canActivate: [authGuard], data: {roles: soloAdmin},
+    loadComponent: () => import('./components/guia-component/guia-component')
+      .then(m => m.GuiaComponent)
   },
   { path: 'idioma',
     canActivate: [authGuard], data: {roles: soloAdmin, titulo: 'Idiomas'},

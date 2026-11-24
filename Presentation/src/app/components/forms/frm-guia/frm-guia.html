@@ -1,0 +1,67 @@
+<div class="dlg-encabezado">
+  <span class="icono-titulo"><mat-icon>hiking</mat-icon></span>
+  <div class="flex-1">
+    <h2 class="dlg-titulo">{{ titulo }}</h2>
+    <p class="dlg-subtitulo">{{ soloLectura ? 'Información registrada' : 'Complete los datos del guía' }}</p>
+  </div>
+  <button mat-icon-button type="button" class="dlg-cerrar" [mat-dialog-close]="false" aria-label="Cerrar">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<mat-dialog-content class="dlg-contenido">
+  <form id="frmGuia" [formRoot]="frmGuia" class="grid gap-3 pt-3">
+    <p class="dlg-seccion">Datos del guía</p>
+    <mat-form-field appearance="outline">
+      <mat-label>Nombre completo</mat-label>
+      <input matInput placeholder="Nombre y apellidos" autocomplete="off" [formField]="frmGuia.nombre" />
+      @if (frmGuia.nombre().touched() && frmGuia.nombre().invalid()) {
+        @for (error of frmGuia.nombre().errors(); track error.kind) {
+          <mat-error>{{ error.message }}</mat-error>
+        }
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Teléfono</mat-label>
+      <mat-icon matPrefix class="dlg-prefijo">call</mat-icon>
+      <input matInput placeholder="####-####" autocomplete="off" [formField]="frmGuia.telefono" />
+      @if (frmGuia.telefono().touched() && frmGuia.telefono().invalid()) {
+        @for (error of frmGuia.telefono().errors(); track error.kind) {
+          <mat-error>{{ error.message }}</mat-error>
+        }
+      }
+    </mat-form-field>
+
+    <p class="dlg-seccion">Idiomas</p>
+    <mat-form-field appearance="outline">
+      <mat-label>Idiomas que habla</mat-label>
+      <mat-icon matPrefix class="dlg-prefijo">translate</mat-icon>
+      <mat-select multiple [formField]="frmGuia.idiomas">
+        @for (idioma of srvIdioma.idiomas.value()?.data ?? []; track idioma.id) {
+          <mat-option [value]="idioma.id">{{ idioma.nombre }}</mat-option>
+        }
+      </mat-select>
+      <mat-hint>Puede escoger varios</mat-hint>
+    </mat-form-field>
+
+    <p class="dlg-seccion">Estado</p>
+    <mat-form-field appearance="outline">
+      <mat-label>Estado</mat-label>
+      <mat-select [formField]="frmGuia.activo">
+        <mat-option [value]="1">Activo</mat-option>
+        <mat-option [value]="0">Inactivo</mat-option>
+      </mat-select>
+      <mat-hint>Los guías inactivos no se pueden asignar a salidas nuevas</mat-hint>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<div class="dlg-pie">
+  @if (soloLectura) {
+    <button type="button" class="boton-borde" [mat-dialog-close]="false">Cerrar</button>
+  } @else {
+    <button type="button" class="boton-borde" [mat-dialog-close]="false">Cancelar</button>
+    <button type="submit" form="frmGuia" class="boton-lleno"><mat-icon>check</mat-icon>Guardar</button>
+  }
+</div>
