@@ -219,6 +219,7 @@ export class GuiaComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.srvIdioma.idiomas.reload();
     this.objFilter.set({ nombre: '', telefono: '', idioma_id: '', activo: '' });
     this.srvGuia.idiomasGuia.reload();
   }

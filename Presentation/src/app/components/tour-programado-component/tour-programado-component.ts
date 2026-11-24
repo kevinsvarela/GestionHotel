@@ -218,6 +218,7 @@ export class TourProgramadoComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.srvGuia.guias.reload();
     this.objFilter.set({ tour: '', fecha: '', guia_id: '', estado: '' });
   }
 }

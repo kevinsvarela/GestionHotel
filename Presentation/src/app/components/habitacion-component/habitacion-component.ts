@@ -243,6 +243,7 @@ export class HabitacionComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.srvTipo.tipos.reload();
     this.resetearFiltro();
   }
 }

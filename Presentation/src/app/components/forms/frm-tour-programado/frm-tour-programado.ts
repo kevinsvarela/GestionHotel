@@ -138,6 +138,8 @@ export class FrmTourProgramado implements OnInit {
   }
 
   ngOnInit(): void {
+    this.srvTour.todos.reload();
+    this.srvGuia.guias.reload();
     this.titulo = this.data.title;
     const programado = this.data.data;
     if (programado) {

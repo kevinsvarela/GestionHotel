@@ -80,6 +80,7 @@ export class FrmGuia implements OnInit {
   });
 
   ngOnInit(): void {
+    this.srvIdioma.idiomas.reload();
     this.titulo = this.data.title;
     if (this.data.data) {
       this.objGuia.set({

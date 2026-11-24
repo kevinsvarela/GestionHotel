@@ -90,6 +90,7 @@ export class FrmHabitacion implements OnInit {
   });
 
   ngOnInit(): void {
+    this.srvTipo.tipos.reload();
     this.titulo = this.data.title;
     if (this.data.data) {
       this.objHabitacion.set({
