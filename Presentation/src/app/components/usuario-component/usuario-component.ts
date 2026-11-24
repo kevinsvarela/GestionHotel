@@ -8,6 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { FrmUsuario } from '../forms/frm-usuario/frm-usuario';
+import { Roles } from '../../shared/models/roles';
 
 
 @Component({
@@ -114,6 +115,6 @@ export class UsuarioComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.srvUsuario.filtrar( {nombre: '', apellidos: '', email: '', rol: ''});
+    this.srvUsuario.filtrar( {nombre: '', apellidos: '', email: '', rol: '', excluir_rol_id: Roles.Cliente});
   }
 }

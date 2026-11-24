@@ -46,8 +46,8 @@ frmUsuario = form(this.objUsuario, (s) => {
   validate(s.rol_id, (context: RootFieldContext<number>): { kind: string; message: string } | null => {
       const value = context.value();
       const numericValue = Number(value);
-      if (isNaN(numericValue) || !Number.isInteger(numericValue) || numericValue < 1 || numericValue > 3) {
-        return { kind: 'invalid', message: 'Rol inválido (1 Admin, 2 Recepcionista, 3 Cliente)' };
+      if (isNaN(numericValue) || !Number.isInteger(numericValue) || numericValue < 1 || numericValue > 2) {
+        return { kind: 'invalid', message: 'Rol inválido (1 Admin, 2 Recepcionista)' };
       }
       return null;
     });

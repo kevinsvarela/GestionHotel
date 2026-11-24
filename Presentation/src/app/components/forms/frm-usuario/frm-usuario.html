@@ -12,7 +12,7 @@
     <form id="frmUsuario" [formRoot]="frmUsuario" (submit)="guardar($event)" class="grid gap-3 pt-3">
         <mat-form-field appearance="outline">
             <mat-label>Rol</mat-label>
-            <input matInput type="number" placeholder="1 Admin, 2 Recepcionista, 3 Cliente" [formField]="frmUsuario.rol_id">
+            <input matInput type="number" placeholder="1 Admin, 2 Recepcionista" [formField]="frmUsuario.rol_id">
             @if (frmUsuario.rol_id().touched() && frmUsuario.rol_id().invalid()) {
                 @for (error of frmUsuario.rol_id().errors(); track error.kind) {
                     <mat-error>{{error.message}}</mat-error>
