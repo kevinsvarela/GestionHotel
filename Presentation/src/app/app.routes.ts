@@ -70,8 +70,9 @@ export const routes: Routes = [
       .then(m => m.GuiaComponent)
   },
   { path: 'idioma',
-    canActivate: [authGuard], data: {roles: soloAdmin, titulo: 'Idiomas'},
-    loadComponent: pendiente
+    canActivate: [authGuard], data: {roles: soloAdmin},
+    loadComponent: () => import('./components/idioma-component/idioma-component')
+      .then(m => m.IdiomaComponent)
   },
 
   //Personas
