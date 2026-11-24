@@ -159,52 +159,68 @@ class ReservaHabitacion {
         $entradaAntesDe = trim((string) ($params['entrada_antes_de'] ?? ''));
         $salidaDespuesDe = trim((string) ($params['salida_despues_de'] ?? ''));
 
+        $cliente = trim((string) ($params['cliente'] ?? ''));
+
         $query = ReservaHabitacionModel::query()
             ->select([
-                'id',
-                'codigo',
-                'cliente_id',
-                'habitacion_id',
-                'registrada_por',
-                'fecha_entrada',
-                'fecha_salida',
-                'huespedes',
-                'precio_noche',
-                'total',
-                'estado',
-                'checkin_at',
-                'checkout_at'
-            ]);
+                'reservas_habitacion.id',
+                'reservas_habitacion.codigo',
+                'reservas_habitacion.cliente_id',
+                'clientes.nombre as cliente_nombre',
+                'clientes.apellidos as cliente_apellidos',
+                'clientes.identificacion as cliente_identificacion',
+                'reservas_habitacion.habitacion_id',
+                'habitaciones.numero as habitacion_numero',
+                'tipos_habitacion.nombre as tipo_habitacion_nombre',
+                'reservas_habitacion.registrada_por',
+                'reservas_habitacion.fecha_entrada',
+                'reservas_habitacion.fecha_salida',
+                'reservas_habitacion.huespedes',
+                'reservas_habitacion.precio_noche',
+                'reservas_habitacion.total',
+                'reservas_habitacion.estado',
+                'reservas_habitacion.checkin_at',
+                'reservas_habitacion.checkout_at'
+            ])
+            ->leftJoin('usuarios as clientes', 'reservas_habitacion.cliente_id', '=', 'clientes.id')
+            ->leftJoin('habitaciones', 'reservas_habitacion.habitacion_id', '=', 'habitaciones.id')
+            ->leftJoin('tipos_habitacion', 'habitaciones.tipo_habitacion_id', '=', 'tipos_habitacion.id');
 
         if ($codigo !== '') {
-            $query->where('codigo', 'like', "%{$codigo}%");
+            $query->where('reservas_habitacion.codigo', 'like', "%{$codigo}%");
+        }
+        if ($cliente !== '') {
+            $query->where(function ($condicion) use ($cliente) {
+                $condicion->whereRaw("CONCAT(clientes.nombre, ' ', clientes.apellidos) LIKE ?", ["%{$cliente}%"])
+                    ->orWhere('clientes.identificacion', 'like', "%{$cliente}%");
+            });
         }
         if ($clienteId !== false) {
-            $query->where('cliente_id', $clienteId);
+            $query->where('reservas_habitacion.cliente_id', $clienteId);
         }
         if ($habitacionId !== false) {
-            $query->where('habitacion_id', $habitacionId);
+            $query->where('reservas_habitacion.habitacion_id', $habitacionId);
         }
         if ($estado !== '') {
-            $query->where('estado', $estado);
+            $query->where('reservas_habitacion.estado', $estado);
         }
         if ($fechaEntrada !== '') {
-            $query->whereDate('fecha_entrada', $fechaEntrada);
+            $query->whereDate('reservas_habitacion.fecha_entrada', $fechaEntrada);
         }
         if ($fechaSalida !== '') {
-            $query->whereDate('fecha_salida', $fechaSalida);
+            $query->whereDate('reservas_habitacion.fecha_salida', $fechaSalida);
         }
         if ($entradaAntesDe !== '') {
-            $query->where('fecha_entrada', '<', $entradaAntesDe);
+            $query->where('reservas_habitacion.fecha_entrada', '<', $entradaAntesDe);
         }
         if ($salidaDespuesDe !== '') {
-            $query->where('fecha_salida', '>', $salidaDespuesDe);
+            $query->where('reservas_habitacion.fecha_salida', '>', $salidaDespuesDe);
         }
 
-        $total = (clone $query)->count('id');
+        $total = (clone $query)->count('reservas_habitacion.id');
 
         $reservas = $query
-            ->orderBy('fecha_entrada')
+            ->orderBy('reservas_habitacion.fecha_entrada', 'desc')
             ->offset($offset)
             ->limit($limit)
             ->get()

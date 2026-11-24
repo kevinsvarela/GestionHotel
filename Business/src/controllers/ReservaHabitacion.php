@@ -68,6 +68,7 @@ class ReservaHabitacion {
             #Se envían siempre todas las llaves para que la capa de datos no reciba parámetros indefinidos
             $query = [
                 'codigo' => trim((string) ($params['codigo'] ?? '')),
+                'cliente' => trim((string) ($params['cliente'] ?? '')),
                 'estado' => trim((string) ($params['estado'] ?? '')),
                 'cliente_id' => trim((string) ($params['cliente_id'] ?? '')),
                 'habitacion_id' => trim((string) ($params['habitacion_id'] ?? '')),
@@ -117,13 +118,17 @@ class ReservaHabitacion {
                 $data['registrada_por'] = RolMiddleware::usuarioDe($request);
             }
 
+            $dataservice = $this->container->get(DataService::class);
+
+            if (!isset($data['codigo']) || $data['codigo'] === '') {
+                $data['codigo'] = $this->siguienteCodigo($dataservice);
+            }
+
             #Validación en la capa de negocio: si falla, no se consume la capa de datos
             $errors = (new ReservaHabitacionValidator())->validate($data);
             if ($errors !== []) {
                 return $this->json($response, ['errors' => $errors], 400);
             }
-
-            $dataservice = $this->container->get(DataService::class);
 
             #Reglas de negocio: fechas, disponibilidad, capacidad y cálculo del total
             $data = (new ReservaHabitacionValidator())->aplicarReglas($dataservice, $data);
@@ -205,6 +210,16 @@ class ReservaHabitacion {
         catch (RequestException){
             return $this->json($response, ['error' => 'No se pudo consultar el servicio de datos'], 502);
         }
+    }
+
+    private function siguienteCodigo(DataService $dataservice): string {
+        $mayor = 0;
+        foreach ($dataservice->obtenerTodos('reservas-habitacion') as $reserva) {
+            if (preg_match('/^RH-(\d+)$/', (string) ($reserva['codigo'] ?? ''), $partes)) {
+                $mayor = max($mayor, (int) $partes[1]);
+            }
+        }
+        return sprintf('RH-%04d', $mayor + 1);
     }
 
     private function json(Response $response, array $payload, int $status): Response{
