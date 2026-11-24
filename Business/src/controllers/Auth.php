@@ -5,15 +5,17 @@ declare(strict_types=1);
 namespace App\controllers;
 
 use App\Services\DataService;
-use Firebase\JWT\JWT;
+use App\Services\RolMiddleware;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\RequestException;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-final class Auth {
-    public function __construct(private ContainerInterface $container) {}
+final class Auth extends Tokens {
+    public function __construct(ContainerInterface $container) {
+        parent::__construct($container);
+    }
 
     public function login(Request $request, Response $response): Response {
         $data = $request->getParsedBody();
@@ -59,19 +61,10 @@ final class Auth {
                 ], 502);
             }
 
-            $config = $this->container->get('config');
-            $now = time();
-            $credentials['token'] = JWT::encode([
-                'iss' => 'gestion-hotel-business',
-                'iat' => $now,
-                'exp' => $now + $config->jwt_ttl,
-                'sub' => (string) $credentials['id'],
-                'username' => $credentials['username'] ?? null,
-                'email' => $credentials['email'],
-                'rol_id' => (int) $credentials['rol_id'],
-            ], $config->key, 'HS256');
+            $tokens = $this->generateTokens($credentials);
+            $this->saveRefreshToken((string) $credentials['id'], $tokens['tkRef']);
 
-            return $this->json($response, $credentials, 200);
+            return $this->json($response, $tokens, 200);
         } catch (ConnectException) {
             return $this->json($response, [
                 'error' => 'El servicio de datos no está disponible.',
@@ -80,6 +73,46 @@ final class Auth {
             return $this->json($response, [
                 'error' => 'No se pudo completar el inicio de sesión.',
             ], 502);
+        }
+    }
+
+    public function loggout(Request $request, Response $response, array $args): Response {
+        if ((string) RolMiddleware::usuarioDe($request) !== (string) ($args['id'] ?? '')) {
+            return $this->json($response, ['error' => 'Solo puede cerrar su propia sesión.'], 403);
+        }
+
+        try {
+            $this->saveRefreshToken((string) $args['id'], '');
+            return $this->json($response, ['message' => 'Sesión cerrada correctamente.'], 200);
+        } catch (ConnectException) {
+            return $this->json($response, ['error' => 'El servicio de datos no está disponible.'], 502);
+        } catch (RequestException) {
+            return $this->json($response, ['error' => 'No se pudo cerrar la sesión.'], 502);
+        }
+    }
+
+    public function refreshSession(Request $request, Response $response, array $args): Response {
+        $body = $request->getParsedBody();
+        $tkRef = is_array($body) ? ($body['tkRef'] ?? null) : null;
+
+        if (!is_string($tkRef) || $tkRef === '') {
+            return $this->json($response, ['error' => 'El token de refresco es obligatorio.'], 422);
+        }
+
+        try {
+            $credenciales = $this->verifyRefreshToken((string) $args['id'], $tkRef);
+            if ($credenciales === null) {
+                return $this->json($response, ['error' => 'Token de refresco inválido.'], 401);
+            }
+
+            $tokens = $this->generateTokens($credenciales);
+            $this->saveRefreshToken((string) $credenciales['id'], $tokens['tkRef']);
+
+            return $this->json($response, $tokens, 200);
+        } catch (ConnectException) {
+            return $this->json($response, ['error' => 'El servicio de datos no está disponible.'], 502);
+        } catch (RequestException) {
+            return $this->json($response, ['error' => 'No se pudo refrescar la sesión.'], 502);
         }
     }
 

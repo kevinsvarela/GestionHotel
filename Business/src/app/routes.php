@@ -13,6 +13,8 @@ $todos = new RolMiddleware([RolMiddleware::ADMIN, RolMiddleware::RECEPCIONISTA, 
 $app->group('/api', function(RouteCollectorProxy $api) use ($soloAdmin, $personal, $todos) {
     $api->group('/auth', function(RouteCollectorProxy $endpoint) {
         $endpoint->post('/login', Auth::class . ':login');
+        $endpoint->delete('/loggout/{id}', Auth::class . ':loggout');
+        $endpoint->patch('/refresh-session/{id}', Auth::class . ':refreshSession');
     });
     $api->group('/roles', function(RouteCollectorProxy $endpoint) use ($soloAdmin, $personal) {
         $endpoint->get('[/{id}]',Rol::class . ':read')->add($personal);

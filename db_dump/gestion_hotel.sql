@@ -74,6 +74,7 @@ CREATE TABLE usuarios (
   password       VARCHAR(255)  NOT NULL,
   telefono       VARCHAR(20)   NULL,
   activo         BOOLEAN       NOT NULL DEFAULT 1,
+  tkRef          VARCHAR(255)  NULL,
   CONSTRAINT uq_usuarios_email UNIQUE (email),
   CONSTRAINT uq_usuarios_username UNIQUE (username),
   CONSTRAINT uq_usuarios_identificacion UNIQUE (identificacion),

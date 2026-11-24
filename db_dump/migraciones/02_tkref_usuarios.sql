@@ -1,0 +1,1 @@
+ALTER TABLE usuarios ADD COLUMN tkRef VARCHAR(255) NULL AFTER activo;
