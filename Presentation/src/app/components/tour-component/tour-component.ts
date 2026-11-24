@@ -1,5 +1,5 @@
 import { Component, computed, effect, inject, OnInit, signal, untracked } from '@angular/core';
-import { CurrencyPipe, DecimalPipe } from '@angular/common';
+import { CurrencyPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -16,6 +16,7 @@ import { AuthService } from '../../shared/services/auth-service';
 import { Roles } from '../../shared/models/roles';
 import { TourInput, TourModel } from '../../shared/models/tour-model';
 import { FrmTour } from '../forms/frm-tour/frm-tour';
+import { DuracionPipe } from '../../shared/helpers/pipes/duracion-pipe';
 import { DialogoGeneral } from '../forms/dialogo-general/dialogo-general';
 
 type FilterForm = {
@@ -26,13 +27,13 @@ type FilterForm = {
 
 @Component({
   imports: [MatTooltipModule, MatButtonModule, MatIconModule, MatTableModule, MatDialogModule,
-    MatFormFieldModule, MatInputModule, MatSelectModule, MatPaginatorModule, FormField, CurrencyPipe, DecimalPipe],
+    MatFormFieldModule, MatInputModule, MatSelectModule, MatPaginatorModule, FormField, CurrencyPipe, DuracionPipe],
   selector: 'app-tour-component',
   styleUrl: './tour-component.css',
   templateUrl: './tour-component.html',
 })
 export class TourComponent implements OnInit {
-  displayedColumns: string[] = ['nombre', 'duracion_horas', 'precio_persona', 'cupo_maximo', 'punto_encuentro', 'activo', 'botonera'];
+  displayedColumns: string[] = ['nombre', 'duracion_minutos', 'precio_persona', 'cupo_maximo', 'punto_encuentro', 'activo', 'botonera'];
   dataSource = signal<TourModel[]>([]);
   total = signal(0);
 

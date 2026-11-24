@@ -9,6 +9,7 @@ import { disabled, form, FormField, FormRoot, min, required, RootFieldContext, v
 import { EstadoTourProgramado, TourProgramadoInput, TourProgramadoModel } from '../../../shared/models/tour-programado-model';
 import { TourService } from '../../../shared/services/tour-service';
 import { GuiaService } from '../../../shared/services/guia-service';
+import { DuracionPipe } from '../../../shared/helpers/pipes/duracion-pipe';
 
 interface ProgramadoDialogData {
   title: string;
@@ -29,7 +30,7 @@ type ProgramadoForm = {
 
 @Component({
   imports: [MatDialogModule, MatIconModule, MatButtonModule, MatFormFieldModule,
-            MatInputModule, MatSelectModule, FormRoot, FormField],
+            MatInputModule, MatSelectModule, FormRoot, FormField, DuracionPipe],
   selector: 'app-frm-tour-programado',
   styleUrl: './frm-tour-programado.css',
   templateUrl: './frm-tour-programado.html',

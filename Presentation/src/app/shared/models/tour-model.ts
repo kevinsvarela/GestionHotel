@@ -2,7 +2,7 @@ export interface TourModel {
   id?: number;
   nombre: string;
   descripcion?: string | null;
-  duracion_horas: number;
+  duracion_minutos: number;
   precio_persona: number;
   cupo_maximo: number;
   punto_encuentro: string;
@@ -15,7 +15,7 @@ export interface TourModel {
 export interface TourInput {
   nombre: string;
   descripcion: string;
-  duracion_horas: number;
+  duracion_minutos: number;
   precio_persona: number;
   cupo_maximo: number;
   punto_encuentro: string;

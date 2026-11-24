@@ -50,9 +50,9 @@
         <td mat-cell *matCellDef="let tour" class="font-semibold"> {{tour.nombre}} </td>
       </ng-container>
 
-      <ng-container matColumnDef="duracion_horas">
+      <ng-container matColumnDef="duracion_minutos">
         <th mat-header-cell *matHeaderCellDef> Duración </th>
-        <td mat-cell *matCellDef="let tour" class="whitespace-nowrap"> {{ tour.duracion_horas | number:'1.0-1' }} h </td>
+        <td mat-cell *matCellDef="let tour" class="whitespace-nowrap"> {{ tour.duracion_minutos | duracion }} </td>
       </ng-container>
 
       <ng-container matColumnDef="precio_persona">

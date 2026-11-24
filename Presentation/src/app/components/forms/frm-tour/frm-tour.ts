@@ -1,4 +1,5 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { DuracionPipe } from '../../../shared/helpers/pipes/duracion-pipe';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -24,7 +25,7 @@ function decimales(valor: unknown, maximo: number): boolean {
 
 @Component({
   imports: [MatDialogModule, MatIconModule, MatButtonModule, MatFormFieldModule,
-            MatInputModule, MatSelectModule, FormRoot, FormField],
+            MatInputModule, MatSelectModule, FormRoot, FormField, DuracionPipe],
   selector: 'app-frm-tour',
   styleUrl: './frm-tour.css',
   templateUrl: './frm-tour.html',
@@ -38,7 +39,7 @@ export class FrmTour implements OnInit {
   objTour = signal<TourInput>({
     nombre: '',
     descripcion: '',
-    duracion_horas: 1,
+    duracion_minutos: 60,
     precio_persona: 0,
     cupo_maximo: 10,
     punto_encuentro: '',
@@ -64,13 +65,11 @@ export class FrmTour implements OnInit {
 
     maxLength(s.descripcion, 1000, { message: 'La descripción no puede superar 1000 caracteres' });
 
-    required(s.duracion_horas, { message: 'La duración es requerida' });
-    validate(s.duracion_horas, (context: RootFieldContext<number>): ErrorCampo => {
-      const valor = Number(context.value());
-      if (isNaN(valor) || valor <= 0 || valor > 999.9) {
-        return { kind: 'rango', message: 'La duración debe ser mayor a 0 horas' };
-      }
-      return decimales(context.value(), 1) ? null : { kind: 'decimales', message: 'Use máximo 1 decimal (ej. 2.5)' };
+    required(s.duracion_minutos, { message: 'La duración es requerida' });
+    min(s.duracion_minutos, 1, { message: 'La duración mínima es 1 minuto' });
+    max(s.duracion_minutos, 1440, { message: 'La duración máxima es 1440 minutos (24 h)' });
+    validate(s.duracion_minutos, (context: RootFieldContext<number>): ErrorCampo => {
+      return Number.isInteger(Number(context.value())) ? null : { kind: 'entero', message: 'Indique la duración en minutos enteros' };
     });
 
     required(s.precio_persona, { message: 'El precio por persona es requerido' });
@@ -134,7 +133,7 @@ export class FrmTour implements OnInit {
         this.dialogRef.close({
           nombre: tour.nombre.trim(),
           descripcion: tour.descripcion.trim(),
-          duracion_horas: Number(tour.duracion_horas),
+          duracion_minutos: Number(tour.duracion_minutos),
           precio_persona: Number(tour.precio_persona),
           cupo_maximo: Number(tour.cupo_maximo),
           punto_encuentro: tour.punto_encuentro.trim(),
@@ -153,7 +152,7 @@ export class FrmTour implements OnInit {
       this.objTour.set({
         nombre: tour.nombre,
         descripcion: tour.descripcion ?? '',
-        duracion_horas: Number(tour.duracion_horas),
+        duracion_minutos: Number(tour.duracion_minutos),
         precio_persona: Number(tour.precio_persona),
         cupo_maximo: Number(tour.cupo_maximo),
         punto_encuentro: tour.punto_encuentro,

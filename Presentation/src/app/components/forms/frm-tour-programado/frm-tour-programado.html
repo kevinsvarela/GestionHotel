@@ -20,7 +20,7 @@
         }
       </mat-select>
       @if (tourSeleccionado(); as tour) {
-        <mat-hint>{{ tour.duracion_horas }} h · cupo máximo {{ tour.cupo_maximo }} · {{ tour.punto_encuentro }}</mat-hint>
+        <mat-hint>{{ tour.duracion_minutos | duracion }} · cupo máximo {{ tour.cupo_maximo }} · {{ tour.punto_encuentro }}</mat-hint>
       }
       @if (frmProgramado.tour_id().touched() && frmProgramado.tour_id().invalid()) {
         @for (error of frmProgramado.tour_id().errors(); track error.kind) {
