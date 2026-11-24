@@ -8,83 +8,108 @@
     <mat-icon>close</mat-icon>
   </button>
 </div>
+
 <mat-dialog-content class="dlg-contenido">
-    <form id="frmUsuario" [formRoot]="frmUsuario" (submit)="guardar($event)" class="grid gap-3 pt-3">
-        <mat-form-field appearance="outline">
-            <mat-label>Rol</mat-label>
-            <input matInput type="number" placeholder="1 Admin, 2 Recepcionista" [formField]="frmUsuario.rol_id">
-            @if (frmUsuario.rol_id().touched() && frmUsuario.rol_id().invalid()) {
-                @for (error of frmUsuario.rol_id().errors(); track error.kind) {
-                    <mat-error>{{error.message}}</mat-error>
-                }
-            }
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-            <mat-label>Nombre</mat-label>
-            <input matInput type="text" placeholder="Nombre" [formField]="frmUsuario.nombre">
-            @if (frmUsuario.nombre().touched() && frmUsuario.nombre().invalid()) {
-                @for (error of frmUsuario.nombre().errors(); track error.kind) {
-                    <mat-error>{{error.message}}</mat-error>
-                }
-            }
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-            <mat-label>Apellidos</mat-label>
-            <input matInput type="text" placeholder="Apellidos" [formField]="frmUsuario.apellidos">
-            @if (frmUsuario.apellidos().touched() && frmUsuario.apellidos().invalid()) {
-                @for (error of frmUsuario.apellidos().errors(); track error.kind) {
-                    <mat-error>{{error.message}}</mat-error>
-                }
-            }
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-            <mat-label>Cédula o pasaporte</mat-label>
-            <input matInput type="text" placeholder="1-0234-0567" [formField]="frmUsuario.identificacion!">
-            @if (frmUsuario.identificacion!().touched() && frmUsuario.identificacion!().invalid()) {
-                @for (error of frmUsuario.identificacion!().errors(); track error.kind) {
-                    <mat-error>{{error.message}}</mat-error>
-                }
-            }
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-            <mat-label>Correo</mat-label>
-            <input matInput type="email" placeholder="correo@hotel.com" [formField]="frmUsuario.email">
-            @if (frmUsuario.email().touched() && frmUsuario.email().invalid()) {
-                @for (error of frmUsuario.email().errors(); track error.kind) {
-                    <mat-error>{{error.message}}</mat-error>
-                }
-            }
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-            <mat-label>Teléfono</mat-label>
-            <input matInput type="text" placeholder="####-####" [formField]="frmUsuario.telefono!">
-            @if (frmUsuario.telefono!().touched() && frmUsuario.telefono!().invalid()) {
-                @for (error of frmUsuario.telefono!().errors(); track error.kind) {
-                    <mat-error>{{error.message}}</mat-error>
-                }
-            }
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-            <mat-label>Usuario</mat-label>
-            <input matInput type="text" placeholder="Nombre de usuario" [formField]="frmUsuario.username!">
-            @if (frmUsuario.username!().touched() && frmUsuario.username!().invalid()) {
-                @for (error of frmUsuario.username!().errors(); track error.kind) {
-                    <mat-error>{{error.message}}</mat-error>
-                }
-            }
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-            <mat-label>Contraseña</mat-label>
-            <input matInput type="password" placeholder="Contraseña" [formField]="frmUsuario.password!">
-            @if (frmUsuario.password!().touched() && frmUsuario.password!().invalid()) {
-                @for (error of frmUsuario.password!().errors(); track error.kind) {
-                    <mat-error>{{error.message}}</mat-error>
-                }
-            }
-        </mat-form-field>
-    </form>
+  <form id="frmUsuario" [formRoot]="frmUsuario" class="grid gap-3 pt-3">
+    <p class="dlg-seccion">Datos personales</p>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <mat-form-field appearance="outline">
+        <mat-label>Nombre</mat-label>
+        <input matInput placeholder="Nombre" autocomplete="off" [formField]="frmUsuario.nombre" />
+        @if (frmUsuario.nombre().touched() && frmUsuario.nombre().invalid()) {
+          @for (error of frmUsuario.nombre().errors(); track error.kind) {
+            <mat-error>{{ error.message }}</mat-error>
+          }
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Apellidos</mat-label>
+        <input matInput placeholder="Apellidos" autocomplete="off" [formField]="frmUsuario.apellidos" />
+        @if (frmUsuario.apellidos().touched() && frmUsuario.apellidos().invalid()) {
+          @for (error of frmUsuario.apellidos().errors(); track error.kind) {
+            <mat-error>{{ error.message }}</mat-error>
+          }
+        }
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Cédula o pasaporte (opcional)</mat-label>
+      <input matInput placeholder="1-0234-0567" autocomplete="off" [formField]="frmUsuario.identificacion!" />
+      @if (frmUsuario.identificacion!().touched() && frmUsuario.identificacion!().invalid()) {
+        @for (error of frmUsuario.identificacion!().errors(); track error.kind) {
+          <mat-error>{{ error.message }}</mat-error>
+        }
+      }
+    </mat-form-field>
+
+    <p class="dlg-seccion">Contacto</p>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <mat-form-field appearance="outline">
+        <mat-label>Correo</mat-label>
+        <input matInput type="email" placeholder="correo@hotel.com" autocomplete="off" [formField]="frmUsuario.email" />
+        @if (frmUsuario.email().touched() && frmUsuario.email().invalid()) {
+          @for (error of frmUsuario.email().errors(); track error.kind) {
+            <mat-error>{{ error.message }}</mat-error>
+          }
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Teléfono (opcional)</mat-label>
+        <input matInput placeholder="####-####" autocomplete="off" [formField]="frmUsuario.telefono!" />
+        @if (frmUsuario.telefono!().touched() && frmUsuario.telefono!().invalid()) {
+          @for (error of frmUsuario.telefono!().errors(); track error.kind) {
+            <mat-error>{{ error.message }}</mat-error>
+          }
+        }
+      </mat-form-field>
+    </div>
+
+    <p class="dlg-seccion">Acceso al sistema</p>
+    <mat-form-field appearance="outline">
+      <mat-label>Rol</mat-label>
+      <mat-icon matPrefix class="dlg-prefijo">badge</mat-icon>
+      <mat-select [formField]="frmUsuario.rol_id">
+        @for (rol of roles; track rol.id) {
+          <mat-option [value]="rol.id">{{ rol.nombre }}</mat-option>
+        }
+      </mat-select>
+      @if (frmUsuario.rol_id().touched() && frmUsuario.rol_id().invalid()) {
+        @for (error of frmUsuario.rol_id().errors(); track error.kind) {
+          <mat-error>{{ error.message }}</mat-error>
+        }
+      }
+    </mat-form-field>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <mat-form-field appearance="outline">
+        <mat-label>Usuario</mat-label>
+        <mat-icon matPrefix class="dlg-prefijo">person</mat-icon>
+        <input matInput placeholder="8 a 16 caracteres" autocomplete="off" [formField]="frmUsuario.username!" />
+        @if (frmUsuario.username!().touched() && frmUsuario.username!().invalid()) {
+          @for (error of frmUsuario.username!().errors(); track error.kind) {
+            <mat-error>{{ error.message }}</mat-error>
+          }
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Contraseña</mat-label>
+        <mat-icon matPrefix class="dlg-prefijo">lock</mat-icon>
+        <input matInput type="password" autocomplete="new-password" [formField]="frmUsuario.password!" />
+        @if (frmUsuario.password!().touched() && frmUsuario.password!().invalid()) {
+          @for (error of frmUsuario.password!().errors(); track error.kind) {
+            <mat-error>{{ error.message }}</mat-error>
+          }
+        }
+      </mat-form-field>
+    </div>
+  </form>
 </mat-dialog-content>
+
 <div class="dlg-pie">
-    <button type="button" class="boton-borde" (click)="dialogRef.close()">Cancelar</button>
-    <button type="submit" form="frmUsuario" class="boton-lleno"><mat-icon>check</mat-icon>Guardar</button>
+  <button type="button" class="boton-borde" (click)="dialogRef.close()">Cancelar</button>
+  <button type="submit" form="frmUsuario" class="boton-lleno"><mat-icon>check</mat-icon>Guardar</button>
 </div>

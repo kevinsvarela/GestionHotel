@@ -8,6 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { FrmUsuario } from '../forms/frm-usuario/frm-usuario';
+import { DialogoGeneral } from '../forms/dialogo-general/dialogo-general';
 import { Roles } from '../../shared/models/roles';
 
 
@@ -62,13 +63,21 @@ export class UsuarioComponent implements OnInit {
         .subscribe({
           complete : () =>{
             this.srvUsuario.usuarios.reload();
-            alert('Datos Guardados');
+            this.alertar('check', 'Usuario registrado');
           },
           error: (error: HttpErrorResponse) => {
-            alert(this.mensajeError(error));
+            this.alertar('error', this.mensajeError(error));
           },
         });
       });
+  }
+
+  private alertar(icono: string, mensaje: string) {
+    return this.dialog.open(DialogoGeneral, {
+      width: '30vw',
+      maxWidth: '24rem',
+      data: { icono: icono, texto: mensaje, textoAceptar: ' Aceptar ' },
+    });
   }
 
   private mensajeError(error: HttpErrorResponse): string {
