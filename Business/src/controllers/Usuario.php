@@ -56,6 +56,7 @@ class Usuario {
                 'telefono' => trim((string) ($params['telefono'] ?? '')),
                 'rol' => trim((string) ($params['rol'] ?? '')),
                 'rol_id' => trim((string) ($params['rol_id'] ?? '')),
+                'excluir_rol_id' => trim((string) ($params['excluir_rol_id'] ?? '')),
                 'activo' => trim((string) ($params['activo'] ?? ''))
             ];
 

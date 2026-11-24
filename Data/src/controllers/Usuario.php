@@ -165,6 +165,7 @@ class Usuario {
         $telefono = trim((string) ($params['telefono'] ?? ''));
         $rol = trim((string) ($params['rol'] ?? ''));
         $rolId = filter_var($params['rol_id'] ?? '', FILTER_VALIDATE_INT);
+        $excluirRolId = filter_var($params['excluir_rol_id'] ?? '', FILTER_VALIDATE_INT);
         $activo = filter_var($params['activo'] ?? '', FILTER_VALIDATE_INT);
 
         $query = UsuarioModel::query()
@@ -205,6 +206,9 @@ class Usuario {
         }
         if ($rolId !== false) {
             $query->where('usuarios.rol_id', $rolId);
+        }
+        if ($excluirRolId !== false) {
+            $query->where('usuarios.rol_id', '<>', $excluirRolId);
         }
         if ($activo !== false) {
             $query->where('usuarios.activo', $activo);
