@@ -1,0 +1,128 @@
+<div class="dlg-encabezado">
+  <span class="icono-titulo"><mat-icon>tour</mat-icon></span>
+  <div class="flex-1">
+    <h2 class="dlg-titulo">{{ titulo }}</h2>
+    <p class="dlg-subtitulo">{{ soloLectura ? 'Información registrada' : 'Complete los datos del tour' }}</p>
+  </div>
+  <button mat-icon-button type="button" class="dlg-cerrar" [mat-dialog-close]="false" aria-label="Cerrar">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<mat-dialog-content class="dlg-contenido">
+  <form id="frmTour" [formRoot]="frmTour" class="grid gap-3 pt-3">
+    <p class="dlg-seccion">Información</p>
+    <mat-form-field appearance="outline">
+      <mat-label>Nombre</mat-label>
+      <input matInput placeholder="Tour al Parque Nacional Cahuita" autocomplete="off" [formField]="frmTour.nombre" />
+      @if (frmTour.nombre().touched() && frmTour.nombre().invalid()) {
+        @for (error of frmTour.nombre().errors(); track error.kind) {
+          <mat-error>{{ error.message }}</mat-error>
+        }
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Descripción</mat-label>
+      <textarea matInput rows="3" placeholder="Qué incluye, qué llevar, nivel de dificultad..." [formField]="frmTour.descripcion"></textarea>
+      @if (frmTour.descripcion().touched() && frmTour.descripcion().invalid()) {
+        @for (error of frmTour.descripcion().errors(); track error.kind) {
+          <mat-error>{{ error.message }}</mat-error>
+        }
+      }
+    </mat-form-field>
+
+    <p class="dlg-seccion">Duración, precio y cupo</p>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <mat-form-field appearance="outline">
+        <mat-label>Duración (horas)</mat-label>
+        <input matInput type="number" step="0.5" [formField]="frmTour.duracion_horas" />
+        @if (frmTour.duracion_horas().touched() && frmTour.duracion_horas().invalid()) {
+          @for (error of frmTour.duracion_horas().errors(); track error.kind) {
+            <mat-error>{{ error.message }}</mat-error>
+          }
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Precio por persona</mat-label>
+        <span matTextPrefix>₡&nbsp;</span>
+        <input matInput type="number" step="0.01" [formField]="frmTour.precio_persona" />
+        @if (frmTour.precio_persona().touched() && frmTour.precio_persona().invalid()) {
+          @for (error of frmTour.precio_persona().errors(); track error.kind) {
+            <mat-error>{{ error.message }}</mat-error>
+          }
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Cupo máximo</mat-label>
+        <input matInput type="number" [formField]="frmTour.cupo_maximo" />
+        @if (frmTour.cupo_maximo().touched() && frmTour.cupo_maximo().invalid()) {
+          @for (error of frmTour.cupo_maximo().errors(); track error.kind) {
+            <mat-error>{{ error.message }}</mat-error>
+          }
+        }
+      </mat-form-field>
+    </div>
+
+    <p class="dlg-seccion">Punto de encuentro</p>
+    <mat-form-field appearance="outline">
+      <mat-label>Lugar</mat-label>
+      <mat-icon matPrefix class="dlg-prefijo">place</mat-icon>
+      <input matInput placeholder="Recepción del hotel" autocomplete="off" [formField]="frmTour.punto_encuentro" />
+      @if (frmTour.punto_encuentro().touched() && frmTour.punto_encuentro().invalid()) {
+        @for (error of frmTour.punto_encuentro().errors(); track error.kind) {
+          <mat-error>{{ error.message }}</mat-error>
+        }
+      }
+    </mat-form-field>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <mat-form-field appearance="outline">
+        <mat-label>Latitud (opcional)</mat-label>
+        <input matInput type="number" step="0.000001" placeholder="9.737600" [formField]="frmTour.latitud" />
+        @if (frmTour.latitud().touched() && frmTour.latitud().invalid()) {
+          @for (error of frmTour.latitud().errors(); track error.kind) {
+            <mat-error>{{ error.message }}</mat-error>
+          }
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Longitud (opcional)</mat-label>
+        <input matInput type="number" step="0.000001" placeholder="-82.840600" [formField]="frmTour.longitud" />
+        @if (frmTour.longitud().touched() && frmTour.longitud().invalid()) {
+          @for (error of frmTour.longitud().errors(); track error.kind) {
+            <mat-error>{{ error.message }}</mat-error>
+          }
+        }
+      </mat-form-field>
+    </div>
+
+    @if (enlaceMapa(); as enlace) {
+      <a [href]="enlace" target="_blank" rel="noopener" class="enlace-mapa">
+        <mat-icon>map</mat-icon>Ver el punto de encuentro en Google Maps
+      </a>
+    }
+
+    <p class="dlg-seccion">Estado</p>
+    <mat-form-field appearance="outline">
+      <mat-label>Estado</mat-label>
+      <mat-select [formField]="frmTour.activo">
+        <mat-option [value]="1">Activo</mat-option>
+        <mat-option [value]="0">Inactivo</mat-option>
+      </mat-select>
+      <mat-hint>Los tours inactivos no se pueden programar</mat-hint>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<div class="dlg-pie">
+  @if (soloLectura) {
+    <button type="button" class="boton-borde" [mat-dialog-close]="false">Cerrar</button>
+  } @else {
+    <button type="button" class="boton-borde" [mat-dialog-close]="false">Cancelar</button>
+    <button type="submit" form="frmTour" class="boton-lleno"><mat-icon>check</mat-icon>Guardar</button>
+  }
+</div>

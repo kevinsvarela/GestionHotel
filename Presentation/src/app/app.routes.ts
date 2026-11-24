@@ -55,8 +55,9 @@ export const routes: Routes = [
 
   //Tours
   { path: 'tour',
-    canActivate: [authGuard], data: {roles: personal, titulo: 'Tours'},
-    loadComponent: pendiente
+    canActivate: [authGuard], data: {roles: personal},
+    loadComponent: () => import('./components/tour-component/tour-component')
+      .then(m => m.TourComponent)
   },
   { path: 'tour-programado',
     canActivate: [authGuard], data: {roles: personal, titulo: 'Programación de tours'},
