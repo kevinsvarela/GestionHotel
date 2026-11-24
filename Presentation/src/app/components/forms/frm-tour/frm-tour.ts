@@ -66,10 +66,13 @@ export class FrmTour implements OnInit {
     maxLength(s.descripcion, 1000, { message: 'La descripción no puede superar 1000 caracteres' });
 
     required(s.duracion_minutos, { message: 'La duración es requerida' });
-    min(s.duracion_minutos, 1, { message: 'La duración mínima es 1 minuto' });
     max(s.duracion_minutos, 1440, { message: 'La duración máxima es 1440 minutos (24 h)' });
     validate(s.duracion_minutos, (context: RootFieldContext<number>): ErrorCampo => {
-      return Number.isInteger(Number(context.value())) ? null : { kind: 'entero', message: 'Indique la duración en minutos enteros' };
+      const minutos = Number(context.value());
+      if (minutos < 1) {
+        return { kind: 'minimo', message: 'La duración mínima es 1 minuto' };
+      }
+      return Number.isInteger(minutos) ? null : { kind: 'entero', message: 'Indique la duración en minutos enteros' };
     });
 
     required(s.precio_persona, { message: 'El precio por persona es requerido' });
