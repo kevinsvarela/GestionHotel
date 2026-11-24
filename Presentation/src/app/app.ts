@@ -1,4 +1,4 @@
-import { Component, computed, HostListener, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterModule, RouterOutlet } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map } from 'rxjs';
@@ -100,14 +100,6 @@ export class App {
       .filter(grupo => grupo.items.length > 0);
   });
 
-    @HostListener('window:beforeunload') unloadHandler() {
-    this.loggout();
-    }
-
-    @HostListener('window:popstate')
-    onBrowserBack(): void {
-      this.loggout();
-    }
 
     loggout(){
       this.authService.loggout();

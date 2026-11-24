@@ -15,8 +15,23 @@ export class AuthService {
     private readonly srvTokens = inject(TokenService);
     private readonly router = inject(Router);
     public userActualS = signal(this.userActual);
-    
+    private timerExp?: ReturnType<typeof setTimeout>;
+
+    constructor() {
+        if (this.isLoggedIn()) {
+            this.programarCierre();
+        }
+    }
+
+    private programarCierre(): void {
+        clearTimeout(this.timerExp);
+        const ms = Math.max(this.srvTokens.tokenTimeToExp() * 1000 - 1000, 0);
+        this.timerExp = setTimeout(() => this.loggout(), ms);
+    }
+
     public login(datos : LoginForm) {
+        clearTimeout(this.timerExp);
+        this.srvTokens.eliminarTokens();
         return this.http.post<IToken>(`${servidor}/login`, datos)
         .pipe(
             tap((tokens) => {
@@ -30,30 +45,50 @@ export class AuthService {
     }
 
     public loggout() {
-        if (this.isLoggedIn()) {
-            this.http.delete(`${servidor}/loggout/${this.userActual.id}`,{})
-                .subscribe();
-            this.doLoggOut();    //Esto fuera del if
-       }
+        if (this.srvTokens.token) {
+            this.http.delete(`${servidor}/loggout/${this.userActual.id}`)
+                .subscribe({ error: () => undefined });
+        }
+        this.doLoggOut();
     }
 
     public isLoggedIn() : boolean {
         return !!this.srvTokens.token && !this.srvTokens.jwtTokenExp();
     }
-    
-    doLogin(tokens : any) {
+
+    public sesionVencida() : boolean {
+        return !!this.srvTokens.token && !!this.srvTokens.jwtTokenExp();
+    }
+
+    public refreshSession() {
+        if (this.isLoggedIn() && this.srvTokens.tokenTimeToExp() <= 900) {
+            return this.http.patch<IToken>(`${servidor}/refresh-session/${this.userActual.id}`,
+                { tkRef: this.srvTokens.refreshToken })
+                .pipe(
+                    tap((tokens) => {
+                        if (this.srvTokens.token) {
+                            this.doLogin(tokens);
+                        }
+                    }),
+                    map(() => true),
+                    catchError(() => of(false))
+                );
+        }
+        return of(false);
+    }
+
+    doLogin(tokens : IToken) {
         this.srvTokens.setTokens(tokens);
         this.userActualS.set(this.userActual);
+        this.programarCierre();
     }
 
     doLoggOut() {
-        //Eliminar los tokens
+        clearTimeout(this.timerExp);
         if (this.srvTokens.token) {
         this.srvTokens.eliminarTokens();
         }
-        //limpiar datos globales para usuario y rol
         this.userActualS.set(this.userActual);
-        //navegar a la página de login
         this.router.navigate(['/login']);
    }
 
