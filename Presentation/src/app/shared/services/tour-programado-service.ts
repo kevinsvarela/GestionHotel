@@ -39,6 +39,11 @@ export class TourProgramadoService {
     };
   });
 
+  readonly disponibles = httpResource<RespuestaProgramados>(() => ({
+    url: `${_SERVIDOR}/tours-programados/filter/0/100`,
+    params: { estado: 'PROGRAMADO' },
+  }));
+
   readonly programadoPorId = httpResource<RespuestaProgramado>(() => {
     const id = this.programadoId();
     return id === null ? undefined : `${_SERVIDOR}/tours-programados/${id}`;

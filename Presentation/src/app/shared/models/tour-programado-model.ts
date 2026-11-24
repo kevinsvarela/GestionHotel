@@ -9,6 +9,10 @@ export interface TourProgramadoModel {
   fecha_hora_inicio: string;
   cupo: number;
   estado: EstadoTourProgramado;
+  reservados?: number;
+  precio_persona?: number;
+  duracion_minutos?: number;
+  punto_encuentro?: string;
 }
 
 export interface TourProgramadoInput {

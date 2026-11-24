@@ -1,1 +1,98 @@
-<p>frm-reserva-tour works!</p>
+<div class="dlg-encabezado">
+  <span class="icono-titulo"><mat-icon>event_available</mat-icon></span>
+  <div class="flex-1">
+    <h2 class="dlg-titulo">{{ titulo }}</h2>
+    <p class="dlg-subtitulo">
+      @if (codigo) { Reserva {{ codigo }} } @else { Complete los datos de la reserva }
+    </p>
+  </div>
+  <button mat-icon-button type="button" class="dlg-cerrar" [mat-dialog-close]="false" aria-label="Cerrar">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<mat-dialog-content class="dlg-contenido">
+  <form id="frmReservaTour" [formRoot]="frmReserva" class="grid gap-3 pt-3">
+    <p class="dlg-seccion">Cliente</p>
+    <mat-form-field appearance="outline">
+      <mat-label>Cliente</mat-label>
+      <mat-icon matPrefix class="dlg-prefijo">person</mat-icon>
+      <mat-select [formField]="frmReserva.cliente_id">
+        @for (cliente of srvCliente.todos.value()?.data ?? []; track cliente.id) {
+          <mat-option [value]="cliente.id">
+            {{ cliente.nombre }} {{ cliente.apellidos }} · {{ cliente.identificacion }}
+          </mat-option>
+        }
+      </mat-select>
+      <mat-hint>Si el cliente no aparece, regístrelo primero en Personas → Clientes</mat-hint>
+      @if (frmReserva.cliente_id().touched() && frmReserva.cliente_id().invalid()) {
+        @for (error of frmReserva.cliente_id().errors(); track error.kind) {
+          <mat-error>{{ error.message }}</mat-error>
+        }
+      }
+    </mat-form-field>
+
+    <p class="dlg-seccion">Tour</p>
+    <mat-form-field appearance="outline">
+      <mat-label>Salida</mat-label>
+      <mat-icon matPrefix class="dlg-prefijo">tour</mat-icon>
+      <mat-select [formField]="frmReserva.tour_programado_id">
+        @for (salida of salidas(); track salida.id) {
+          <mat-option [value]="salida.id" [disabled]="salida.libres <= 0 && salida.id !== objReserva().tour_programado_id">
+            {{ salida.fecha | date:'dd/MM/yyyy h:mm a' }} · {{ salida.tour }} · {{ salida.libres > 0 ? salida.libres + ' libres' : 'lleno' }}
+          </mat-option>
+        }
+      </mat-select>
+      @if (salidaSeleccionada(); as salida) {
+        <mat-hint>{{ salida.precio | currency:'CRC':'symbol-narrow':'1.0-2' }} por persona · quedan {{ salida.libres }} espacios</mat-hint>
+      } @else {
+        <mat-hint>Solo aparecen las salidas programadas que todavía no han empezado</mat-hint>
+      }
+      @if (frmReserva.tour_programado_id().touched() && frmReserva.tour_programado_id().invalid()) {
+        @for (error of frmReserva.tour_programado_id().errors(); track error.kind) {
+          <mat-error>{{ error.message }}</mat-error>
+        }
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Personas</mat-label>
+      <mat-icon matPrefix class="dlg-prefijo">group</mat-icon>
+      <input matInput type="number" [formField]="frmReserva.personas" />
+      @if (frmReserva.personas().touched() && frmReserva.personas().invalid()) {
+        @for (error of frmReserva.personas().errors(); track error.kind) {
+          <mat-error>{{ error.message }}</mat-error>
+        }
+      }
+    </mat-form-field>
+
+    @if (totalEstimado(); as estimado) {
+      <div class="resumen-reserva">
+        <span>{{ estimado.personas }} {{ estimado.personas === 1 ? 'persona' : 'personas' }} × {{ estimado.precio | currency:'CRC':'symbol-narrow':'1.0-2' }}</span>
+        <strong>{{ estimado.total | currency:'CRC':'symbol-narrow':'1.0-2' }}</strong>
+      </div>
+    }
+
+    <p class="dlg-seccion">Estado</p>
+    <mat-form-field appearance="outline">
+      <mat-label>Estado</mat-label>
+      <mat-select [formField]="frmReserva.estado">
+        @for (estado of estados; track estado.valor) {
+          @if (!esNueva || estado.valor === 'PENDIENTE' || estado.valor === 'CONFIRMADA') {
+            <mat-option [value]="estado.valor">{{ estado.texto }}</mat-option>
+          }
+        }
+      </mat-select>
+      <mat-hint>Las reservas confirmadas pasan solas a Finalizada cuando termina el tour</mat-hint>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<div class="dlg-pie">
+  @if (soloLectura) {
+    <button type="button" class="boton-borde" [mat-dialog-close]="false">Cerrar</button>
+  } @else {
+    <button type="button" class="boton-borde" [mat-dialog-close]="false">Cancelar</button>
+    <button type="submit" form="frmReservaTour" class="boton-lleno"><mat-icon>check</mat-icon>Guardar</button>
+  }
+</div>

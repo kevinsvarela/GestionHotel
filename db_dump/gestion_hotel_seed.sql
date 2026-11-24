@@ -90,3 +90,10 @@ INSERT IGNORE INTO reservas_habitacion (id, codigo, cliente_id, habitacion_id, r
   (3, 'RH-0003', 3, 6, 2, '2026-12-05', '2026-12-08', 4, 65000.00, 195000.00, 'CONFIRMADA', NULL, NULL),
   (4, 'RH-0004', 4, 1, 1, '2026-12-10', '2026-12-12', 1, 25000.00, 50000.00, 'PENDIENTE', NULL, NULL),
   (5, 'RH-0005', 3, 5, 2, '2026-11-28', '2026-11-30', 2, 40000.00, 80000.00, 'CANCELADA', NULL, NULL);
+
+INSERT IGNORE INTO reservas_tour (id, codigo, tour_programado_id, cliente_id, personas, precio_persona, total, estado) VALUES
+  (1, 'RT-0001', 1, 3, 2, 18000.00, 36000.00, 'CONFIRMADA'),
+  (2, 'RT-0002', 1, 4, 3, 18000.00, 54000.00, 'PENDIENTE'),
+  (3, 'RT-0003', 2, 4, 2, 45000.00, 90000.00, 'CONFIRMADA'),
+  (4, 'RT-0004', 6, 3, 2, 45000.00, 90000.00, 'FINALIZADA'),
+  (5, 'RT-0005', 4, 3, 1, 25000.00, 25000.00, 'CANCELADA');

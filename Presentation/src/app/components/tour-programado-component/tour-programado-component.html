@@ -75,8 +75,11 @@
       </ng-container>
 
       <ng-container matColumnDef="cupo">
-        <th mat-header-cell *matHeaderCellDef> Cupo </th>
-        <td mat-cell *matCellDef="let programado"> {{programado.cupo}} </td>
+        <th mat-header-cell *matHeaderCellDef> Reservados </th>
+        <td mat-cell *matCellDef="let programado" class="whitespace-nowrap">
+          <span class="font-semibold">{{ programado.reservados ?? 0 }}</span> / {{programado.cupo}}
+          <div class="text-xs text-[#352D39]/60">{{ programado.cupo - (programado.reservados ?? 0) }} libres</div>
+        </td>
       </ng-container>
 
       <ng-container matColumnDef="estado">

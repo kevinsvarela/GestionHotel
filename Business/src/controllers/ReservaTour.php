@@ -70,7 +70,10 @@ class ReservaTour {
                 'codigo' => trim((string) ($params['codigo'] ?? '')),
                 'estado' => trim((string) ($params['estado'] ?? '')),
                 'cliente_id' => trim((string) ($params['cliente_id'] ?? '')),
-                'tour_programado_id' => trim((string) ($params['tour_programado_id'] ?? ''))
+                'tour_programado_id' => trim((string) ($params['tour_programado_id'] ?? '')),
+                'cliente' => trim((string) ($params['cliente'] ?? '')),
+                'tour' => trim((string) ($params['tour'] ?? '')),
+                'fecha' => trim((string) ($params['fecha'] ?? ''))
             ];
 
             #El cliente solo puede ver sus propias reservas
@@ -111,13 +114,17 @@ class ReservaTour {
                 $data['estado'] = 'PENDIENTE';
             }
 
+            $dataservice = $this->container->get(DataService::class);
+
+            if (!isset($data['codigo']) || $data['codigo'] === '') {
+                $data['codigo'] = $this->siguienteCodigo($dataservice);
+            }
+
             #Validación en la capa de negocio: si falla, no se consume la capa de datos
             $errors = (new ReservaTourValidator())->validate($data);
             if ($errors !== []) {
                 return $this->json($response, ['errors' => $errors], 400);
             }
-
-            $dataservice = $this->container->get(DataService::class);
 
             #Reglas de negocio: tour vigente, cupo disponible y cálculo del total
             $data = (new ReservaTourValidator())->aplicarReglas($dataservice, $data);
@@ -199,6 +206,16 @@ class ReservaTour {
         catch (RequestException){
             return $this->json($response, ['error' => 'No se pudo consultar el servicio de datos'], 502);
         }
+    }
+
+    private function siguienteCodigo(DataService $dataservice): string {
+        $mayor = 0;
+        foreach ($dataservice->obtenerTodos('reservas-tour') as $reserva) {
+            if (preg_match('/^RT-(\d+)$/', (string) ($reserva['codigo'] ?? ''), $partes)) {
+                $mayor = max($mayor, (int) $partes[1]);
+            }
+        }
+        return sprintf('RT-%04d', $mayor + 1);
     }
 
     private function json(Response $response, array $payload, int $status): Response{

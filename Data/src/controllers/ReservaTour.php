@@ -17,6 +17,7 @@ class ReservaTour {
  
     public function read(Request $request, Response $response, array $args): Response {
         $this->container->get('eloquent');
+        TourProgramado::actualizarEstados();
         if(isset($args['id'])){
             $reserva = ReservaTourModel::query()
                 ->select(['id', 'codigo', 'tour_programado_id', 'cliente_id', 'personas', 'precio_persona', 'total', 'estado'])
@@ -122,36 +123,63 @@ class ReservaTour {
         $tourProgramadoId = filter_var($params['tour_programado_id'] ?? '', FILTER_VALIDATE_INT);
         $clienteId = filter_var($params['cliente_id'] ?? '', FILTER_VALIDATE_INT);
         $estado = trim((string) ($params['estado'] ?? ''));
+        $cliente = trim((string) ($params['cliente'] ?? ''));
+        $tour = trim((string) ($params['tour'] ?? ''));
+        $fecha = trim((string) ($params['fecha'] ?? ''));
+
+        TourProgramado::actualizarEstados();
 
         $query = ReservaTourModel::query()
             ->select([
-                'id',
-                'codigo',
-                'tour_programado_id',
-                'cliente_id',
-                'personas',
-                'precio_persona',
-                'total',
-                'estado'
-            ]);
+                'reservas_tour.id',
+                'reservas_tour.codigo',
+                'reservas_tour.tour_programado_id',
+                'tours.nombre as tour_nombre',
+                'tours_programados.fecha_hora_inicio',
+                'tours_programados.estado as salida_estado',
+                'reservas_tour.cliente_id',
+                'clientes.nombre as cliente_nombre',
+                'clientes.apellidos as cliente_apellidos',
+                'clientes.identificacion as cliente_identificacion',
+                'reservas_tour.personas',
+                'reservas_tour.precio_persona',
+                'reservas_tour.total',
+                'reservas_tour.estado'
+            ])
+            ->leftJoin('tours_programados', 'reservas_tour.tour_programado_id', '=', 'tours_programados.id')
+            ->leftJoin('tours', 'tours_programados.tour_id', '=', 'tours.id')
+            ->leftJoin('usuarios as clientes', 'reservas_tour.cliente_id', '=', 'clientes.id');
 
         if ($codigo !== '') {
-            $query->where('codigo', 'like', "%{$codigo}%");
+            $query->where('reservas_tour.codigo', 'like', "%{$codigo}%");
         }
         if ($tourProgramadoId !== false) {
-            $query->where('tour_programado_id', $tourProgramadoId);
+            $query->where('reservas_tour.tour_programado_id', $tourProgramadoId);
         }
         if ($clienteId !== false) {
-            $query->where('cliente_id', $clienteId);
+            $query->where('reservas_tour.cliente_id', $clienteId);
         }
         if ($estado !== '') {
-            $query->where('estado', $estado);
+            $query->where('reservas_tour.estado', $estado);
+        }
+        if ($cliente !== '') {
+            $query->where(function ($condicion) use ($cliente) {
+                $condicion->whereRaw("CONCAT(clientes.nombre, ' ', clientes.apellidos) LIKE ?", ["%{$cliente}%"])
+                    ->orWhere('clientes.identificacion', 'like', "%{$cliente}%");
+            });
+        }
+        if ($tour !== '') {
+            $query->where('tours.nombre', 'like', "%{$tour}%");
+        }
+        if ($fecha !== '') {
+            $query->whereDate('tours_programados.fecha_hora_inicio', $fecha);
         }
 
-        $total = (clone $query)->count('id');
+        $total = (clone $query)->count('reservas_tour.id');
 
         $reservas = $query
-            ->orderBy('codigo')
+            ->orderBy('tours_programados.fecha_hora_inicio', 'desc')
+            ->orderBy('reservas_tour.codigo')
             ->offset($offset)
             ->limit($limit)
             ->get()

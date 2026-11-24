@@ -1,0 +1,143 @@
+<section class="m-6 tarjeta-tabla">
+  <header class="flex flex-wrap items-center justify-between gap-3 p-5">
+    <div class="flex items-center gap-3">
+      <span class="icono-titulo"><mat-icon>event_available</mat-icon></span>
+      <h1 class="text-[1.15rem] font-bold text-[#352D39]">Reservas de tours</h1>
+    </div>
+    <div class="flex flex-wrap gap-2">
+      <button type="button" class="boton-borde" [class.activo]="panelFilterState()" (click)="toggleFilterPanel()"
+        [attr.aria-expanded]="panelFilterState()">
+        <mat-icon>{{ panelFilterState() ? 'filter_list_off' : 'filter_list' }}</mat-icon>
+        {{ panelFilterState() ? 'Quitar filtro' : 'Filtrar' }}
+      </button>
+      <button type="button" class="boton-lleno" (click)="onCreate()">
+        <mat-icon>add</mat-icon>Nueva reserva
+      </button>
+    </div>
+  </header>
+
+  @if (panelFilterState()) {
+    <div class="caja-filtro grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-x-4">
+      <mat-form-field>
+        <mat-label>Código</mat-label>
+        <input matInput placeholder="RT-0001" [formField]="frmFilter.codigo">
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Cliente o identificación</mat-label>
+        <input matInput [formField]="frmFilter.cliente">
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Tour</mat-label>
+        <input matInput [formField]="frmFilter.tour">
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Fecha del tour</mat-label>
+        <input matInput type="date" [formField]="frmFilter.fecha">
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Estado</mat-label>
+        <mat-select [formField]="frmFilter.estado">
+          <mat-option value="">Todos</mat-option>
+          @for (estado of estados; track estado.valor) {
+            <mat-option [value]="estado.valor">{{ estado.texto }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+  }
+
+  <div class="overflow-x-auto">
+    <table mat-table [dataSource]="dataSource()" class="tabla-hotel">
+      <caption class="sr-only">Reservas de tours</caption>
+
+      <ng-container matColumnDef="codigo">
+        <th mat-header-cell *matHeaderCellDef> Código </th>
+        <td mat-cell *matCellDef="let reserva" class="font-semibold whitespace-nowrap"> {{reserva.codigo}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="cliente">
+        <th mat-header-cell *matHeaderCellDef> Cliente </th>
+        <td mat-cell *matCellDef="let reserva">
+          <div>{{reserva.cliente_nombre}} {{reserva.cliente_apellidos}}</div>
+          <div class="text-xs text-[#352D39]/60">{{reserva.cliente_identificacion}}</div>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="tour">
+        <th mat-header-cell *matHeaderCellDef> Tour </th>
+        <td mat-cell *matCellDef="let reserva">
+          <div class="font-semibold">{{reserva.tour_nombre}}</div>
+          <div class="text-xs text-[#352D39]/60">{{ aFecha(reserva.fecha_hora_inicio) | date:'dd/MM/yyyy · h:mm a' }}</div>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="personas">
+        <th mat-header-cell *matHeaderCellDef> Personas </th>
+        <td mat-cell *matCellDef="let reserva"> {{reserva.personas}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="total">
+        <th mat-header-cell *matHeaderCellDef> Total </th>
+        <td mat-cell *matCellDef="let reserva" class="whitespace-nowrap"> {{ reserva.total | currency:'CRC':'symbol-narrow':'1.0-2' }} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="estado">
+        <th mat-header-cell *matHeaderCellDef> Estado </th>
+        <td mat-cell *matCellDef="let reserva">
+          <span class="estado" [class]="estado(reserva.estado).clase">{{ estado(reserva.estado).texto }}</span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="botonera">
+        <th mat-header-cell *matHeaderCellDef> Acciones </th>
+        <td mat-cell *matCellDef="let reserva">
+          <div class="acciones">
+            @if (reserva.estado === 'PENDIENTE' && reserva.salida_estado === 'PROGRAMADO') {
+              <button mat-icon-button class="accion accion-editar" matTooltip="Confirmar" aria-label="Confirmar"
+                (click)="onConfirmar(reserva)">
+                <mat-icon>task_alt</mat-icon>
+              </button>
+            }
+            <button mat-icon-button class="accion accion-info" matTooltip="Ver información" aria-label="Ver información"
+              (click)="onInfo(reserva)">
+              <mat-icon>visibility</mat-icon>
+            </button>
+            @if (editable(reserva)) {
+              <button mat-icon-button class="accion accion-editar" matTooltip="Editar" aria-label="Editar"
+                (click)="onEdit(reserva)">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button class="accion accion-clave" matTooltip="Cancelar reserva" aria-label="Cancelar reserva"
+                (click)="onCancelar(reserva)">
+                <mat-icon>event_busy</mat-icon>
+              </button>
+            }
+            @if (esAdmin()) {
+              <button mat-icon-button class="accion accion-borrar" matTooltip="Eliminar" aria-label="Eliminar"
+                (click)="onDelete(reserva)">
+                <mat-icon>delete_outline</mat-icon>
+              </button>
+            }
+          </div>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      <tr class="mat-row" *matNoDataRow>
+        <td class="sin-datos" [attr.colspan]="displayedColumns.length">
+          @if (srvReserva.reservas.isLoading()) { Cargando... } @else { No hay reservas de tours para mostrar }
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <mat-paginator [length]="total()" [pageSize]="srvReserva.limit()"
+    [pageIndex]="srvReserva.offset() / srvReserva.limit()" [pageSizeOptions]="[10, 20, 50]"
+    (page)="onPage($event)" aria-label="Seleccionar página de reservas de tours">
+  </mat-paginator>
+</section>

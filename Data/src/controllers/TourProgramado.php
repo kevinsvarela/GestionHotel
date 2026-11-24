@@ -18,7 +18,7 @@ class TourProgramado {
  
     public function read(Request $request, Response $response, array $args): Response {
         $this->container->get('eloquent');
-        $this->actualizarEstados();
+        self::actualizarEstados();
         if(isset($args['id'])){
             $tourProgramado = TourProgramadoModel::query()
                 ->select(['id', 'tour_id', 'guia_id', 'fecha_hora_inicio', 'cupo', 'estado'])
@@ -96,7 +96,7 @@ class TourProgramado {
     }
     public function filter(Request $request, Response $response, array $args): Response {
         $this->container->get('eloquent');
-        $this->actualizarEstados();
+        self::actualizarEstados();
 
         $offset = filter_var($args['offset'] ?? 0, FILTER_VALIDATE_INT);
         $limit = filter_var($args['limit'] ?? 20, FILTER_VALIDATE_INT);
@@ -119,12 +119,16 @@ class TourProgramado {
                 'tours_programados.id',
                 'tours_programados.tour_id',
                 'tours.nombre as tour_nombre',
+                'tours.precio_persona',
+                'tours.duracion_minutos',
+                'tours.punto_encuentro',
                 'tours_programados.guia_id',
                 'guias.nombre as guia_nombre',
                 'tours_programados.fecha_hora_inicio',
                 'tours_programados.cupo',
                 'tours_programados.estado'
             ])
+            ->selectRaw("COALESCE((SELECT SUM(rt.personas) FROM reservas_tour rt WHERE rt.tour_programado_id = tours_programados.id AND rt.estado <> 'CANCELADA'), 0) AS reservados")
             ->join('tours', 'tours_programados.tour_id', '=', 'tours.id')
             ->leftJoin('guias', 'tours_programados.guia_id', '=', 'guias.id');
 
@@ -261,7 +265,7 @@ class TourProgramado {
         }
     }
  
-    private function actualizarEstados(): void {
+    public static function actualizarEstados(): void {
         $ahora = (new \DateTimeImmutable('now', new \DateTimeZone('America/Costa_Rica')))->format('Y-m-d H:i:s');
 
         Capsule::connection()->update(
@@ -274,6 +278,14 @@ class TourProgramado {
              WHERE tp.estado IN ('PROGRAMADO', 'EN_CURSO')
                AND tp.fecha_hora_inicio <= ?",
             [$ahora, $ahora]
+        );
+
+        Capsule::connection()->update(
+            "UPDATE reservas_tour rt
+             JOIN tours_programados tp ON tp.id = rt.tour_programado_id
+             SET rt.estado = 'FINALIZADA'
+             WHERE tp.estado = 'FINALIZADO'
+               AND rt.estado = 'CONFIRMADA'"
         );
     }
 
