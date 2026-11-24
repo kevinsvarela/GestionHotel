@@ -39,6 +39,8 @@ export class TourService {
     };
   });
 
+  readonly todos = httpResource<{ data: TourModel[] }>(() => `${_SERVIDOR}/tours`);
+
   readonly tourPorId = httpResource<RespuestaTour>(() => {
     const id = this.tourId();
     return id === null ? undefined : `${_SERVIDOR}/tours/${id}`;

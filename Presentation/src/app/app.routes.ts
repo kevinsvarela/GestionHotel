@@ -60,8 +60,9 @@ export const routes: Routes = [
       .then(m => m.TourComponent)
   },
   { path: 'tour-programado',
-    canActivate: [authGuard], data: {roles: personal, titulo: 'Programación de tours'},
-    loadComponent: pendiente
+    canActivate: [authGuard], data: {roles: personal},
+    loadComponent: () => import('./components/tour-programado-component/tour-programado-component')
+      .then(m => m.TourProgramadoComponent)
   },
   { path: 'guia',
     canActivate: [authGuard], data: {roles: soloAdmin, titulo: 'Guías'},

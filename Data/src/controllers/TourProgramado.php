@@ -3,6 +3,7 @@
 namespace App\controllers;
  
 use App\Models\TourProgramadoModel;
+use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Database\QueryException;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -17,6 +18,7 @@ class TourProgramado {
  
     public function read(Request $request, Response $response, array $args): Response {
         $this->container->get('eloquent');
+        $this->actualizarEstados();
         if(isset($args['id'])){
             $tourProgramado = TourProgramadoModel::query()
                 ->select(['id', 'tour_id', 'guia_id', 'fecha_hora_inicio', 'cupo', 'estado'])
@@ -94,6 +96,7 @@ class TourProgramado {
     }
     public function filter(Request $request, Response $response, array $args): Response {
         $this->container->get('eloquent');
+        $this->actualizarEstados();
 
         $offset = filter_var($args['offset'] ?? 0, FILTER_VALIDATE_INT);
         $limit = filter_var($args['limit'] ?? 20, FILTER_VALIDATE_INT);
@@ -117,11 +120,13 @@ class TourProgramado {
                 'tours_programados.tour_id',
                 'tours.nombre as tour_nombre',
                 'tours_programados.guia_id',
+                'guias.nombre as guia_nombre',
                 'tours_programados.fecha_hora_inicio',
                 'tours_programados.cupo',
                 'tours_programados.estado'
             ])
-            ->join('tours', 'tours_programados.tour_id', '=', 'tours.id');
+            ->join('tours', 'tours_programados.tour_id', '=', 'tours.id')
+            ->leftJoin('guias', 'tours_programados.guia_id', '=', 'guias.id');
 
         if ($tourId !== false) {
             $query->where('tours_programados.tour_id', $tourId);
@@ -178,12 +183,16 @@ class TourProgramado {
                 $tourProgramado->tour_id = $tourId;
             }
 
-            if (isset($data['guia_id'])) {
-                $guiaId = filter_var($data['guia_id'], FILTER_VALIDATE_INT);
-                if ($guiaId === false || $guiaId < 1) {
-                    return $this->json($response, ['error' => 'Guía inválido.'], 422);
+            if (array_key_exists('guia_id', $data)) {
+                if ($data['guia_id'] === null || $data['guia_id'] === '') {
+                    $tourProgramado->guia_id = null;
+                } else {
+                    $guiaId = filter_var($data['guia_id'], FILTER_VALIDATE_INT);
+                    if ($guiaId === false || $guiaId < 1) {
+                        return $this->json($response, ['error' => 'Guía inválido.'], 422);
+                    }
+                    $tourProgramado->guia_id = $guiaId;
                 }
-                $tourProgramado->guia_id = $guiaId;
             }
 
             if (isset($data['fecha_hora_inicio'])) {
@@ -252,6 +261,22 @@ class TourProgramado {
         }
     }
  
+    private function actualizarEstados(): void {
+        $ahora = (new \DateTimeImmutable('now', new \DateTimeZone('America/Costa_Rica')))->format('Y-m-d H:i:s');
+
+        Capsule::connection()->update(
+            "UPDATE tours_programados tp
+             JOIN tours t ON t.id = tp.tour_id
+             SET tp.estado = CASE
+                 WHEN DATE_ADD(tp.fecha_hora_inicio, INTERVAL ROUND(t.duracion_horas * 60) MINUTE) <= ? THEN 'FINALIZADO'
+                 ELSE 'EN_CURSO'
+             END
+             WHERE tp.estado IN ('PROGRAMADO', 'EN_CURSO')
+               AND tp.fecha_hora_inicio <= ?",
+            [$ahora, $ahora]
+        );
+    }
+
     private function json(Response $response, array $payload, int $status): Response{
     $response->getBody()->write(json_encode($payload,
         JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR));

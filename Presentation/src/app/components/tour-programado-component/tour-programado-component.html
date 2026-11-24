@@ -1,0 +1,123 @@
+<section class="m-6 tarjeta-tabla">
+  <header class="flex flex-wrap items-center justify-between gap-3 p-5">
+    <div class="flex items-center gap-3">
+      <span class="icono-titulo"><mat-icon>calendar_month</mat-icon></span>
+      <h1 class="text-[1.15rem] font-bold text-[#352D39]">Programación de tours</h1>
+    </div>
+    <div class="flex flex-wrap gap-2">
+      <button type="button" class="boton-borde" [class.activo]="panelFilterState()" (click)="toggleFilterPanel()"
+        [attr.aria-expanded]="panelFilterState()">
+        <mat-icon>{{ panelFilterState() ? 'filter_list_off' : 'filter_list' }}</mat-icon>
+        {{ panelFilterState() ? 'Quitar filtro' : 'Filtrar' }}
+      </button>
+      <button type="button" class="boton-lleno" (click)="onCreate()">
+        <mat-icon>add</mat-icon>Programar salida
+      </button>
+    </div>
+  </header>
+
+  @if (panelFilterState()) {
+    <div class="caja-filtro grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-4">
+      <mat-form-field>
+        <mat-label>Tour</mat-label>
+        <input matInput [formField]="frmFilter.tour">
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Fecha</mat-label>
+        <input matInput type="date" [formField]="frmFilter.fecha">
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Guía</mat-label>
+        <mat-select [formField]="frmFilter.guia_id">
+          <mat-option value="">Todos</mat-option>
+          @for (guia of srvGuia.guias.value()?.data ?? []; track guia.id) {
+            <mat-option [value]="'' + guia.id">{{ guia.nombre }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Estado</mat-label>
+        <mat-select [formField]="frmFilter.estado">
+          <mat-option value="">Todos</mat-option>
+          @for (estado of estados; track estado.valor) {
+            <mat-option [value]="estado.valor">{{ estado.texto }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+  }
+
+  <div class="overflow-x-auto">
+    <table mat-table [dataSource]="dataSource()" class="tabla-hotel">
+      <caption class="sr-only">Salidas programadas de los tours</caption>
+
+      <ng-container matColumnDef="fecha">
+        <th mat-header-cell *matHeaderCellDef> Fecha y hora </th>
+        <td mat-cell *matCellDef="let programado" class="whitespace-nowrap">
+          <span class="font-semibold">{{ aFecha(programado.fecha_hora_inicio) | date:'dd/MM/yyyy' }}</span>
+          <span class="text-[#352D39]/60"> · {{ aFecha(programado.fecha_hora_inicio) | date:'h:mm a' }}</span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="tour_nombre">
+        <th mat-header-cell *matHeaderCellDef> Tour </th>
+        <td mat-cell *matCellDef="let programado"> {{programado.tour_nombre}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="guia_nombre">
+        <th mat-header-cell *matHeaderCellDef> Guía </th>
+        <td mat-cell *matCellDef="let programado">
+          @if (programado.guia_nombre) { {{programado.guia_nombre}} } @else { <span class="text-[#352D39]/50 italic">Sin asignar</span> }
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="cupo">
+        <th mat-header-cell *matHeaderCellDef> Cupo </th>
+        <td mat-cell *matCellDef="let programado"> {{programado.cupo}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="estado">
+        <th mat-header-cell *matHeaderCellDef> Estado </th>
+        <td mat-cell *matCellDef="let programado">
+          <span class="estado" [class]="estado(programado.estado).clase">{{ estado(programado.estado).texto }}</span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="botonera">
+        <th mat-header-cell *matHeaderCellDef> Acciones </th>
+        <td mat-cell *matCellDef="let programado">
+          <div class="acciones">
+            <button mat-icon-button class="accion accion-info" matTooltip="Ver información" aria-label="Ver información"
+              (click)="onInfo(programado.id)">
+              <mat-icon>visibility</mat-icon>
+            </button>
+            <button mat-icon-button class="accion accion-editar" matTooltip="Editar" aria-label="Editar"
+              (click)="onEdit(programado.id)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button class="accion accion-borrar" matTooltip="Eliminar" aria-label="Eliminar"
+              (click)="onDelete(programado)">
+              <mat-icon>delete_outline</mat-icon>
+            </button>
+          </div>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      <tr class="mat-row" *matNoDataRow>
+        <td class="sin-datos" [attr.colspan]="displayedColumns.length">
+          @if (srvProgramado.programados.isLoading()) { Cargando... } @else { No hay salidas programadas }
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <mat-paginator [length]="total()" [pageSize]="srvProgramado.limit()"
+    [pageIndex]="srvProgramado.offset() / srvProgramado.limit()" [pageSizeOptions]="[10, 20, 50]"
+    (page)="onPage($event)" aria-label="Seleccionar página de salidas">
+  </mat-paginator>
+</section>

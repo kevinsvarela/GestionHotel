@@ -52,3 +52,17 @@ INSERT IGNORE INTO tours (id, nombre, descripcion, duracion_horas, precio_person
   (3, 'Tour de chocolate en Talamanca', 'Visita a una finca de cacao de la comunidad bribri, con demostración del proceso artesanal y degustación.', 3.0, 22000.00, 20, 'Recepción del hotel', NULL, NULL, 1),
   (4, 'Snorkel en Punta Uva', 'Salida en grupo pequeño para hacer snorkel en el arrecife de Punta Uva. Incluye equipo y guía.', 2.5, 25000.00, 10, 'Playa Punta Uva', 9.639000, -82.693000, 1),
   (5, 'Avistamiento de aves al amanecer', 'Caminata temprano por bosque secundario con guía especializado en aves. Incluye binoculares.', 3.5, 15000.00, 8, 'Recepción del hotel', NULL, NULL, 0);
+
+INSERT IGNORE INTO guias (id, nombre, telefono, activo) VALUES
+  (1, 'Andrés Brenes Salazar', '8833-4455', 1),
+  (2, 'Carolina Hernández Ruiz', '8744-5566', 1),
+  (3, 'Esteban Martínez Lobo', '8655-6677', 0);
+
+INSERT IGNORE INTO tours_programados (id, tour_id, guia_id, fecha_hora_inicio, cupo, estado) VALUES
+  (1, 1, 1, '2026-12-05 08:00:00', 15, 'PROGRAMADO'),
+  (2, 2, 2, '2026-12-06 06:30:00', 12, 'PROGRAMADO'),
+  (3, 3, NULL, '2026-12-06 14:00:00', 20, 'PROGRAMADO'),
+  (4, 4, 1, '2026-12-08 09:00:00', 10, 'PROGRAMADO'),
+  (5, 1, 2, '2026-12-12 08:00:00', 15, 'PROGRAMADO'),
+  (6, 2, NULL, '2026-11-20 06:30:00', 12, 'FINALIZADO'),
+  (7, 3, 1, '2026-11-22 14:00:00', 20, 'CANCELADO');
