@@ -268,7 +268,7 @@ class TourProgramado {
             "UPDATE tours_programados tp
              JOIN tours t ON t.id = tp.tour_id
              SET tp.estado = CASE
-                 WHEN DATE_ADD(tp.fecha_hora_inicio, INTERVAL ROUND(t.duracion_horas * 60) MINUTE) <= ? THEN 'FINALIZADO'
+                 WHEN DATE_ADD(tp.fecha_hora_inicio, INTERVAL t.duracion_minutos MINUTE) <= ? THEN 'FINALIZADO'
                  ELSE 'EN_CURSO'
              END
              WHERE tp.estado IN ('PROGRAMADO', 'EN_CURSO')

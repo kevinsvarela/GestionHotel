@@ -20,11 +20,11 @@ final class TourValidator {
                 ->length(v::between(1,1000)),
                 'mensaje' => 'La descripción debe ser texto de máximo 1000 caracteres.',
             ],
-            'duracion_horas' => [
-                'regla' => v::numericVal()
-                ->greaterThan(0)
-                ->lessThanOrEqual(999.9),
-                'mensaje' => 'La duración es obligatoria, debe ser numérica y mayor a 0.',
+            'duracion_minutos' => [
+                'regla' => v::intVal()
+                ->greaterThanOrEqual(1)
+                ->lessThanOrEqual(1440),
+                'mensaje' => 'La duración es obligatoria y debe ser un número entero de minutos entre 1 y 1440.',
             ],
             'precio_persona' => [
                 'regla' => v::numericVal()

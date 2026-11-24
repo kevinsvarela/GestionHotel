@@ -46,12 +46,12 @@ INSERT IGNORE INTO servicios_habitacion (id, nombre) VALUES
   (9, 'Vista al mar'),
   (10, 'Jacuzzi');
 
-INSERT IGNORE INTO tours (id, nombre, descripcion, duracion_horas, precio_persona, cupo_maximo, punto_encuentro, latitud, longitud, activo) VALUES
-  (1, 'Parque Nacional Cahuita', 'Caminata guiada por el sendero costero del parque, con observación de monos, perezosos y aves. Incluye tiempo para nadar en la playa.', 4.0, 18000.00, 15, 'Entrada Kelly Creek, Cahuita', 9.737600, -82.840600, 1),
-  (2, 'Canales de Tortuguero', 'Recorrido en lancha por los canales del Parque Nacional Tortuguero para observar caimanes, tortugas y aves acuáticas.', 8.0, 45000.00, 12, 'Recepción del hotel', NULL, NULL, 1),
-  (3, 'Tour de chocolate en Talamanca', 'Visita a una finca de cacao de la comunidad bribri, con demostración del proceso artesanal y degustación.', 3.0, 22000.00, 20, 'Recepción del hotel', NULL, NULL, 1),
-  (4, 'Snorkel en Punta Uva', 'Salida en grupo pequeño para hacer snorkel en el arrecife de Punta Uva. Incluye equipo y guía.', 2.5, 25000.00, 10, 'Playa Punta Uva', 9.639000, -82.693000, 1),
-  (5, 'Avistamiento de aves al amanecer', 'Caminata temprano por bosque secundario con guía especializado en aves. Incluye binoculares.', 3.5, 15000.00, 8, 'Recepción del hotel', NULL, NULL, 0);
+INSERT IGNORE INTO tours (id, nombre, descripcion, duracion_minutos, precio_persona, cupo_maximo, punto_encuentro, latitud, longitud, activo) VALUES
+  (1, 'Parque Nacional Cahuita', 'Caminata guiada por el sendero costero del parque, con observación de monos, perezosos y aves. Incluye tiempo para nadar en la playa.', 240, 18000.00, 15, 'Entrada Kelly Creek, Cahuita', 9.737600, -82.840600, 1),
+  (2, 'Canales de Tortuguero', 'Recorrido en lancha por los canales del Parque Nacional Tortuguero para observar caimanes, tortugas y aves acuáticas.', 480, 45000.00, 12, 'Recepción del hotel', NULL, NULL, 1),
+  (3, 'Tour de chocolate en Talamanca', 'Visita a una finca de cacao de la comunidad bribri, con demostración del proceso artesanal y degustación.', 180, 22000.00, 20, 'Recepción del hotel', NULL, NULL, 1),
+  (4, 'Snorkel en Punta Uva', 'Salida en grupo pequeño para hacer snorkel en el arrecife de Punta Uva. Incluye equipo y guía.', 150, 25000.00, 10, 'Playa Punta Uva', 9.639000, -82.693000, 1),
+  (5, 'Avistamiento de aves al amanecer', 'Caminata temprano por bosque secundario con guía especializado en aves. Incluye binoculares.', 210, 15000.00, 8, 'Recepción del hotel', NULL, NULL, 0);
 
 INSERT IGNORE INTO guias (id, nombre, telefono, activo) VALUES
   (1, 'Andrés Brenes Salazar', '8833-4455', 1),

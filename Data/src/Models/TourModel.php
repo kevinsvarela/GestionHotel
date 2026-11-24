@@ -14,7 +14,7 @@ class TourModel extends Model {
     protected $fillable = [
         'nombre',
         'descripcion',
-        'duracion_horas',
+        'duracion_minutos',
         'precio_persona',
         'cupo_maximo',
         'punto_encuentro',
@@ -26,7 +26,7 @@ class TourModel extends Model {
 
     protected $casts = [
         'id' => 'integer',
-        'duracion_horas' => 'float',
+        'duracion_minutos' => 'integer',
         'precio_persona' => 'float',
         'cupo_maximo' => 'integer',
         'latitud' => 'float',

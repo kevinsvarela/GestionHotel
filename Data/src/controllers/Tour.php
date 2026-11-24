@@ -19,7 +19,7 @@ class Tour {
         $this->container->get('eloquent');
         if(isset($args['id'])){
             $tour = TourModel::query()
-                ->select(['id', 'nombre', 'descripcion', 'duracion_horas', 'precio_persona', 'cupo_maximo', 'punto_encuentro', 'latitud', 'longitud', 'foto_url', 'activo'])
+                ->select(['id', 'nombre', 'descripcion', 'duracion_minutos', 'precio_persona', 'cupo_maximo', 'punto_encuentro', 'latitud', 'longitud', 'foto_url', 'activo'])
                 ->find($args['id']);
  
             if ($tour === null) {
@@ -30,7 +30,7 @@ class Tour {
         }
  
         $tours = TourModel::query()
-                ->select(['id', 'nombre', 'descripcion', 'duracion_horas', 'precio_persona', 'cupo_maximo', 'punto_encuentro', 'latitud', 'longitud', 'foto_url', 'activo'])
+                ->select(['id', 'nombre', 'descripcion', 'duracion_minutos', 'precio_persona', 'cupo_maximo', 'punto_encuentro', 'latitud', 'longitud', 'foto_url', 'activo'])
                 ->get()
                 ->toArray();
             return $this->json($response, ['data' => $tours], 200);
@@ -44,7 +44,7 @@ class Tour {
         $errors = [];
         $nombre = trim((string) ($data['nombre'] ?? ''));
         $descripcion = isset($data['descripcion']) ? trim((string) $data['descripcion']) : null;
-        $duracionHoras = $data['duracion_horas'] ?? '';
+        $duracionMinutos = filter_var($data['duracion_minutos'] ?? '', FILTER_VALIDATE_INT);
         $precioPersona = $data['precio_persona'] ?? '';
         $cupoMaximo = filter_var($data['cupo_maximo'] ?? '', FILTER_VALIDATE_INT);
         $puntoEncuentro = trim((string) ($data['punto_encuentro'] ?? ''));
@@ -62,8 +62,8 @@ class Tour {
         if ($descripcion !== null && $descripcion === '') {
             $descripcion = null;
         }
-        if (!is_numeric($duracionHoras) || $duracionHoras <= 0) {
-            $errors['duracion_horas'] = 'Es obligatorio, debe ser numérico y mayor a 0.';
+        if ($duracionMinutos === false || $duracionMinutos < 1 || $duracionMinutos > 1440) {
+            $errors['duracion_minutos'] = 'Es obligatorio y debe ser un número entero de minutos entre 1 y 1440.';
         }
         if (!is_numeric($precioPersona) || $precioPersona <= 0) {
             $errors['precio_persona'] = 'Es obligatorio, debe ser numérico y mayor a 0.';
@@ -99,7 +99,7 @@ class Tour {
             $tour = TourModel::create([
                 'nombre' => $nombre,
                 'descripcion' => $descripcion,
-                'duracion_horas' => $duracionHoras,
+                'duracion_minutos' => $duracionMinutos,
                 'precio_persona' => $precioPersona,
                 'cupo_maximo' => $cupoMaximo,
                 'punto_encuentro' => $puntoEncuentro,
@@ -139,7 +139,7 @@ class Tour {
                 'id',
                 'nombre',
                 'descripcion',
-                'duracion_horas',
+                'duracion_minutos',
                 'precio_persona',
                 'cupo_maximo',
                 'punto_encuentro',
@@ -206,12 +206,12 @@ class Tour {
                 $tour->descripcion = $descripcion === '' ? null : $descripcion;
             }
 
-            if (isset($data['duracion_horas'])) {
-                $duracionHoras = $data['duracion_horas'];
-                if (!is_numeric($duracionHoras) || $duracionHoras <= 0) {
+            if (isset($data['duracion_minutos'])) {
+                $duracionMinutos = filter_var($data['duracion_minutos'], FILTER_VALIDATE_INT);
+                if ($duracionMinutos === false || $duracionMinutos < 1 || $duracionMinutos > 1440) {
                     return $this->json($response, ['error' => 'Duración inválida.'], 422);
                 }
-                $tour->duracion_horas = $duracionHoras;
+                $tour->duracion_minutos = $duracionMinutos;
             }
 
             if (isset($data['precio_persona'])) {
