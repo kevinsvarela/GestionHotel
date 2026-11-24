@@ -1,0 +1,15 @@
+.resumen-reserva {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: rgba(21, 86, 0, 0.08);
+    color: #352D39;
+    font-size: 0.9rem;
+}
+
+.resumen-reserva strong {
+    color: #155600;
+    font-size: 1.05rem;
+}

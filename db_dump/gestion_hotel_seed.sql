@@ -83,3 +83,10 @@ INSERT IGNORE INTO tours_programados (id, tour_id, guia_id, fecha_hora_inicio, c
   (5, 1, 2, '2026-12-12 08:00:00', 15, 'PROGRAMADO'),
   (6, 2, NULL, '2026-11-20 06:30:00', 12, 'FINALIZADO'),
   (7, 3, 1, '2026-11-22 14:00:00', 20, 'CANCELADO');
+
+INSERT IGNORE INTO reservas_habitacion (id, codigo, cliente_id, habitacion_id, registrada_por, fecha_entrada, fecha_salida, huespedes, precio_noche, total, estado, checkin_at, checkout_at) VALUES
+  (1, 'RH-0001', 3, 4, 2, '2026-11-15', '2026-11-18', 2, 40000.00, 120000.00, 'FINALIZADA', '2026-11-15 14:10:00', '2026-11-18 11:00:00'),
+  (2, 'RH-0002', 4, 8, 2, '2026-11-22', '2026-11-26', 2, 95000.00, 380000.00, 'EN_CURSO', '2026-11-22 15:30:00', NULL),
+  (3, 'RH-0003', 3, 6, 2, '2026-12-05', '2026-12-08', 4, 65000.00, 195000.00, 'CONFIRMADA', NULL, NULL),
+  (4, 'RH-0004', 4, 1, 1, '2026-12-10', '2026-12-12', 1, 25000.00, 50000.00, 'PENDIENTE', NULL, NULL),
+  (5, 'RH-0005', 3, 5, 2, '2026-11-28', '2026-11-30', 2, 40000.00, 80000.00, 'CANCELADA', NULL, NULL);

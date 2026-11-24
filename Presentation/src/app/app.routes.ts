@@ -24,8 +24,9 @@ export const routes: Routes = [
 
   //Reservas (módulo principal)
   { path: 'reserva',
-    canActivate: [authGuard], data: {roles: personal, titulo: 'Reservas de hospedaje'},
-    loadComponent: pendiente
+    canActivate: [authGuard], data: {roles: personal},
+    loadComponent: () => import('./components/reserva-component/reserva-component')
+      .then(m => m.ReservaComponent)
   },
   { path: 'reserva-tour',
     canActivate: [authGuard], data: {roles: personal, titulo: 'Reservas de tours'},

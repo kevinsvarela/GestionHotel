@@ -40,6 +40,8 @@ export class HabitacionService {
     };
   });
 
+  readonly todas = httpResource<RespuestaHabitaciones>(() => `${_SERVIDOR}/habitaciones/filter/0/100`);
+
   readonly habitacionPorId = httpResource<RespuestaHabitacion>(() => {
     const id = this.habitacionId();
     return id === null ? undefined : `${_SERVIDOR}/habitaciones/${id}`;

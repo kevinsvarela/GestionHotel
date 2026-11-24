@@ -40,6 +40,11 @@ export class ClienteService {
     };
   });
 
+  readonly todos = httpResource<RespuestaClientes>(() => ({
+    url: `${_SERVIDOR}/usuarios/filter/0/100`,
+    params: { rol_id: Roles.Cliente, activo: 1 },
+  }));
+
   readonly clientePorId = httpResource<RespuestaCliente>(() => {
     const id = this.clienteId();
     return id === null ? undefined : `${_SERVIDOR}/usuarios/${id}`;

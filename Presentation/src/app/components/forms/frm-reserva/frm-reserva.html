@@ -1,1 +1,121 @@
-<p>frm-reserva works!</p>
+<div class="dlg-encabezado">
+  <span class="icono-titulo"><mat-icon>hotel</mat-icon></span>
+  <div class="flex-1">
+    <h2 class="dlg-titulo">{{ titulo }}</h2>
+    <p class="dlg-subtitulo">
+      @if (codigo) { Reserva {{ codigo }} } @else { Complete los datos de la reserva }
+    </p>
+  </div>
+  <button mat-icon-button type="button" class="dlg-cerrar" [mat-dialog-close]="false" aria-label="Cerrar">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<mat-dialog-content class="dlg-contenido">
+  <form id="frmReserva" [formRoot]="frmReserva" class="grid gap-3 pt-3">
+    <p class="dlg-seccion">Cliente</p>
+    <mat-form-field appearance="outline">
+      <mat-label>Cliente</mat-label>
+      <mat-icon matPrefix class="dlg-prefijo">person</mat-icon>
+      <mat-select [formField]="frmReserva.cliente_id">
+        @for (cliente of srvCliente.todos.value()?.data ?? []; track cliente.id) {
+          <mat-option [value]="cliente.id">
+            {{ cliente.nombre }} {{ cliente.apellidos }} · {{ cliente.identificacion }}
+          </mat-option>
+        }
+      </mat-select>
+      <mat-hint>Si el cliente no aparece, regístrelo primero en Personas → Clientes</mat-hint>
+      @if (frmReserva.cliente_id().touched() && frmReserva.cliente_id().invalid()) {
+        @for (error of frmReserva.cliente_id().errors(); track error.kind) {
+          <mat-error>{{ error.message }}</mat-error>
+        }
+      }
+    </mat-form-field>
+
+    <p class="dlg-seccion">Estadía</p>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <mat-form-field appearance="outline">
+        <mat-label>Entrada</mat-label>
+        <input matInput type="date" [formField]="frmReserva.fecha_entrada" />
+        @if (frmReserva.fecha_entrada().touched() && frmReserva.fecha_entrada().invalid()) {
+          @for (error of frmReserva.fecha_entrada().errors(); track error.kind) {
+            <mat-error>{{ error.message }}</mat-error>
+          }
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Salida</mat-label>
+        <input matInput type="date" [formField]="frmReserva.fecha_salida" />
+        @if (frmReserva.fecha_salida().touched() && frmReserva.fecha_salida().invalid()) {
+          @for (error of frmReserva.fecha_salida().errors(); track error.kind) {
+            <mat-error>{{ error.message }}</mat-error>
+          }
+        }
+      </mat-form-field>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <mat-form-field appearance="outline" class="sm:col-span-2">
+        <mat-label>Habitación</mat-label>
+        <mat-icon matPrefix class="dlg-prefijo">bed</mat-icon>
+        <mat-select [formField]="frmReserva.habitacion_id">
+          @for (habitacion of habitaciones(); track habitacion.id) {
+            <mat-option [value]="habitacion.id">
+              {{ habitacion.numero }} · {{ habitacion.tipo }} ({{ habitacion.capacidad }} pers.)
+            </mat-option>
+          }
+        </mat-select>
+        @if (habitacionSeleccionada(); as habitacion) {
+          <mat-hint>{{ habitacion.precio | currency:'CRC':'symbol-narrow':'1.0-2' }} por noche · máximo {{ habitacion.capacidad }} huéspedes</mat-hint>
+        }
+        @if (frmReserva.habitacion_id().touched() && frmReserva.habitacion_id().invalid()) {
+          @for (error of frmReserva.habitacion_id().errors(); track error.kind) {
+            <mat-error>{{ error.message }}</mat-error>
+          }
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Huéspedes</mat-label>
+        <input matInput type="number" [formField]="frmReserva.huespedes" />
+        @if (frmReserva.huespedes().touched() && frmReserva.huespedes().invalid()) {
+          @for (error of frmReserva.huespedes().errors(); track error.kind) {
+            <mat-error>{{ error.message }}</mat-error>
+          }
+        }
+      </mat-form-field>
+    </div>
+
+    @if (totalEstimado(); as estimado) {
+      <div class="resumen-reserva">
+        <span>{{ estimado.noches }} {{ estimado.noches === 1 ? 'noche' : 'noches' }} × {{ estimado.precio | currency:'CRC':'symbol-narrow':'1.0-2' }}</span>
+        <strong>{{ estimado.total | currency:'CRC':'symbol-narrow':'1.0-2' }}</strong>
+      </div>
+    }
+
+    <p class="dlg-seccion">Estado</p>
+    <mat-form-field appearance="outline">
+      <mat-label>Estado</mat-label>
+      <mat-select [formField]="frmReserva.estado">
+        @for (estado of estados; track estado.valor) {
+          @if (!esNueva || estado.valor === 'PENDIENTE' || estado.valor === 'CONFIRMADA') {
+            <mat-option [value]="estado.valor">{{ estado.texto }}</mat-option>
+          }
+        }
+      </mat-select>
+      @if (esNueva) {
+        <mat-hint>El check-in y el check-out se marcan desde la tabla</mat-hint>
+      }
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<div class="dlg-pie">
+  @if (soloLectura) {
+    <button type="button" class="boton-borde" [mat-dialog-close]="false">Cerrar</button>
+  } @else {
+    <button type="button" class="boton-borde" [mat-dialog-close]="false">Cancelar</button>
+    <button type="submit" form="frmReserva" class="boton-lleno"><mat-icon>check</mat-icon>Guardar</button>
+  }
+</div>
