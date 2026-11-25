@@ -17,6 +17,9 @@ import { Roles } from '../../shared/models/roles';
 import { ReservaTourInput, ReservaTourModel } from '../../shared/models/reserva-tour-model';
 import { FrmReservaTour } from '../forms/frm-reserva-tour/frm-reserva-tour';
 import { DialogoGeneral } from '../forms/dialogo-general/dialogo-general';
+import { FrmPago } from '../forms/frm-pago/frm-pago';
+import { PagoService } from '../../shared/services/pago-service';
+import { PagoInput } from '../../shared/models/pago-model';
 
 type FilterForm = {
   codigo: string;
@@ -41,6 +44,7 @@ export class ReservaTourComponent implements OnInit {
   srvReserva = inject(ReservaTourService);
   private readonly srvAuth = inject(AuthService);
   dialog = inject(MatDialog);
+  private readonly srvPago = inject(PagoService);
 
   esAdmin = computed(() => Number(this.srvAuth.userActualS().rol_id) === Roles.Admin);
 
@@ -87,6 +91,34 @@ export class ReservaTourComponent implements OnInit {
 
   editable(reserva: ReservaTourModel): boolean {
     return (reserva.estado === 'PENDIENTE' || reserva.estado === 'CONFIRMADA') && reserva.salida_estado === 'PROGRAMADO';
+  }
+
+  saldo(reserva: ReservaTourModel): number {
+    return Math.max(Number(reserva.total ?? 0) - Number(reserva.pagado ?? 0), 0);
+  }
+
+  onPagar(reserva: ReservaTourModel): void {
+    this.dialog.open<FrmPago, unknown, PagoInput | false | undefined>(FrmPago, {
+      width: '92vw',
+      maxWidth: '38rem',
+      panelClass: 'dialogo-hotel',
+      autoFocus: false,
+      data: { tipo: 'TOUR', reservaId: reserva.id },
+      disableClose: true,
+    }).afterClosed().subscribe((pago) => {
+      if (pago === undefined || pago === false) {
+        return;
+      }
+      this.srvPago.registrar(pago).subscribe({
+        complete: () => {
+          this.srvReserva.reservas.reload();
+          this.alertar('check', 'Pago registrado');
+        },
+        error: (error: HttpErrorResponse) => {
+          this.alertar('error', this.mensajeError(error, 'No se pudo registrar el pago'));
+        },
+      });
+    });
   }
 
   private alertar(icono: string, mensaje: string) {

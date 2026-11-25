@@ -39,6 +39,8 @@ export class ReservaHabitacionService {
     };
   });
 
+  readonly todas = httpResource<RespuestaReservas>(() => `${_SERVIDOR}/reservas-habitacion/filter/0/100`);
+
   readonly reservaPorId = httpResource<RespuestaReserva>(() => {
     const id = this.reservaId();
     return id === null ? undefined : `${_SERVIDOR}/reservas-habitacion/${id}`;

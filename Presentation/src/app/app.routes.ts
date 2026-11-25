@@ -34,8 +34,9 @@ export const routes: Routes = [
       .then(m => m.ReservaTourComponent)
   },
   { path: 'pago',
-    canActivate: [authGuard], data: {roles: personal, titulo: 'Pagos'},
-    loadComponent: pendiente
+    canActivate: [authGuard], data: {roles: personal},
+    loadComponent: () => import('./components/pago-component/pago-component')
+      .then(m => m.PagoComponent)
   },
 
   //Hospedaje

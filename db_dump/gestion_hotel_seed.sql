@@ -97,3 +97,10 @@ INSERT IGNORE INTO reservas_tour (id, codigo, tour_programado_id, cliente_id, pe
   (3, 'RT-0003', 2, 4, 2, 45000.00, 90000.00, 'CONFIRMADA'),
   (4, 'RT-0004', 6, 3, 2, 45000.00, 90000.00, 'FINALIZADA'),
   (5, 'RT-0005', 4, 3, 1, 25000.00, 25000.00, 'CANCELADA');
+
+INSERT IGNORE INTO pagos (id, reserva_habitacion_id, reserva_tour_id, registrado_por, monto, moneda, metodo, referencia, pagado_at) VALUES
+  (1, 1, NULL, 2, 120000.00, 'CRC', 'TARJETA', 'TJ-458812', '2026-11-18 11:05:00'),
+  (2, 2, NULL, 2, 200000.00, 'CRC', 'SINPE', 'SP-77120345', '2026-11-22 15:40:00'),
+  (3, 3, NULL, 2, 50000.00, 'CRC', 'SINPE', 'SP-77120998', '2026-11-20 10:15:00'),
+  (4, NULL, 1, 2, 36000.00, 'CRC', 'EFECTIVO', NULL, '2026-11-21 09:30:00'),
+  (5, NULL, 4, 2, 90000.00, 'CRC', 'TARJETA', 'TJ-459031', '2026-11-19 16:20:00');

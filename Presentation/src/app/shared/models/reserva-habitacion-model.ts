@@ -16,6 +16,7 @@ export interface ReservaHabitacionModel {
   huespedes: number;
   precio_noche?: number;
   total?: number;
+  pagado?: number;
   estado: EstadoReservaHabitacion;
   checkin_at?: string | null;
   checkout_at?: string | null;

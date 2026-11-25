@@ -14,6 +14,7 @@ export interface ReservaTourModel {
   personas: number;
   precio_persona?: number;
   total?: number;
+  pagado?: number;
   estado: EstadoReservaTour;
 }
 

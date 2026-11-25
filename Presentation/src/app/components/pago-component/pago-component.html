@@ -1,0 +1,127 @@
+<section class="m-6 tarjeta-tabla">
+  <header class="flex flex-wrap items-center justify-between gap-3 p-5">
+    <div class="flex items-center gap-3">
+      <span class="icono-titulo"><mat-icon>payments</mat-icon></span>
+      <h1 class="text-[1.15rem] font-bold text-[#352D39]">Pagos</h1>
+    </div>
+    <div class="flex flex-wrap gap-2">
+      <button type="button" class="boton-borde" [class.activo]="panelFilterState()" (click)="toggleFilterPanel()"
+        [attr.aria-expanded]="panelFilterState()">
+        <mat-icon>{{ panelFilterState() ? 'filter_list_off' : 'filter_list' }}</mat-icon>
+        {{ panelFilterState() ? 'Quitar filtro' : 'Filtrar' }}
+      </button>
+      <button type="button" class="boton-lleno" (click)="onCreate()">
+        <mat-icon>add</mat-icon>Registrar pago
+      </button>
+    </div>
+  </header>
+
+  @if (panelFilterState()) {
+    <div class="caja-filtro grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-4">
+      <mat-form-field>
+        <mat-label>Código de reserva</mat-label>
+        <input matInput placeholder="RH-0001 o RT-0001" [formField]="frmFilter.codigo">
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Cliente o identificación</mat-label>
+        <input matInput [formField]="frmFilter.cliente">
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Método</mat-label>
+        <mat-select [formField]="frmFilter.metodo">
+          <mat-option value="">Todos</mat-option>
+          @for (metodo of metodos; track metodo.valor) {
+            <mat-option [value]="metodo.valor">{{ metodo.texto }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Fecha</mat-label>
+        <input matInput type="date" [formField]="frmFilter.fecha">
+      </mat-form-field>
+    </div>
+  }
+
+  <div class="overflow-x-auto">
+    <table mat-table [dataSource]="dataSource()" class="tabla-hotel">
+      <caption class="sr-only">Pagos registrados</caption>
+
+      <ng-container matColumnDef="fecha">
+        <th mat-header-cell *matHeaderCellDef> Fecha </th>
+        <td mat-cell *matCellDef="let pago" class="whitespace-nowrap">
+          <div>{{ aFecha(pago.pagado_at) | date:'dd/MM/yyyy' }}</div>
+          <div class="text-xs text-[#352D39]/60">{{ aFecha(pago.pagado_at) | date:'h:mm a' }}</div>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="reserva">
+        <th mat-header-cell *matHeaderCellDef> Reserva </th>
+        <td mat-cell *matCellDef="let pago" class="whitespace-nowrap">
+          <span class="inline-flex items-center gap-1 font-semibold">
+            <mat-icon class="scale-75 text-[#1E9C99]!">{{ pago.reserva_habitacion_id ? 'hotel' : 'tour' }}</mat-icon>
+            {{ pago.codigo_reserva }}
+          </span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="cliente">
+        <th mat-header-cell *matHeaderCellDef> Cliente </th>
+        <td mat-cell *matCellDef="let pago"> {{pago.cliente_nombre}} {{pago.cliente_apellidos}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="metodo">
+        <th mat-header-cell *matHeaderCellDef> Método </th>
+        <td mat-cell *matCellDef="let pago">
+          <div class="inline-flex items-center gap-1">
+            <mat-icon class="scale-75 text-[#352D39]/60!">{{ metodo(pago.metodo).icono }}</mat-icon>{{ metodo(pago.metodo).texto }}
+          </div>
+          @if (pago.referencia) {
+            <div class="text-xs text-[#352D39]/60">{{ pago.referencia }}</div>
+          }
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="monto">
+        <th mat-header-cell *matHeaderCellDef> Monto </th>
+        <td mat-cell *matCellDef="let pago" class="font-semibold whitespace-nowrap">
+          {{ pago.monto | currency:pago.moneda:'symbol-narrow':'1.0-2' }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="registrado">
+        <th mat-header-cell *matHeaderCellDef> Registrado por </th>
+        <td mat-cell *matCellDef="let pago"> {{pago.registrado_por_nombre}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="botonera">
+        <th mat-header-cell *matHeaderCellDef> Acciones </th>
+        <td mat-cell *matCellDef="let pago">
+          <div class="acciones">
+            @if (esAdmin()) {
+              <button mat-icon-button class="accion accion-borrar" matTooltip="Anular pago" aria-label="Anular pago"
+                (click)="onDelete(pago)">
+                <mat-icon>delete_outline</mat-icon>
+              </button>
+            }
+          </div>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      <tr class="mat-row" *matNoDataRow>
+        <td class="sin-datos" [attr.colspan]="displayedColumns.length">
+          @if (srvPago.pagos.isLoading()) { Cargando... } @else { No hay pagos para mostrar }
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <mat-paginator [length]="total()" [pageSize]="srvPago.limit()"
+    [pageIndex]="srvPago.offset() / srvPago.limit()" [pageSizeOptions]="[10, 20, 50]"
+    (page)="onPage($event)" aria-label="Seleccionar página de pagos">
+  </mat-paginator>
+</section>

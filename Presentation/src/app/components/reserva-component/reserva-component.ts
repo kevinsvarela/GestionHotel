@@ -17,6 +17,9 @@ import { Roles } from '../../shared/models/roles';
 import { ReservaHabitacionInput, ReservaHabitacionModel } from '../../shared/models/reserva-habitacion-model';
 import { FrmReserva } from '../forms/frm-reserva/frm-reserva';
 import { DialogoGeneral } from '../forms/dialogo-general/dialogo-general';
+import { FrmPago } from '../forms/frm-pago/frm-pago';
+import { PagoService } from '../../shared/services/pago-service';
+import { PagoInput } from '../../shared/models/pago-model';
 
 type FilterForm = {
   codigo: string;
@@ -46,6 +49,7 @@ export class ReservaComponent implements OnInit {
   srvReserva = inject(ReservaHabitacionService);
   private readonly srvAuth = inject(AuthService);
   dialog = inject(MatDialog);
+  private readonly srvPago = inject(PagoService);
 
   esAdmin = computed(() => Number(this.srvAuth.userActualS().rol_id) === Roles.Admin);
 
@@ -123,6 +127,34 @@ export class ReservaComponent implements OnInit {
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
     return (reserva.estado === 'PENDIENTE' || reserva.estado === 'CONFIRMADA') && this.aFecha(reserva.fecha_entrada) <= hoy;
+  }
+
+  saldo(reserva: ReservaHabitacionModel): number {
+    return Math.max(Number(reserva.total ?? 0) - Number(reserva.pagado ?? 0), 0);
+  }
+
+  onPagar(reserva: ReservaHabitacionModel): void {
+    this.dialog.open<FrmPago, unknown, PagoInput | false | undefined>(FrmPago, {
+      width: '92vw',
+      maxWidth: '38rem',
+      panelClass: 'dialogo-hotel',
+      autoFocus: false,
+      data: { tipo: 'HABITACION', reservaId: reserva.id },
+      disableClose: true,
+    }).afterClosed().subscribe((pago) => {
+      if (pago === undefined || pago === false) {
+        return;
+      }
+      this.srvPago.registrar(pago).subscribe({
+        complete: () => {
+          this.srvReserva.reservas.reload();
+          this.alertar('check', 'Pago registrado');
+        },
+        error: (error: HttpErrorResponse) => {
+          this.alertar('error', this.mensajeError(error, 'No se pudo registrar el pago'));
+        },
+      });
+    });
   }
 
   private alertar(icono: string, mensaje: string) {
