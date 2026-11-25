@@ -3,6 +3,7 @@ packages:
 
 allowBuilds:
   '@parcel/watcher': false
+  core-js: true
   esbuild: false
   lmdb: false
   msgpackr-extract: false

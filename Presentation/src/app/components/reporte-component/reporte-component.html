@@ -1,0 +1,103 @@
+<section class="m-6 tarjeta-tabla">
+  <header class="flex flex-wrap items-center justify-between gap-3 p-5">
+    <div class="flex items-center gap-3">
+      <span class="icono-titulo"><mat-icon>bar_chart</mat-icon></span>
+      <div>
+        <h1 class="text-[1.15rem] font-bold text-[#352D39]">Reportes</h1>
+        <p class="text-sm text-[#352D39]/60">{{ reporteActual().descripcion }}</p>
+      </div>
+    </div>
+    <div class="flex flex-wrap gap-2">
+      <button type="button" class="boton-borde" [disabled]="vista() === null" (click)="exportar(false)">
+        <mat-icon>picture_as_pdf</mat-icon>Ver PDF
+      </button>
+      <button type="button" class="boton-lleno" [disabled]="vista() === null" (click)="exportar(true)">
+        <mat-icon>download</mat-icon>Descargar PDF
+      </button>
+    </div>
+  </header>
+
+  <div class="opciones-reporte">
+    @for (opcion of reportes; track opcion.tipo) {
+      <button type="button" class="opcion-reporte" [class.activa]="tipo() === opcion.tipo" (click)="elegir(opcion.tipo)"
+        [attr.aria-pressed]="tipo() === opcion.tipo">
+        <mat-icon>{{ opcion.icono }}</mat-icon>
+        <span>{{ opcion.titulo }}</span>
+      </button>
+    }
+  </div>
+
+  <div class="caja-filtro grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-4">
+    <mat-form-field>
+      <mat-label>Desde</mat-label>
+      <input matInput type="date" [formField]="frmRango.desde">
+      @if (frmRango.desde().invalid()) {
+        @for (error of frmRango.desde().errors(); track error.kind) {
+          <mat-error>{{ error.message }}</mat-error>
+        }
+      }
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Hasta</mat-label>
+      <input matInput type="date" [formField]="frmRango.hasta">
+      @if (frmRango.hasta().invalid()) {
+        @for (error of frmRango.hasta().errors(); track error.kind) {
+          <mat-error>{{ error.message }}</mat-error>
+        }
+      }
+    </mat-form-field>
+
+    <div class="flex flex-wrap items-start gap-2 pt-2 pb-4 lg:col-span-2">
+      <button type="button" class="boton-borde" (click)="esteMes()">Este mes</button>
+      <button type="button" class="boton-borde" (click)="mesAnterior()">Mes anterior</button>
+      <button type="button" class="boton-borde" (click)="esteAnio()">Este año</button>
+    </div>
+  </div>
+
+  @if (srvReporte.reporte.isLoading()) {
+    <div class="flex justify-center py-12">
+      <mat-progress-spinner mode="indeterminate" diameter="40"></mat-progress-spinner>
+    </div>
+  } @else if (mensajeError() !== '') {
+    <p class="aviso-error"><mat-icon>error</mat-icon>{{ mensajeError() }}</p>
+  } @else if (vista(); as reporte) {
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 px-5 pb-2">
+      @for (tarjeta of reporte.tarjetas; track tarjeta.etiqueta) {
+        <div class="tarjeta-dato">
+          <span class="icono-dato"><mat-icon>{{ tarjeta.icono }}</mat-icon></span>
+          <div class="min-w-0">
+            <div class="etiqueta">{{ tarjeta.etiqueta }}</div>
+            <div class="valor">{{ tarjeta.valor }}</div>
+          </div>
+        </div>
+      }
+    </div>
+
+    @for (bloque of reporte.secciones; track bloque.titulo) {
+      <h2 class="titulo-bloque">{{ bloque.titulo }}</h2>
+      <div class="overflow-x-auto">
+        <table mat-table [dataSource]="bloque.filas" class="tabla-hotel">
+          @for (columna of bloque.columnas; track $index; let indice = $index) {
+            <ng-container [matColumnDef]="bloque.claves[indice]">
+              <th mat-header-cell *matHeaderCellDef [class.numero]="bloque.derecha?.includes(indice)">{{ columna }}</th>
+              <td mat-cell *matCellDef="let fila" [class.numero]="bloque.derecha?.includes(indice)"
+                [class.font-semibold]="indice === 0">{{ fila[indice] }}</td>
+              <td mat-footer-cell *matFooterCellDef [class.numero]="bloque.derecha?.includes(indice)">{{ bloque.pie?.[indice] }}</td>
+            </ng-container>
+          }
+
+          <tr mat-header-row *matHeaderRowDef="bloque.claves"></tr>
+          <tr mat-row *matRowDef="let fila; columns: bloque.claves"></tr>
+          @if (bloque.pie && bloque.filas.length > 0) {
+            <tr mat-footer-row *matFooterRowDef="bloque.claves" class="fila-total"></tr>
+          }
+          <tr class="mat-mdc-row" *matNoDataRow>
+            <td class="sin-datos" [attr.colspan]="bloque.claves.length">Sin datos en este rango de fechas</td>
+          </tr>
+        </table>
+      </div>
+    }
+    <div class="h-4"></div>
+  }
+</section>

@@ -1,0 +1,112 @@
+.opciones-reporte {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 10px;
+    margin: 0 20px 16px;
+}
+
+.opcion-reporte {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    border: 1px solid #E6E9E4;
+    border-radius: 12px;
+    background: #ffffff;
+    color: #352D39;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+}
+
+.opcion-reporte mat-icon {
+    color: #155600;
+    flex-shrink: 0;
+}
+
+.opcion-reporte:hover {
+    background: rgba(21, 86, 0, 0.04);
+}
+
+.opcion-reporte.activa {
+    background: #155600;
+    border-color: #155600;
+    color: #ffffff;
+}
+
+.opcion-reporte.activa mat-icon {
+    color: #FCDC4D;
+}
+
+.tarjeta-dato {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border: 1px solid #E6E9E4;
+    border-radius: 12px;
+    background: #F7F9F6;
+}
+
+.icono-dato {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: rgba(21, 86, 0, 0.1);
+    color: #155600;
+    flex-shrink: 0;
+}
+
+.tarjeta-dato .etiqueta {
+    font-size: 0.75rem;
+    color: rgba(53, 45, 57, 0.6);
+}
+
+.tarjeta-dato .valor {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #352D39;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.titulo-bloque {
+    margin: 22px 20px 8px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #155600;
+}
+
+.tabla-hotel .numero {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.tabla-hotel .fila-total td {
+    background: #EEF1EC;
+    font-weight: 700;
+    color: #352D39;
+}
+
+.aviso-error {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 8px 20px 24px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: rgba(167, 38, 8, 0.08);
+    color: #A72608;
+}
+
+.boton-borde:disabled,
+.boton-lleno:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}

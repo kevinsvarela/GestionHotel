@@ -93,7 +93,8 @@ export const routes: Routes = [
   //Reportes
   { path: 'reporte',
     canActivate: [authGuard], data: {roles: personal, titulo: 'Reportes'},
-    loadComponent: pendiente
+    loadComponent: () => import('./components/reporte-component/reporte-component')
+      .then(m => m.ReporteComponent)
   },
 
   { path: '403',
