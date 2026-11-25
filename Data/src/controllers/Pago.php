@@ -3,6 +3,7 @@
 namespace App\controllers;
  
 use App\Models\PagoModel;
+use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Database\QueryException;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -134,45 +135,68 @@ class Pago {
         $referencia = trim((string) ($params['referencia'] ?? ''));
         $fecha = trim((string) ($params['fecha'] ?? ''));
 
+        $codigo = trim((string) ($params['codigo'] ?? ''));
+        $cliente = trim((string) ($params['cliente'] ?? ''));
+
         $query = PagoModel::query()
             ->select([
-                'id',
-                'reserva_habitacion_id',
-                'reserva_tour_id',
-                'registrado_por',
-                'monto',
-                'moneda',
-                'metodo',
-                'referencia',
-                'pagado_at'
-            ]);
+                'pagos.id',
+                'pagos.reserva_habitacion_id',
+                'pagos.reserva_tour_id',
+                'pagos.registrado_por',
+                'pagos.monto',
+                'pagos.moneda',
+                'pagos.metodo',
+                'pagos.referencia',
+                'pagos.pagado_at',
+                'registradores.nombre as registrado_por_nombre',
+            ])
+            ->selectRaw('COALESCE(rh.codigo, rt.codigo) AS codigo_reserva')
+            ->selectRaw('clientes.nombre AS cliente_nombre')
+            ->selectRaw('clientes.apellidos AS cliente_apellidos')
+            ->leftJoin('reservas_habitacion as rh', 'pagos.reserva_habitacion_id', '=', 'rh.id')
+            ->leftJoin('reservas_tour as rt', 'pagos.reserva_tour_id', '=', 'rt.id')
+            ->leftJoin('usuarios as clientes', 'clientes.id', '=', Capsule::raw('COALESCE(rh.cliente_id, rt.cliente_id)'))
+            ->leftJoin('usuarios as registradores', 'pagos.registrado_por', '=', 'registradores.id');
 
         if ($reservaHabitacionId !== false) {
-            $query->where('reserva_habitacion_id', $reservaHabitacionId);
+            $query->where('pagos.reserva_habitacion_id', $reservaHabitacionId);
         }
         if ($reservaTourId !== false) {
-            $query->where('reserva_tour_id', $reservaTourId);
+            $query->where('pagos.reserva_tour_id', $reservaTourId);
         }
         if ($registradoPor !== false) {
-            $query->where('registrado_por', $registradoPor);
+            $query->where('pagos.registrado_por', $registradoPor);
         }
         if ($moneda !== '') {
-            $query->where('moneda', $moneda);
+            $query->where('pagos.moneda', $moneda);
         }
         if ($metodo !== '') {
-            $query->where('metodo', $metodo);
+            $query->where('pagos.metodo', $metodo);
         }
         if ($referencia !== '') {
-            $query->where('referencia', 'like', "%{$referencia}%");
+            $query->where('pagos.referencia', 'like', "%{$referencia}%");
         }
         if ($fecha !== '') {
-            $query->whereDate('pagado_at', $fecha);
+            $query->whereDate('pagos.pagado_at', $fecha);
+        }
+        if ($codigo !== '') {
+            $query->where(function ($condicion) use ($codigo) {
+                $condicion->where('rh.codigo', 'like', "%{$codigo}%")
+                    ->orWhere('rt.codigo', 'like', "%{$codigo}%");
+            });
+        }
+        if ($cliente !== '') {
+            $query->where(function ($condicion) use ($cliente) {
+                $condicion->whereRaw("CONCAT(clientes.nombre, ' ', clientes.apellidos) LIKE ?", ["%{$cliente}%"])
+                    ->orWhere('clientes.identificacion', 'like', "%{$cliente}%");
+            });
         }
 
-        $total = (clone $query)->count('id');
+        $total = (clone $query)->count('pagos.id');
 
         $pagos = $query
-            ->orderBy('pagado_at')
+            ->orderBy('pagos.pagado_at', 'desc')
             ->offset($offset)
             ->limit($limit)
             ->get()

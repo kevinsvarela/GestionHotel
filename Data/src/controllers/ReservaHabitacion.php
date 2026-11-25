@@ -182,6 +182,7 @@ class ReservaHabitacion {
                 'reservas_habitacion.checkin_at',
                 'reservas_habitacion.checkout_at'
             ])
+            ->selectRaw("COALESCE((SELECT SUM(p.monto) FROM pagos p WHERE p.reserva_habitacion_id = reservas_habitacion.id AND p.moneda = 'CRC'), 0) AS pagado")
             ->leftJoin('usuarios as clientes', 'reservas_habitacion.cliente_id', '=', 'clientes.id')
             ->leftJoin('habitaciones', 'reservas_habitacion.habitacion_id', '=', 'habitaciones.id')
             ->leftJoin('tipos_habitacion', 'habitaciones.tipo_habitacion_id', '=', 'tipos_habitacion.id');

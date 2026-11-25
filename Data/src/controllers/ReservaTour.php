@@ -146,6 +146,7 @@ class ReservaTour {
                 'reservas_tour.total',
                 'reservas_tour.estado'
             ])
+            ->selectRaw("COALESCE((SELECT SUM(p.monto) FROM pagos p WHERE p.reserva_tour_id = reservas_tour.id AND p.moneda = 'CRC'), 0) AS pagado")
             ->leftJoin('tours_programados', 'reservas_tour.tour_programado_id', '=', 'tours_programados.id')
             ->leftJoin('tours', 'tours_programados.tour_id', '=', 'tours.id')
             ->leftJoin('usuarios as clientes', 'reservas_tour.cliente_id', '=', 'clientes.id');

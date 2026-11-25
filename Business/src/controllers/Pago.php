@@ -58,7 +58,9 @@ class Pago {
                 'fecha' => trim((string) ($params['fecha'] ?? '')),
                 'registrado_por' => trim((string) ($params['registrado_por'] ?? '')),
                 'reserva_habitacion_id' => trim((string) ($params['reserva_habitacion_id'] ?? '')),
-                'reserva_tour_id' => trim((string) ($params['reserva_tour_id'] ?? ''))
+                'reserva_tour_id' => trim((string) ($params['reserva_tour_id'] ?? '')),
+                'codigo' => trim((string) ($params['codigo'] ?? '')),
+                'cliente' => trim((string) ($params['cliente'] ?? ''))
             ];
 
             $dataservice = $this->container->get(DataService::class);
