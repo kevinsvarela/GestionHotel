@@ -17,6 +17,7 @@ class PagoModel extends Model {
         'registrado_por',
         'monto',
         'moneda',
+        'tipo_cambio',
         'metodo',
         'referencia',
         'pagado_at',
@@ -28,5 +29,6 @@ class PagoModel extends Model {
         'reserva_tour_id' => 'integer',
         'registrado_por' => 'integer',
         'monto' => 'float',
+        'tipo_cambio' => 'float',
     ];
 }

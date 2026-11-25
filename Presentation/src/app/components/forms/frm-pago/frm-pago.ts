@@ -1,37 +1,47 @@
 import { Component, computed, effect, inject, OnInit, signal, untracked } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
+import { httpResource } from '@angular/common/http';
+import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { disabled, form, FormField, FormRoot, pattern, required, RootFieldContext, validate } from '@angular/forms/signals';
+import { form, FormField, FormRoot, pattern, required, validate } from '@angular/forms/signals';
 import { MetodoPago, MonedaPago, PagoInput, TipoReservaPago } from '../../../shared/models/pago-model';
-import { ReservaHabitacionService } from '../../../shared/services/reserva-habitacion-service';
-import { ReservaTourService } from '../../../shared/services/reserva-tour-service';
+import { ClienteModel } from '../../../shared/models/cliente-model';
+import { ReservaHabitacionModel } from '../../../shared/models/reserva-habitacion-model';
+import { ReservaTourModel } from '../../../shared/models/reserva-tour-model';
+import { ClienteService } from '../../../shared/services/cliente-service';
+import { TipoCambioService } from '../../../shared/services/tipo-cambio-service';
+import { environment } from '../../../../environments/environment';
+
+const _SERVIDOR = environment.servidor;
 
 interface PagoDialogData {
   tipo?: TipoReservaPago;
   reservaId?: number;
+  clienteId?: number;
 }
 
 type ErrorCampo = { kind: string; message: string } | null;
 
 type PagoForm = {
-  reserva_id: number;
   monto: number;
   moneda: MonedaPago;
   metodo: MetodoPago;
   referencia: string;
 };
 
-interface ReservaOpcion {
+interface ReservaPendiente {
+  clave: string;
+  tipo: TipoReservaPago;
   id: number;
   codigo: string;
-  cliente: string;
   detalle: string;
+  fechas: string;
   total: number;
   pagado: number;
   saldo: number;
@@ -43,63 +53,97 @@ function ahora(): string {
   return `${fecha.getFullYear()}-${dos(fecha.getMonth() + 1)}-${dos(fecha.getDate())} ${dos(fecha.getHours())}:${dos(fecha.getMinutes())}:${dos(fecha.getSeconds())}`;
 }
 
+function normalizar(texto: string | null | undefined): string {
+  return (texto ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/-/g, '').toLowerCase().trim();
+}
+
 @Component({
-  imports: [MatDialogModule, MatIconModule, MatButtonModule, MatButtonToggleModule, MatFormFieldModule,
-            MatInputModule, MatSelectModule, FormRoot, FormField, CurrencyPipe],
+  imports: [MatDialogModule, MatIconModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule,
+            MatAutocompleteModule, MatCheckboxModule, FormRoot, FormField, CurrencyPipe],
   selector: 'app-frm-pago',
   styleUrl: './frm-pago.css',
   templateUrl: './frm-pago.html',
 })
 export class FrmPago implements OnInit {
-  readonly dialogRef = inject(MatDialogRef<FrmPago, PagoInput | false | undefined>);
+  readonly dialogRef = inject(MatDialogRef<FrmPago, PagoInput[] | false | undefined>);
   private readonly data = inject<PagoDialogData>(MAT_DIALOG_DATA);
-  private readonly srvReservaHabitacion = inject(ReservaHabitacionService);
-  private readonly srvReservaTour = inject(ReservaTourService);
-  readonly reservaFija = this.data.reservaId !== undefined;
+  readonly srvCliente = inject(ClienteService);
+  readonly srvTipoCambio = inject(TipoCambioService);
 
-  tipo = signal<TipoReservaPago>(this.data.tipo ?? 'HABITACION');
-
-  readonly metodos: { valor: MetodoPago; texto: string; icono: string }[] = [
-    { valor: 'EFECTIVO', texto: 'Efectivo', icono: 'payments' },
-    { valor: 'TARJETA', texto: 'Tarjeta', icono: 'credit_card' },
-    { valor: 'SINPE', texto: 'SINPE Móvil', icono: 'phone_iphone' },
+  readonly metodos: { valor: MetodoPago; texto: string }[] = [
+    { valor: 'EFECTIVO', texto: 'Efectivo' },
+    { valor: 'TARJETA', texto: 'Tarjeta' },
+    { valor: 'SINPE', texto: 'SINPE Móvil' },
   ];
 
+  busqueda = signal('');
+  cliente = signal<ClienteModel | null>(null);
+  seleccionadas = signal<Set<string>>(new Set());
+
+  readonly clientesEncontrados = computed(() => {
+    const texto = normalizar(this.busqueda());
+    if (texto.length < 2) {
+      return [];
+    }
+    return (this.srvCliente.todos.value()?.data ?? [])
+      .filter((cliente) => normalizar(`${cliente.nombre} ${cliente.apellidos}`).includes(texto)
+        || normalizar(cliente.identificacion).includes(texto))
+      .slice(0, 8);
+  });
+
+  private readonly reservasHabitacion = httpResource<{ data: ReservaHabitacionModel[] }>(() => {
+    const cliente = this.cliente();
+    return cliente ? { url: `${_SERVIDOR}/reservas-habitacion/filter/0/100`, params: { cliente_id: Number(cliente.id) } } : undefined;
+  });
+
+  private readonly reservasTour = httpResource<{ data: ReservaTourModel[] }>(() => {
+    const cliente = this.cliente();
+    return cliente ? { url: `${_SERVIDOR}/reservas-tour/filter/0/100`, params: { cliente_id: Number(cliente.id) } } : undefined;
+  });
+
+  readonly cargandoReservas = computed(() => this.reservasHabitacion.isLoading() || this.reservasTour.isLoading());
+
+  readonly pendientes = computed<ReservaPendiente[]>(() => {
+    const habitaciones = (this.reservasHabitacion.value()?.data ?? []).map((reserva) => this.pendiente(
+      'HABITACION', reserva.id!, reserva.codigo ?? '', `Habitación ${reserva.habitacion_numero} · ${reserva.tipo_habitacion_nombre ?? ''}`,
+      `${reserva.fecha_entrada.substring(0, 10)} → ${reserva.fecha_salida.substring(0, 10)}`,
+      reserva.estado, reserva.total, reserva.pagado));
+    const tours = (this.reservasTour.value()?.data ?? []).map((reserva) => this.pendiente(
+      'TOUR', reserva.id!, reserva.codigo ?? '', `${reserva.tour_nombre ?? ''} · ${reserva.personas} pers.`,
+      (reserva.fecha_hora_inicio ?? '').substring(0, 16),
+      reserva.estado, reserva.total, reserva.pagado));
+    return [...habitaciones, ...tours].filter((reserva): reserva is ReservaPendiente => reserva !== null);
+  });
+
+  readonly elegidas = computed(() => this.pendientes().filter((reserva) => this.seleccionadas().has(reserva.clave)));
+
+  readonly saldoElegido = computed(() => this.elegidas().reduce((suma, reserva) => suma + reserva.saldo, 0));
+
+  readonly variasReservas = computed(() => this.elegidas().length > 1);
+
   objPago = signal<PagoForm>({
-    reserva_id: this.data.reservaId ?? 0,
     monto: 0,
     moneda: 'CRC',
     metodo: 'EFECTIVO',
     referencia: '',
   });
 
-  readonly reservas = computed<ReservaOpcion[]>(() => {
-    if (this.tipo() === 'HABITACION') {
-      return (this.srvReservaHabitacion.todas.value()?.data ?? [])
-        .filter((reserva) => reserva.estado !== 'CANCELADA')
-        .map((reserva) => this.opcion(reserva.id!, reserva.codigo ?? '', `${reserva.cliente_nombre} ${reserva.cliente_apellidos}`,
-          `Hab. ${reserva.habitacion_numero}`, Number(reserva.total ?? 0), Number(reserva.pagado ?? 0)));
-    }
-    return (this.srvReservaTour.todas.value()?.data ?? [])
-      .filter((reserva) => reserva.estado !== 'CANCELADA')
-      .map((reserva) => this.opcion(reserva.id!, reserva.codigo ?? '', `${reserva.cliente_nombre} ${reserva.cliente_apellidos}`,
-        reserva.tour_nombre ?? '', Number(reserva.total ?? 0), Number(reserva.pagado ?? 0)));
+  readonly moneda = computed(() => this.objPago().moneda);
+
+  readonly tipoCambio = computed(() => Number(this.srvTipoCambio.hoy.value()?.data?.aplicado ?? 0));
+
+  readonly saldoAPagar = computed(() => {
+    const moneda = this.moneda();
+    const total = this.elegidas().reduce((suma, reserva) => suma + this.saldoEnMoneda(reserva, moneda), 0);
+    return Math.round(total * 100) / 100;
   });
 
-  readonly reservaSeleccionada = computed(() => {
-    const id = Number(this.objPago().reserva_id);
-    return this.reservas().find((reserva) => reserva.id === id);
-  });
+  readonly equivalenteColones = computed(() =>
+    Math.min(Math.round(Number(this.objPago().monto || 0) * this.tipoCambio() * 100) / 100, this.saldoElegido()));
 
   frmPago = form(this.objPago, (s) => {
-    disabled(s.reserva_id, () => this.reservaFija);
-
-    validate(s.reserva_id, (context: RootFieldContext<number>): ErrorCampo => {
-      return Number(context.value()) >= 1 ? null : { kind: 'reserva', message: 'Seleccione la reserva' };
-    });
-
     required(s.monto, { message: 'El monto es requerido' });
-    validate(s.monto, ({ value, valueOf }): ErrorCampo => {
+    validate(s.monto, ({ value }): ErrorCampo => {
       const monto = Number(value());
       if (isNaN(monto) || monto <= 0) {
         return { kind: 'monto', message: 'El monto debe ser mayor a 0' };
@@ -107,70 +151,160 @@ export class FrmPago implements OnInit {
       if (!/^\d+(\.\d{1,2})?$/.test(String(value()))) {
         return { kind: 'decimales', message: 'El monto puede tener máximo 2 decimales' };
       }
-      const saldo = this.reservaSeleccionada()?.saldo;
-      return valueOf(s.moneda) === 'CRC' && saldo !== undefined && monto > saldo
-        ? { kind: 'saldo', message: 'El monto supera el saldo pendiente de la reserva' }
+      return monto > this.saldoAPagar()
+        ? { kind: 'saldo', message: 'El monto supera el saldo pendiente' }
         : null;
     });
 
-    required(s.moneda, { message: 'La moneda es requerida' });
+    validate(s.moneda, ({ value }): ErrorCampo => {
+      return value() === 'USD' && this.tipoCambio() <= 0
+        ? { kind: 'usd', message: 'No se pudo obtener el tipo de cambio del día' }
+        : null;
+    });
+
     required(s.metodo, { message: 'El método de pago es requerido' });
 
     required(s.referencia, {
       message: 'El número de comprobante es requerido para tarjeta y SINPE',
       when: ({ valueOf }) => valueOf(s.metodo) !== 'EFECTIVO',
     });
-    pattern(s.referencia, /^[A-Za-z0-9-]{3,50}$/, {
-      message: 'Entre 3 y 50 letras, números o guiones',
+    pattern(s.referencia, /^[A-Za-z0-9-]{3,30}$/, {
+      message: 'Entre 3 y 30 letras, números o guiones',
       when: (context) => context.value() !== '',
     });
   }, {
     submission: {
       action: async () => {
+        const elegidas = this.elegidas();
+        if (elegidas.length === 0) {
+          return;
+        }
         const pago = this.objPago();
-        const esHabitacion = this.tipo() === 'HABITACION';
-        this.dialogRef.close({
-          reserva_habitacion_id: esHabitacion ? Number(pago.reserva_id) : null,
-          reserva_tour_id: esHabitacion ? null : Number(pago.reserva_id),
-          monto: Number(pago.monto),
+        const referencia = pago.referencia.trim().toUpperCase();
+        const fecha = ahora();
+        const montos = this.repartir(Number(pago.monto), elegidas, pago.moneda);
+        this.dialogRef.close(elegidas.map((reserva, indice) => ({
+          reserva_habitacion_id: reserva.tipo === 'HABITACION' ? reserva.id : null,
+          reserva_tour_id: reserva.tipo === 'TOUR' ? reserva.id : null,
+          monto: montos[indice],
           moneda: pago.moneda,
           metodo: pago.metodo,
-          referencia: pago.referencia.trim().toUpperCase(),
-          pagado_at: ahora(),
-        });
+          referencia: referencia !== '' && elegidas.length > 1 ? `${referencia}-${reserva.codigo}` : referencia,
+          pagado_at: fecha,
+        })).filter((detalle) => detalle.monto > 0));
       }
     }
   });
 
-  private opcion(id: number, codigo: string, cliente: string, detalle: string, total: number, pagado: number): ReservaOpcion {
-    return { id: Number(id), codigo, cliente, detalle, total, pagado, saldo: Math.max(total - pagado, 0) };
+  constructor() {
+    effect(() => {
+      const saldo = this.saldoAPagar();
+      untracked(() => this.objPago.update((actual) => ({ ...actual, monto: saldo })));
+    });
+
+    effect(() => {
+      const pendientes = this.pendientes();
+      const reservaId = this.data.reservaId;
+      if (reservaId === undefined || pendientes.length === 0) {
+        return;
+      }
+      const clave = `${this.data.tipo ?? 'HABITACION'}-${reservaId}`;
+      untracked(() => {
+        if (this.seleccionadas().size === 0 && pendientes.some((reserva) => reserva.clave === clave)) {
+          this.seleccionadas.set(new Set([clave]));
+        }
+      });
+    });
+
+    effect(() => {
+      const clienteId = this.data.clienteId;
+      const clientes = this.srvCliente.todos.value()?.data ?? [];
+      if (clienteId === undefined || untracked(() => this.cliente()) !== null) {
+        return;
+      }
+      const cliente = clientes.find((opcion) => Number(opcion.id) === Number(clienteId));
+      if (cliente) {
+        untracked(() => this.elegirCliente(cliente));
+      }
+    });
   }
 
-  cambiarTipo(tipo: TipoReservaPago): void {
-    this.tipo.set(tipo);
-    this.objPago.update((actual) => ({ ...actual, reserva_id: 0, monto: 0 }));
+  private pendiente(tipo: TipoReservaPago, id: number, codigo: string, detalle: string, fechas: string,
+                    estado: string, total: unknown, pagado: unknown): ReservaPendiente | null {
+    const saldo = Math.max(Number(total ?? 0) - Number(pagado ?? 0), 0);
+    if (estado === 'CANCELADA' || saldo <= 0) {
+      return null;
+    }
+    return { clave: `${tipo}-${id}`, tipo, id: Number(id), codigo, detalle, fechas,
+      total: Number(total ?? 0), pagado: Number(pagado ?? 0), saldo };
   }
 
-  onReservaChange(): void {
-    const reserva = this.reservaSeleccionada();
-    if (reserva && this.objPago().moneda === 'CRC') {
-      this.objPago.update((actual) => ({ ...actual, monto: reserva.saldo }));
+  saldoEnMoneda(reserva: ReservaPendiente, moneda: MonedaPago): number {
+    const tipoCambio = this.tipoCambio();
+    if (moneda === 'CRC' || tipoCambio <= 0) {
+      return reserva.saldo;
+    }
+    return Math.ceil(Math.round(reserva.saldo / tipoCambio * 10000) / 100) / 100;
+  }
+
+  private repartir(monto: number, elegidas: ReservaPendiente[], moneda: MonedaPago): number[] {
+    if (elegidas.length === 1) {
+      return [monto];
+    }
+    let restante = monto;
+    return elegidas.map((reserva) => {
+      const parte = Math.min(this.saldoEnMoneda(reserva, moneda), Math.round(restante * 100) / 100);
+      restante -= parte;
+      return parte;
+    });
+  }
+
+  nombreCliente(cliente: ClienteModel | null): string {
+    return cliente ? `${cliente.nombre} ${cliente.apellidos}` : '';
+  }
+
+  buscar(evento: Event): void {
+    this.busqueda.set((evento.target as HTMLInputElement).value);
+    if (this.cliente() !== null) {
+      this.cliente.set(null);
+      this.seleccionadas.set(new Set());
     }
   }
 
-  ngOnInit(): void {
-    this.srvReservaHabitacion.todas.reload();
-    this.srvReservaTour.todas.reload();
+  elegirCliente(cliente: ClienteModel): void {
+    this.cliente.set(cliente);
+    this.busqueda.set(this.nombreCliente(cliente));
+    this.seleccionadas.set(new Set());
   }
 
-  constructor() {
-    let montoInicial = false;
-    effect(() => {
-      const reserva = this.reservaSeleccionada();
-      if (this.reservaFija && reserva && !montoInicial) {
-        montoInicial = true;
-        untracked(() => this.objPago.update((actual) => ({ ...actual, monto: reserva.saldo })));
+  onClienteSeleccionado(evento: MatAutocompleteSelectedEvent): void {
+    this.elegirCliente(evento.option.value as ClienteModel);
+  }
+
+  cambiarCliente(): void {
+    this.cliente.set(null);
+    this.busqueda.set('');
+    this.seleccionadas.set(new Set());
+  }
+
+  alternar(clave: string, marcada: boolean): void {
+    this.seleccionadas.update((actual) => {
+      const nueva = new Set(actual);
+      if (marcada) {
+        nueva.add(clave);
+      } else {
+        nueva.delete(clave);
       }
+      return nueva;
     });
+  }
+
+  alternarTodas(marcada: boolean): void {
+    this.seleccionadas.set(marcada ? new Set(this.pendientes().map((reserva) => reserva.clave)) : new Set());
+  }
+
+  ngOnInit(): void {
+    this.srvCliente.todos.reload();
+    this.srvTipoCambio.hoy.reload();
   }
 }

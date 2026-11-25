@@ -88,6 +88,11 @@
         <th mat-header-cell *matHeaderCellDef> Monto </th>
         <td mat-cell *matCellDef="let pago" class="font-semibold whitespace-nowrap">
           {{ pago.monto | currency:pago.moneda:'symbol-narrow':'1.0-2' }}
+          @if (pago.moneda === 'USD' && pago.tipo_cambio) {
+            <div class="text-xs font-normal text-[#352D39]/60">
+              {{ pago.monto * pago.tipo_cambio | currency:'CRC':'symbol-narrow':'1.0-2' }} a {{ pago.tipo_cambio | currency:'CRC':'symbol-narrow':'1.2-2' }}
+            </div>
+          }
         </td>
       </ng-container>
 

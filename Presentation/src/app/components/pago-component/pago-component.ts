@@ -1,6 +1,7 @@
 import { Component, computed, effect, inject, OnInit, signal, untracked } from '@angular/core';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
+import { forkJoin } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -113,21 +114,21 @@ export class PagoComponent implements OnInit {
   }
 
   onCreate(): void {
-    this.dialog.open<FrmPago, unknown, PagoInput | false | undefined>(FrmPago, {
+    this.dialog.open<FrmPago, unknown, PagoInput[] | false | undefined>(FrmPago, {
       width: '92vw',
-      maxWidth: '38rem',
+      maxWidth: '42rem',
       panelClass: 'dialogo-hotel',
       autoFocus: false,
       data: {},
       disableClose: true,
-    }).afterClosed().subscribe((pago) => {
-      if (pago === undefined || pago === false) {
+    }).afterClosed().subscribe((pagos) => {
+      if (pagos === undefined || pagos === false || pagos.length === 0) {
         return;
       }
-      this.srvPago.registrar(pago).subscribe({
+      forkJoin(pagos.map((pago) => this.srvPago.registrar(pago))).subscribe({
         complete: () => {
           this.srvPago.pagos.reload();
-          this.alertar('check', 'Pago registrado');
+          this.alertar('check', pagos.length === 1 ? 'Pago registrado' : `Pago registrado para ${pagos.length} reservas`);
         },
         error: (error: HttpErrorResponse) => {
           this.alertar('error', this.mensajeError(error, 'No se pudo registrar el pago'));

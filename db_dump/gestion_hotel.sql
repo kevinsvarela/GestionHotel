@@ -191,12 +191,14 @@ CREATE TABLE pagos (
   registrado_por         INT UNSIGNED   NOT NULL,
   monto                  DECIMAL(10,2)  NOT NULL,
   moneda                 CHAR(3)        NOT NULL DEFAULT 'CRC',
+  tipo_cambio            DECIMAL(10,2)  NOT NULL DEFAULT 1.00,
   metodo                 ENUM('EFECTIVO','TARJETA','SINPE') NOT NULL,
   referencia             VARCHAR(50)    NULL,
   pagado_at              DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT uq_pagos_metodo_referencia UNIQUE (metodo, referencia),
   CONSTRAINT chk_pagos_monto CHECK (monto > 0),
   CONSTRAINT chk_pagos_moneda CHECK (moneda IN ('CRC','USD')),
+  CONSTRAINT chk_pagos_tipo_cambio CHECK (tipo_cambio > 0),
   CONSTRAINT chk_pagos_una_reserva CHECK (
     (reserva_habitacion_id IS NOT NULL AND reserva_tour_id IS NULL) OR
     (reserva_habitacion_id IS NULL AND reserva_tour_id IS NOT NULL)

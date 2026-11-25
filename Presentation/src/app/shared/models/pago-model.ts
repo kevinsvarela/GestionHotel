@@ -13,9 +13,18 @@ export interface PagoModel {
   registrado_por_nombre?: string;
   monto: number;
   moneda: MonedaPago;
+  tipo_cambio?: number;
   metodo: MetodoPago;
   referencia?: string | null;
   pagado_at: string;
+}
+
+export interface TipoCambioModel {
+  fecha: string;
+  compra: number;
+  venta: number;
+  aplicado: number;
+  fuente: string;
 }
 
 export interface PagoInput {

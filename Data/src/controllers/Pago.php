@@ -20,7 +20,7 @@ class Pago {
         $this->container->get('eloquent');
         if(isset($args['id'])){
             $pago = PagoModel::query()
-                ->select(['id', 'reserva_habitacion_id', 'reserva_tour_id', 'registrado_por', 'monto', 'moneda', 'metodo', 'referencia', 'pagado_at'])
+                ->select(['id', 'reserva_habitacion_id', 'reserva_tour_id', 'registrado_por', 'monto', 'moneda', 'tipo_cambio', 'metodo', 'referencia', 'pagado_at'])
                 ->find($args['id']);
  
             if ($pago === null) {
@@ -31,7 +31,7 @@ class Pago {
         }
  
         $pagos = PagoModel::query()
-                ->select(['id', 'reserva_habitacion_id', 'reserva_tour_id', 'registrado_por', 'monto', 'moneda', 'metodo', 'referencia', 'pagado_at'])
+                ->select(['id', 'reserva_habitacion_id', 'reserva_tour_id', 'registrado_por', 'monto', 'moneda', 'tipo_cambio', 'metodo', 'referencia', 'pagado_at'])
                 ->get()
                 ->toArray();
             return $this->json($response, ['data' => $pagos], 200);
@@ -48,6 +48,7 @@ class Pago {
         $registradoPor = filter_var($data['registrado_por'] ?? '', FILTER_VALIDATE_INT);
         $monto = $data['monto'] ?? '';
         $moneda = trim((string) ($data['moneda'] ?? 'CRC'));
+        $tipoCambio = $data['tipo_cambio'] ?? 1;
         $metodo = trim((string) ($data['metodo'] ?? ''));
         $referencia = isset($data['referencia']) ? trim((string) $data['referencia']) : null;
         $pagadoAt = trim((string) ($data['pagado_at'] ?? ''));
@@ -66,6 +67,9 @@ class Pago {
         }
         if ($moneda === '' || mb_strlen($moneda) > 3) {
             $errors['moneda'] = 'Debe ser un valor válido.';
+        }
+        if (!is_numeric($tipoCambio) || $tipoCambio <= 0) {
+            $errors['tipo_cambio'] = 'Debe ser numérico y mayor a 0.';
         }
         if ($metodo === '' || mb_strlen($metodo) > 20) {
             $errors['metodo'] = 'Es obligatorio.';
@@ -92,6 +96,7 @@ class Pago {
                 'registrado_por' => $registradoPor,
                 'monto' => $monto,
                 'moneda' => $moneda,
+                'tipo_cambio' => $tipoCambio,
                 'metodo' => $metodo,
                 'referencia' => $referencia,
                 'pagado_at' => $pagadoAt,
@@ -146,6 +151,7 @@ class Pago {
                 'pagos.registrado_por',
                 'pagos.monto',
                 'pagos.moneda',
+                'pagos.tipo_cambio',
                 'pagos.metodo',
                 'pagos.referencia',
                 'pagos.pagado_at',
@@ -262,6 +268,14 @@ class Pago {
                     return $this->json($response, ['error' => 'Moneda inválida.'], 422);
                 }
                 $pago->moneda = $moneda;
+            }
+
+            if (isset($data['tipo_cambio'])) {
+                $tipoCambio = $data['tipo_cambio'];
+                if (!is_numeric($tipoCambio) || $tipoCambio <= 0) {
+                    return $this->json($response, ['error' => 'Tipo de cambio inválido.'], 422);
+                }
+                $pago->tipo_cambio = $tipoCambio;
             }
 
             if (isset($data['metodo'])) {

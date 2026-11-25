@@ -2,7 +2,7 @@
   <span class="icono-titulo"><mat-icon>payments</mat-icon></span>
   <div class="flex-1">
     <h2 class="dlg-titulo">Registrar pago</h2>
-    <p class="dlg-subtitulo">Abono o pago completo de una reserva</p>
+    <p class="dlg-subtitulo">Un pago puede cubrir una o varias reservas del mismo cliente</p>
   </div>
   <button mat-icon-button type="button" class="dlg-cerrar" [mat-dialog-close]="false" aria-label="Cerrar">
     <mat-icon>close</mat-icon>
@@ -10,89 +10,144 @@
 </div>
 
 <mat-dialog-content class="dlg-contenido">
-  <form id="frmPago" [formRoot]="frmPago" class="grid gap-3 pt-3">
-    <p class="dlg-seccion">Reserva</p>
-    @if (!reservaFija) {
-      <mat-button-toggle-group [value]="tipo()" (change)="cambiarTipo($event.value)" aria-label="Tipo de reserva" class="w-fit">
-        <mat-button-toggle value="HABITACION"><mat-icon class="mr-1">hotel</mat-icon>Hospedaje</mat-button-toggle>
-        <mat-button-toggle value="TOUR"><mat-icon class="mr-1">tour</mat-icon>Tour</mat-button-toggle>
-      </mat-button-toggle-group>
-    }
-
-    <mat-form-field appearance="outline">
-      <mat-label>Reserva</mat-label>
-      <mat-icon matPrefix class="dlg-prefijo">confirmation_number</mat-icon>
-      <mat-select [formField]="frmPago.reserva_id" (selectionChange)="onReservaChange()">
-        @for (reserva of reservas(); track reserva.id) {
-          <mat-option [value]="reserva.id">
-            {{ reserva.codigo }} · {{ reserva.cliente }} · {{ reserva.detalle }}
+  <p class="dlg-seccion">Cliente</p>
+  @if (cliente(); as elegido) {
+    <div class="cliente-elegido">
+      <mat-icon>person</mat-icon>
+      <div class="flex-1">
+        <div class="font-semibold">{{ nombreCliente(elegido) }}</div>
+        <div class="text-xs text-[#352D39]/60">{{ elegido.identificacion }} · {{ elegido.email }}</div>
+      </div>
+      <button type="button" class="boton-borde" (click)="cambiarCliente()">Cambiar</button>
+    </div>
+  } @else {
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Buscar cliente</mat-label>
+      <mat-icon matPrefix class="dlg-prefijo">search</mat-icon>
+      <input matInput autocomplete="off" placeholder="Nombre o cédula" [value]="busqueda()" (input)="buscar($event)"
+        [matAutocomplete]="listaClientes" />
+      <mat-autocomplete #listaClientes="matAutocomplete" [displayWith]="nombreCliente" (optionSelected)="onClienteSeleccionado($event)">
+        @for (opcion of clientesEncontrados(); track opcion.id) {
+          <mat-option [value]="opcion">
+            <span class="font-semibold">{{ opcion.nombre }} {{ opcion.apellidos }}</span>
+            <span class="text-xs text-[#352D39]/60"> · {{ opcion.identificacion }}</span>
           </mat-option>
         }
-      </mat-select>
-      @if (frmPago.reserva_id().touched() && frmPago.reserva_id().invalid()) {
-        @for (error of frmPago.reserva_id().errors(); track error.kind) {
-          <mat-error>{{ error.message }}</mat-error>
-        }
-      }
+      </mat-autocomplete>
+      <mat-hint>Escriba al menos 2 letras o números</mat-hint>
     </mat-form-field>
+  }
 
-    @if (reservaSeleccionada(); as reserva) {
-      <div class="resumen-pago">
-        <div><span>Total</span><strong>{{ reserva.total | currency:'CRC':'symbol-narrow':'1.0-2' }}</strong></div>
-        <div><span>Pagado</span><strong>{{ reserva.pagado | currency:'CRC':'symbol-narrow':'1.0-2' }}</strong></div>
-        <div class="saldo"><span>Saldo</span><strong>{{ reserva.saldo | currency:'CRC':'symbol-narrow':'1.0-2' }}</strong></div>
+  @if (cliente()) {
+    <p class="dlg-seccion">Reservas pendientes de pago</p>
+    @if (cargandoReservas()) {
+      <p class="text-sm text-[#352D39]/60">Cargando reservas...</p>
+    } @else if (pendientes().length === 0) {
+      <p class="sin-pendientes"><mat-icon>check_circle</mat-icon>Este cliente no tiene reservas con saldo pendiente.</p>
+    } @else {
+      <div class="lista-reservas">
+        @if (pendientes().length > 1) {
+          <mat-checkbox class="todas" [checked]="elegidas().length === pendientes().length"
+            [indeterminate]="elegidas().length > 0 && elegidas().length < pendientes().length"
+            (change)="alternarTodas($event.checked)">
+            Seleccionar todas
+          </mat-checkbox>
+        }
+        @for (reserva of pendientes(); track reserva.clave) {
+          <label class="fila-reserva" [class.marcada]="seleccionadas().has(reserva.clave)">
+            <mat-checkbox [checked]="seleccionadas().has(reserva.clave)" (change)="alternar(reserva.clave, $event.checked)"
+              [aria-label]="'Pagar la reserva ' + reserva.codigo"></mat-checkbox>
+            <mat-icon class="tipo">{{ reserva.tipo === 'HABITACION' ? 'hotel' : 'tour' }}</mat-icon>
+            <div class="flex-1 min-w-0">
+              <div class="font-semibold">{{ reserva.codigo }} <span class="font-normal">· {{ reserva.detalle }}</span></div>
+              <div class="text-xs text-[#352D39]/60">{{ reserva.fechas }} · Total {{ reserva.total | currency:'CRC':'symbol-narrow':'1.0-2' }}</div>
+            </div>
+            <div class="text-right whitespace-nowrap">
+              <div class="text-xs text-[#352D39]/60">Saldo</div>
+              <div class="font-semibold text-[#A72608]">{{ reserva.saldo | currency:'CRC':'symbol-narrow':'1.0-2' }}</div>
+            </div>
+          </label>
+        }
       </div>
     }
+  }
 
-    <p class="dlg-seccion">Pago</p>
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-      <mat-form-field appearance="outline" class="sm:col-span-2">
-        <mat-label>Monto</mat-label>
-        <span matTextPrefix>{{ objPago().moneda === 'USD' ? '$' : '₡' }}&nbsp;</span>
-        <input matInput type="number" step="0.01" [formField]="frmPago.monto" />
-        @if (frmPago.monto().touched() && frmPago.monto().invalid()) {
-          @for (error of frmPago.monto().errors(); track error.kind) {
-            <mat-error>{{ error.message }}</mat-error>
+  @if (elegidas().length > 0) {
+    <form id="frmPago" [formRoot]="frmPago" class="grid gap-3 pt-1">
+      <div class="resumen-pago">
+        <span>{{ elegidas().length }} {{ elegidas().length === 1 ? 'reserva' : 'reservas' }} · saldo total</span>
+        <strong>
+          {{ saldoElegido() | currency:'CRC':'symbol-narrow':'1.0-2' }}
+          @if (objPago().moneda === 'USD') {
+            <span class="en-dolares">· {{ saldoAPagar() | currency:'USD':'symbol-narrow':'1.2-2' }}</span>
           }
-        }
-      </mat-form-field>
+        </strong>
+      </div>
 
-      <mat-form-field appearance="outline">
-        <mat-label>Moneda</mat-label>
-        <mat-select [formField]="frmPago.moneda">
-          <mat-option value="CRC">Colones</mat-option>
-          <mat-option value="USD">Dólares</mat-option>
-        </mat-select>
-      </mat-form-field>
-    </div>
-    @if (objPago().moneda === 'USD') {
-      <p class="aviso-usd"><mat-icon>info</mat-icon>Los pagos en dólares se registran aparte y no se descuentan del saldo en colones.</p>
-    }
-
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      <mat-form-field appearance="outline">
-        <mat-label>Método</mat-label>
-        <mat-select [formField]="frmPago.metodo">
-          @for (metodo of metodos; track metodo.valor) {
-            <mat-option [value]="metodo.valor">{{ metodo.texto }}</mat-option>
+      <p class="dlg-seccion">Pago</p>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <mat-form-field appearance="outline" class="sm:col-span-2">
+          <mat-label>Monto</mat-label>
+          <span matTextPrefix>{{ objPago().moneda === 'USD' ? '$' : '₡' }}&nbsp;</span>
+          <input matInput type="number" step="0.01" [formField]="frmPago.monto" />
+          @if (variasReservas()) {
+            <mat-hint>Si paga menos del total, se abona en el orden de la lista</mat-hint>
           }
-        </mat-select>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>{{ objPago().metodo === 'EFECTIVO' ? 'Referencia (opcional)' : 'N.º de comprobante' }}</mat-label>
-        <input matInput autocomplete="off" [formField]="frmPago.referencia" />
-        @if (frmPago.referencia().touched() && frmPago.referencia().invalid()) {
-          @for (error of frmPago.referencia().errors(); track error.kind) {
-            <mat-error>{{ error.message }}</mat-error>
+          @if (frmPago.monto().touched() && frmPago.monto().invalid()) {
+            @for (error of frmPago.monto().errors(); track error.kind) {
+              <mat-error>{{ error.message }}</mat-error>
+            }
           }
-        }
-      </mat-form-field>
-    </div>
-  </form>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Moneda</mat-label>
+          <mat-select [formField]="frmPago.moneda">
+            <mat-option value="CRC">Colones</mat-option>
+            <mat-option value="USD">Dólares</mat-option>
+          </mat-select>
+          @if (frmPago.moneda().invalid()) {
+            @for (error of frmPago.moneda().errors(); track error.kind) {
+              <mat-error>{{ error.message }}</mat-error>
+            }
+          }
+        </mat-form-field>
+      </div>
+      @if (objPago().moneda === 'USD' && tipoCambio() > 0) {
+        <p class="aviso-usd">
+          <mat-icon>currency_exchange</mat-icon>
+          Tipo de cambio {{ tipoCambio() | currency:'CRC':'symbol-narrow':'1.2-2' }} por dólar · se descuentan
+          {{ equivalenteColones() | currency:'CRC':'symbol-narrow':'1.0-2' }} del saldo
+        </p>
+      }
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <mat-form-field appearance="outline">
+          <mat-label>Método</mat-label>
+          <mat-select [formField]="frmPago.metodo">
+            @for (metodo of metodos; track metodo.valor) {
+              <mat-option [value]="metodo.valor">{{ metodo.texto }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ objPago().metodo === 'EFECTIVO' ? 'Referencia (opcional)' : 'N.º de comprobante' }}</mat-label>
+          <input matInput autocomplete="off" [formField]="frmPago.referencia" />
+          @if (frmPago.referencia().touched() && frmPago.referencia().invalid()) {
+            @for (error of frmPago.referencia().errors(); track error.kind) {
+              <mat-error>{{ error.message }}</mat-error>
+            }
+          }
+        </mat-form-field>
+      </div>
+    </form>
+  }
 </mat-dialog-content>
 
 <div class="dlg-pie">
   <button type="button" class="boton-borde" [mat-dialog-close]="false">Cancelar</button>
-  <button type="submit" form="frmPago" class="boton-lleno"><mat-icon>check</mat-icon>Registrar pago</button>
+  <button type="submit" form="frmPago" class="boton-lleno" [disabled]="elegidas().length === 0">
+    <mat-icon>check</mat-icon>Registrar pago
+  </button>
 </div>

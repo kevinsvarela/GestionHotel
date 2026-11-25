@@ -95,6 +95,9 @@ $app->group('/api', function(RouteCollectorProxy $api) use ($soloAdmin, $persona
         $endpoint->put('/{id}',ReservaTour::class. ':update')->add($personal);
         $endpoint->delete('/{id}',ReservaTour::class . ':delete')->add($soloAdmin);
     });
+    $api->group('/tipo-cambio', function(RouteCollectorProxy $endpoint) use ($personal) {
+        $endpoint->get('',TipoCambio::class . ':hoy')->add($personal);
+    });
     $api->group('/pagos', function(RouteCollectorProxy $endpoint) use ($soloAdmin, $personal) {
         $endpoint->get('[/{id}]',Pago::class . ':read')->add($personal);
         $endpoint->get('/filter/{offset}/{limit}',Pago::class . ':filter')->add($personal);

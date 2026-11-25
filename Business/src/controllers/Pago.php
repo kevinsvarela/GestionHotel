@@ -106,6 +106,8 @@ class Pago {
             #Reglas de negocio: una sola reserva, que exista y que no esté cancelada
             (new PagoValidator())->aplicarReglas($dataservice, $data);
 
+            $data['tipo_cambio'] = TipoCambio::paraMoneda((string) ($data['moneda'] ?? 'CRC'));
+
             $upstream = $dataservice->post('pagos', json_encode($data, JSON_THROW_ON_ERROR));
 
             return $this->json($response, json_decode((string) $upstream->getBody(), true), $upstream->getStatusCode());
@@ -148,6 +150,11 @@ class Pago {
 
                 #Se revisan las reglas con el registro completo: lo que había más los cambios
                 (new PagoValidator())->aplicarReglas($dataservice, array_merge($anterior, $data));
+            }
+
+            unset($data['tipo_cambio']);
+            if (isset($data['moneda'])) {
+                $data['tipo_cambio'] = TipoCambio::paraMoneda((string) $data['moneda']);
             }
 
             $upstream = $dataservice->put('pagos/' . rawurlencode($args['id']), json_encode($data, JSON_THROW_ON_ERROR));

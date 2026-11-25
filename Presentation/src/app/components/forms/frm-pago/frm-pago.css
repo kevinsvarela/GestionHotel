@@ -1,26 +1,79 @@
-.resumen-pago {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
+.cliente-elegido {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border: 1px solid #E6E9E4;
+    border-radius: 12px;
+    background: #F7F9F6;
+}
+
+.cliente-elegido > mat-icon {
+    color: #155600;
+}
+
+.lista-reservas {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.todas {
+    margin-left: 2px;
+}
+
+.fila-reserva {
+    display: flex;
+    align-items: center;
     gap: 8px;
-    padding: 10px 14px;
-    border-radius: 10px;
+    padding: 8px 12px 8px 4px;
+    border: 1px solid #E6E9E4;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.fila-reserva:hover {
+    background: rgba(21, 86, 0, 0.04);
+}
+
+.fila-reserva.marcada {
+    border-color: #155600;
     background: rgba(21, 86, 0, 0.06);
 }
 
-.resumen-pago div {
+.fila-reserva .tipo {
+    color: #1E9C99;
+}
+
+.sin-pendientes {
     display: flex;
-    flex-direction: column;
-    font-size: 0.8rem;
-    color: rgba(53, 45, 57, 0.7);
+    align-items: center;
+    gap: 6px;
+    color: #155600;
+    font-size: 0.9rem;
+}
+
+.resumen-pago {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: rgba(21, 86, 0, 0.08);
+    color: #352D39;
+    font-size: 0.9rem;
 }
 
 .resumen-pago strong {
-    font-size: 1rem;
-    color: #352D39;
+    color: #155600;
+    font-size: 1.05rem;
 }
 
-.resumen-pago .saldo strong {
-    color: #155600;
+.resumen-pago .en-dolares {
+    font-weight: 500;
+    font-size: 0.9rem;
 }
 
 .aviso-usd {
@@ -36,4 +89,9 @@
     font-size: 18px;
     width: 18px;
     height: 18px;
+}
+
+.boton-lleno:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
