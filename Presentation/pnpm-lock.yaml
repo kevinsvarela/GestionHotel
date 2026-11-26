@@ -197,10 +197,10 @@ importers:
         specifier: ^4.3.5
         version: 4.3.5
       jspdf:
-        specifier: 4.2.1
+        specifier: ^4.2.1
         version: 4.2.1
       jspdf-autotable:
-        specifier: 5.0.9
+        specifier: ^5.0.9
         version: 5.0.9(jspdf@4.2.1)
       postcss:
         specifier: ^8.5.32

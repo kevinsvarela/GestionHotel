@@ -95,6 +95,12 @@ $app->group('/api', function(RouteCollectorProxy $api) use ($soloAdmin, $persona
         $endpoint->put('/{id}',ReservaTour::class. ':update')->add($personal);
         $endpoint->delete('/{id}',ReservaTour::class . ':delete')->add($soloAdmin);
     });
+    $api->group('/dashboard', function(RouteCollectorProxy $endpoint) use ($personal) {
+        $endpoint->get('',Dashboard::class . ':resumen')->add($personal);
+    });
+    $api->group('/reportes', function(RouteCollectorProxy $endpoint) use ($personal) {
+        $endpoint->get('/{tipo}',Reporte::class . ':generar')->add($personal);
+    });
     $api->group('/tipo-cambio', function(RouteCollectorProxy $endpoint) use ($personal) {
         $endpoint->get('',TipoCambio::class . ':hoy')->add($personal);
     });
@@ -102,8 +108,7 @@ $app->group('/api', function(RouteCollectorProxy $api) use ($soloAdmin, $persona
         $endpoint->get('[/{id}]',Pago::class . ':read')->add($personal);
         $endpoint->get('/filter/{offset}/{limit}',Pago::class . ':filter')->add($personal);
         $endpoint->post('',Pago::class .':create')->add($personal);
-        $endpoint->put('/{id}',Pago::class. ':update')->add($personal);
-        $endpoint->delete('/{id}',Pago::class . ':delete')->add($soloAdmin);
+        $endpoint->patch('/{id}/anular',Pago::class . ':anular')->add($soloAdmin);
     });
     $api->group('/servicios-incluidos', function(RouteCollectorProxy $endpoint) use ($soloAdmin, $todos) {
         $endpoint->get('',ServicioIncluido::class . ':read')->add($todos);

@@ -1,27 +1,229 @@
-<div class="p-8">
-  <div class="rounded-xl bg-[#155600] text-white p-8 shadow-md border-b-8 border-[#FCDC4D]">
-    <h1 class="text-[2rem] font-extrabold flex items-center gap-3">
-      <mat-icon class="text-[#FCDC4D]! scale-150">hotel</mat-icon>
-      Bienvenido a Gestión Hotel
-    </h1>
-    <p class="mt-2 text-white/90">Administre habitaciones, tours, reservas y usuarios desde un solo lugar.</p>
-  </div>
+<div class="tablero">
+  <header class="portada" style="--foto: url('resources/Beach.jpg')">
+    <div class="portada-contenido">
+      <div class="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <p class="portada-fecha"><mat-icon>{{ iconoSaludo() }}</mat-icon>{{ fechaLarga() }}</p>
+          <h1 class="portada-saludo">{{ saludo() }}</h1>
+          <p class="portada-texto">Así va el día en el hotel</p>
+        </div>
+        <button type="button" class="boton-portada" (click)="actualizar()" [disabled]="srvDashboard.resumen.isLoading()">
+          <mat-icon [class.girando]="srvDashboard.resumen.isLoading()">refresh</mat-icon>Actualizar
+        </button>
+      </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-    <a routerLink="/habitacion" class="rounded-xl bg-white p-6 shadow-sm border-t-8 border-[#155600] hover:shadow-md text-[#352D39]">
-      <mat-icon class="text-[#155600]!">bed</mat-icon>
-      <h2 class="font-bold text-[1.2rem] mt-2">Habitaciones</h2>
-      <p class="text-[#352D39]/80">Tipos, servicios y disponibilidad.</p>
-    </a>
-    <a routerLink="/tour" class="rounded-xl bg-white p-6 shadow-sm border-t-8 border-[#1E9C99] hover:shadow-md text-[#352D39]">
-      <mat-icon class="text-[#1E9C99]!">tour</mat-icon>
-      <h2 class="font-bold text-[1.2rem] mt-2">Tours</h2>
-      <p class="text-[#352D39]/80">Tours, guías e idiomas.</p>
-    </a>
-    <a routerLink="/reserva" class="rounded-xl bg-white p-6 shadow-sm border-t-8 border-[#A72608] hover:shadow-md text-[#352D39]">
-      <mat-icon class="text-[#A72608]!">calendar_month</mat-icon>
-      <h2 class="font-bold text-[1.2rem] mt-2">Reservas</h2>
-      <p class="text-[#352D39]/80">Reservas de habitación y de tours.</p>
-    </a>
-  </div>
+      @if (datos(); as d) {
+        <div class="portada-chips">
+          <span class="chip"><mat-icon>luggage</mat-icon>{{ d.llegadas.length }} {{ d.llegadas.length === 1 ? 'llegada' : 'llegadas' }}</span>
+          <span class="chip"><mat-icon>flight_takeoff</mat-icon>{{ d.salidas.length }} {{ d.salidas.length === 1 ? 'salida' : 'salidas' }}</span>
+          <span class="chip"><mat-icon>sailing</mat-icon>{{ d.tours_hoy.length }} {{ d.tours_hoy.length === 1 ? 'tour' : 'tours' }} hoy</span>
+        </div>
+      }
+    </div>
+    <svg class="portada-ola" viewBox="0 0 1440 80" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0,40 C180,80 360,0 540,30 C720,60 900,10 1080,35 C1260,60 1350,30 1440,40 L1440,80 L0,80 Z"></path>
+    </svg>
+  </header>
+
+  @if (srvDashboard.resumen.error()) {
+    <p class="aviso-error"><mat-icon>error</mat-icon>No se pudo cargar el resumen del día. Intente actualizar.</p>
+  } @else if (datos(); as d) {
+    <section class="indicadores">
+      <article class="indicador palma">
+        <span class="icono-indicador"><mat-icon>king_bed</mat-icon></span>
+        <div class="min-w-0 flex-1">
+          <div class="etiqueta">Ocupación en este momento</div>
+          <div class="valor">{{ ocupacion() }}%</div>
+          <div class="detalle">{{ d.en_casa.reservas }} de {{ habitacionesOperables() }} habitaciones</div>
+          <div class="barra-progreso"><span [style.width.%]="ocupacion()"></span></div>
+        </div>
+      </article>
+      <article class="indicador mar">
+        <span class="icono-indicador"><mat-icon>beach_access</mat-icon></span>
+        <div class="min-w-0 flex-1">
+          <div class="etiqueta">Huéspedes en el hotel</div>
+          <div class="valor">{{ d.en_casa.huespedes }}</div>
+          <div class="detalle">en {{ d.en_casa.reservas }} {{ d.en_casa.reservas === 1 ? 'habitación' : 'habitaciones' }}</div>
+        </div>
+      </article>
+      <article class="indicador sol">
+        <span class="icono-indicador"><mat-icon>point_of_sale</mat-icon></span>
+        <div class="min-w-0 flex-1">
+          <div class="etiqueta">Cobrado hoy</div>
+          <div class="valor">{{ d.cobrado_hoy.total | currency:'CRC':'symbol-narrow':'1.0-0' }}</div>
+          <div class="detalle">{{ d.cobrado_hoy.pagos }} {{ d.cobrado_hoy.pagos === 1 ? 'pago' : 'pagos' }}</div>
+        </div>
+      </article>
+      <article class="indicador coral">
+        <span class="icono-indicador"><mat-icon>savings</mat-icon></span>
+        <div class="min-w-0 flex-1">
+          <div class="etiqueta">Cobrado en {{ mes() }}</div>
+          <div class="valor">{{ d.cobrado_mes.total | currency:'CRC':'symbol-narrow':'1.0-0' }}</div>
+          <div class="detalle">{{ d.cobrado_mes.pagos }} pagos</div>
+        </div>
+      </article>
+    </section>
+
+    @if (d.habitaciones.mantenimiento > 0 || d.habitaciones.fuera_servicio > 0) {
+      <p class="aviso-habitaciones">
+        <mat-icon>handyman</mat-icon>
+        {{ d.habitaciones.mantenimiento }} en mantenimiento y {{ d.habitaciones.fuera_servicio }} fuera de servicio, no se cuentan en la ocupación.
+        <a routerLink="/habitacion">Ver habitaciones</a>
+      </p>
+    }
+
+    <section class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+      <article class="panel">
+        <header class="panel-encabezado">
+          <h2><span class="icono-panel mar"><mat-icon>luggage</mat-icon></span>Llegadas de hoy <span class="contador">{{ d.llegadas.length }}</span></h2>
+          <a routerLink="/reserva" class="enlace">Ver reservas</a>
+        </header>
+        @for (reserva of d.llegadas; track reserva.id) {
+          <div class="fila">
+            <span class="llave"><span class="llave-numero">{{ reserva.habitacion }}</span></span>
+            <div class="min-w-0 flex-1">
+              <div class="font-semibold truncate">{{ reserva.cliente }}</div>
+              <div class="text-xs text-[#352D39]/60">{{ reserva.codigo }} · {{ reserva.tipo }} · {{ reserva.huespedes }} pers. · hasta {{ hora(reserva.fecha_salida!) | date:'dd/MM' }}</div>
+            </div>
+            <div class="text-right">
+              <span class="estado" [class]="estadoLlegada(reserva).clase">{{ estadoLlegada(reserva).texto }}</span>
+              @if (saldo(reserva) > 0) {
+                <div class="saldo">Debe {{ saldo(reserva) | currency:'CRC':'symbol-narrow':'1.0-0' }}</div>
+              }
+            </div>
+          </div>
+        } @empty {
+          <p class="vacio"><mat-icon>hotel</mat-icon>No hay llegadas programadas para hoy.</p>
+        }
+      </article>
+
+      <article class="panel">
+        <header class="panel-encabezado">
+          <h2><span class="icono-panel coral"><mat-icon>flight_takeoff</mat-icon></span>Salidas de hoy <span class="contador">{{ d.salidas.length }}</span></h2>
+          <a routerLink="/reserva" class="enlace">Ver reservas</a>
+        </header>
+        @for (reserva of d.salidas; track reserva.id) {
+          <div class="fila">
+            <span class="llave"><span class="llave-numero">{{ reserva.habitacion }}</span></span>
+            <div class="min-w-0 flex-1">
+              <div class="font-semibold truncate">{{ reserva.cliente }}</div>
+              <div class="text-xs text-[#352D39]/60">{{ reserva.codigo }} · {{ reserva.tipo }} · desde {{ hora(reserva.fecha_entrada!) | date:'dd/MM' }}</div>
+            </div>
+            <div class="text-right">
+              <span class="estado" [class]="estadoSalida(reserva).clase">{{ estadoSalida(reserva).texto }}</span>
+              @if (saldo(reserva) > 0) {
+                <div class="saldo">Debe {{ saldo(reserva) | currency:'CRC':'symbol-narrow':'1.0-0' }}</div>
+              }
+            </div>
+          </div>
+        } @empty {
+          <p class="vacio"><mat-icon>hotel</mat-icon>No hay salidas programadas para hoy.</p>
+        }
+      </article>
+    </section>
+
+    <section class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+      <article class="panel">
+        <header class="panel-encabezado">
+          <h2><span class="icono-panel palma"><mat-icon>kayaking</mat-icon></span>Tours de hoy <span class="contador">{{ d.tours_hoy.length }}</span></h2>
+          <a routerLink="/tour-programado" class="enlace">Ver programación</a>
+        </header>
+        @for (tour of d.tours_hoy; track tour.id) {
+          <div class="fila">
+            <span class="boleto">{{ hora(tour.fecha_hora_inicio) | date:'h:mm a' }}</span>
+            <div class="min-w-0 flex-1">
+              <div class="font-semibold truncate">{{ tour.tour }}</div>
+              <div class="text-xs text-[#352D39]/60 truncate">
+                <mat-icon class="icono-linea">hiking</mat-icon>{{ tour.guia ?? 'Sin guía asignado' }}
+                <mat-icon class="icono-linea">place</mat-icon>{{ tour.punto_encuentro }}
+              </div>
+              <div class="barra-progreso pequena" [matTooltip]="tour.reservados + ' de ' + tour.cupo + ' cupos'">
+                <span [style.width.%]="cupoUsado(tour)"></span>
+              </div>
+            </div>
+            <div class="text-right">
+              <span class="estado" [class]="estadoTour(tour).clase">{{ estadoTour(tour).texto }}</span>
+              <div class="text-xs text-[#352D39]/60 mt-1">{{ tour.reservados }}/{{ tour.cupo }} personas</div>
+            </div>
+          </div>
+        } @empty {
+          <p class="vacio"><mat-icon>sailing</mat-icon>No hay tours programados para hoy.</p>
+        }
+      </article>
+
+      <article class="panel">
+        <header class="panel-encabezado">
+          <h2><span class="icono-panel mar"><mat-icon>calendar_month</mat-icon></span>Ocupación de las próximas 7 noches</h2>
+          <a routerLink="/reporte" class="enlace">Ver reportes</a>
+        </header>
+        <div class="grafico">
+          @for (barra of barrasOcupacion(); track barra.etiqueta) {
+            <div class="columna" [matTooltip]="barra.detalle">
+              <span class="cifra">{{ barra.valor }}%</span>
+              <div class="pista"><span class="relleno agua" [class.hoy]="barra.hoy" [style.height.%]="barra.altura"></span></div>
+              <span class="dia" [class.dia-hoy]="barra.hoy">{{ barra.etiqueta }}</span>
+            </div>
+          }
+        </div>
+      </article>
+    </section>
+
+    <section class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+      <article class="panel">
+        <header class="panel-encabezado">
+          <h2><span class="icono-panel sol"><mat-icon>bar_chart</mat-icon></span>Cobros de los últimos 7 días</h2>
+          <a routerLink="/pago" class="enlace">Ver pagos</a>
+        </header>
+        <div class="grafico">
+          @for (barra of barrasCobros(); track barra.etiqueta + barra.detalle) {
+            <div class="columna" [matTooltip]="barra.detalle + ': ' + (barra.valor | currency:'CRC':'symbol-narrow':'1.0-0')">
+              <span class="cifra">{{ barra.valor / 1000 | number:'1.0-0' }}k</span>
+              <div class="pista"><span class="relleno arena" [class.hoy]="barra.hoy" [style.height.%]="barra.altura"></span></div>
+              <span class="dia" [class.dia-hoy]="barra.hoy">{{ barra.etiqueta }}</span>
+            </div>
+          }
+        </div>
+      </article>
+
+      <article class="panel">
+        <header class="panel-encabezado">
+          <h2><span class="icono-panel coral"><mat-icon>receipt_long</mat-icon></span>Por cobrar</h2>
+          <a routerLink="/pago" class="enlace">Ver pagos</a>
+        </header>
+        <div class="grid grid-cols-2 gap-3 px-5 pb-3">
+          <div class="resumen-saldo">
+            <div class="etiqueta"><mat-icon>bed</mat-icon>Hospedaje</div>
+            <div class="monto">{{ d.saldo_pendiente.hospedaje.saldo | currency:'CRC':'symbol-narrow':'1.0-0' }}</div>
+            <div class="detalle">{{ d.saldo_pendiente.hospedaje.reservas }} reservas activas</div>
+          </div>
+          <div class="resumen-saldo">
+            <div class="etiqueta"><mat-icon>tour</mat-icon>Tours</div>
+            <div class="monto">{{ d.saldo_pendiente.tours.saldo | currency:'CRC':'symbol-narrow':'1.0-0' }}</div>
+            <div class="detalle">{{ d.saldo_pendiente.tours.reservas }} reservas activas</div>
+          </div>
+        </div>
+        <p class="subtitulo-panel">Llegan esta semana con saldo pendiente</p>
+        @for (reserva of d.por_cobrar; track reserva.id) {
+          <div class="fila">
+            <span class="llave"><span class="llave-numero">{{ reserva.habitacion }}</span></span>
+            <div class="min-w-0 flex-1">
+              <div class="font-semibold truncate">{{ reserva.cliente }}</div>
+              <div class="text-xs text-[#352D39]/60">{{ reserva.codigo }} · llega el {{ diaCorto(reserva.fecha_entrada) }}</div>
+            </div>
+            <div class="saldo">{{ saldo(reserva) | currency:'CRC':'symbol-narrow':'1.0-0' }}</div>
+            <button mat-icon-button class="accion accion-info" matTooltip="Registrar pago" aria-label="Registrar pago"
+              (click)="onPagar(reserva)">
+              <mat-icon>payments</mat-icon>
+            </button>
+          </div>
+        } @empty {
+          <p class="vacio"><mat-icon>check_circle</mat-icon>No hay llegadas con saldo pendiente esta semana.</p>
+        }
+      </article>
+    </section>
+  } @else {
+    <div class="flex justify-center py-16">
+      <mat-progress-spinner mode="indeterminate" diameter="44"></mat-progress-spinner>
+    </div>
+  }
 </div>
