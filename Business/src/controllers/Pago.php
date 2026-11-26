@@ -14,9 +14,6 @@ use App\Services\RolMiddleware;
 
 class Pago {
 
-    #Si cambia alguno de estos campos se vuelven a revisar las reglas de negocio
-    private const CAMPOS_CON_REGLAS = ['reserva_habitacion_id', 'reserva_tour_id'];
-
     public function __construct(private ContainerInterface $container){}
 
     public function read(Request $request, Response $response, array $args): Response {
@@ -60,7 +57,8 @@ class Pago {
                 'reserva_habitacion_id' => trim((string) ($params['reserva_habitacion_id'] ?? '')),
                 'reserva_tour_id' => trim((string) ($params['reserva_tour_id'] ?? '')),
                 'codigo' => trim((string) ($params['codigo'] ?? '')),
-                'cliente' => trim((string) ($params['cliente'] ?? ''))
+                'cliente' => trim((string) ($params['cliente'] ?? '')),
+                'estado' => trim((string) ($params['estado'] ?? ''))
             ];
 
             $dataservice = $this->container->get(DataService::class);
@@ -122,63 +120,38 @@ class Pago {
         }
     }
 
-    public function update(Request $request, Response $response, array $args): Response {
+    public function anular(Request $request, Response $response, array $args): Response {
         try {
             $request->getBody()->rewind();
-            $body = (string) $request->getBody();
-
-            $data = json_decode($body, true);
+            $data = json_decode((string) $request->getBody(), true);
 
             if (!is_array($data) || json_last_error() !== JSON_ERROR_NONE) {
                 return $this->json($response, ['errors' => ['body' => 'Debe enviar un objeto JSON válido']], 400);
             }
 
-            #Validación parcial: solo se revisan los campos que vienen en la petición
-            $errors = (new PagoValidator())->validate($data, true);
+            $motivo = trim((string) ($data['motivo'] ?? ''));
+            $errors = (new PagoValidator())->validarAnulacion($motivo);
             if ($errors !== []) {
                 return $this->json($response, ['errors' => $errors], 400);
             }
 
             $dataservice = $this->container->get(DataService::class);
-
-            if (array_intersect(self::CAMPOS_CON_REGLAS, array_keys($data)) !== []) {
-                $anterior = $dataservice->obtener('pagos/' . rawurlencode($args['id']));
-                if ($anterior === null) {
-                    return $this->json($response, ['error' => 'Pago no encontrado.'], 404);
-                }
-                $anterior = $anterior['data'];
-
-                #Se revisan las reglas con el registro completo: lo que había más los cambios
-                (new PagoValidator())->aplicarReglas($dataservice, array_merge($anterior, $data));
+            $pago = $dataservice->obtener('pagos/' . rawurlencode($args['id']));
+            if ($pago === null) {
+                return $this->json($response, ['error' => 'Pago no encontrado.'], 404);
+            }
+            if (($pago['data']['estado'] ?? '') === 'ANULADO') {
+                return $this->json($response, ['error' => 'El pago ya está anulado.'], 409);
             }
 
-            unset($data['tipo_cambio']);
-            if (isset($data['moneda'])) {
-                $data['tipo_cambio'] = TipoCambio::paraMoneda((string) $data['moneda']);
-            }
-
-            $upstream = $dataservice->put('pagos/' . rawurlencode($args['id']), json_encode($data, JSON_THROW_ON_ERROR));
-
-            return $this->json($response, json_decode((string) $upstream->getBody(), true), $upstream->getStatusCode());
-
-        }catch (ReglaNegocioException $e){
-            return $this->json($response, ['error' => $e->getMessage()], $e->getStatus());
-        }
-        catch (ConnectException){
-            return $this->json($response, ['error' => 'El servicio de datos no está disponible'], 502);
-        }
-        catch (RequestException){
-            return $this->json($response, ['error' => 'No se pudo consultar el servicio de datos'], 502);
-        }
-    }
-
-    public function delete(Request $request, Response $response, array $args): Response {
-        try {
-            $dataservice = $this->container->get(DataService::class);
-            $upstream = $dataservice->delete('pagos/' . rawurlencode($args['id']));
+            $anulacion = [
+                'anulado_por' => RolMiddleware::usuarioDe($request),
+                'anulado_at' => date('Y-m-d H:i:s'),
+                'motivo_anulacion' => $motivo,
+            ];
+            $upstream = $dataservice->put('pagos/' . rawurlencode($args['id']) . '/anular', json_encode($anulacion, JSON_THROW_ON_ERROR));
 
             return $this->json($response, json_decode((string) $upstream->getBody(), true), $upstream->getStatusCode());
-
         }catch (ConnectException){
             return $this->json($response, ['error' => 'El servicio de datos no está disponible'], 502);
         }

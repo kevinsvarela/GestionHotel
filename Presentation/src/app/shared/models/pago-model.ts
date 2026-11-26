@@ -1,6 +1,7 @@
 export type MetodoPago = 'EFECTIVO' | 'TARJETA' | 'SINPE';
 export type MonedaPago = 'CRC' | 'USD';
 export type TipoReservaPago = 'HABITACION' | 'TOUR';
+export type EstadoPago = 'VIGENTE' | 'ANULADO';
 
 export interface PagoModel {
   id?: number;
@@ -17,6 +18,10 @@ export interface PagoModel {
   metodo: MetodoPago;
   referencia?: string | null;
   pagado_at: string;
+  estado?: EstadoPago;
+  anulado_por_nombre?: string | null;
+  anulado_at?: string | null;
+  motivo_anulacion?: string | null;
 }
 
 export interface TipoCambioModel {

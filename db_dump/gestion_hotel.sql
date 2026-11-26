@@ -195,7 +195,12 @@ CREATE TABLE pagos (
   metodo                 ENUM('EFECTIVO','TARJETA','SINPE') NOT NULL,
   referencia             VARCHAR(50)    NULL,
   pagado_at              DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT uq_pagos_metodo_referencia UNIQUE (metodo, referencia),
+  estado                 ENUM('VIGENTE','ANULADO') NOT NULL DEFAULT 'VIGENTE',
+  anulado_por            INT UNSIGNED   NULL,
+  anulado_at             DATETIME       NULL,
+  motivo_anulacion       VARCHAR(200)   NULL,
+  referencia_vigente     VARCHAR(50)    GENERATED ALWAYS AS (IF(estado = 'VIGENTE', referencia, NULL)) VIRTUAL,
+  CONSTRAINT uq_pagos_metodo_referencia UNIQUE (metodo, referencia_vigente),
   CONSTRAINT chk_pagos_monto CHECK (monto > 0),
   CONSTRAINT chk_pagos_moneda CHECK (moneda IN ('CRC','USD')),
   CONSTRAINT chk_pagos_tipo_cambio CHECK (tipo_cambio > 0),
@@ -208,6 +213,8 @@ CREATE TABLE pagos (
   CONSTRAINT fk_pagos_reserva_tour FOREIGN KEY (reserva_tour_id)
     REFERENCES reservas_tour (id),
   CONSTRAINT fk_pagos_registrado_por FOREIGN KEY (registrado_por)
+    REFERENCES usuarios (id) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT fk_pagos_anulado_por FOREIGN KEY (anulado_por)
     REFERENCES usuarios (id) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

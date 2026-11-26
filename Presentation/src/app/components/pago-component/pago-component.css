@@ -1,0 +1,8 @@
+.monto-anulado {
+    text-decoration: line-through;
+    color: rgba(53, 45, 57, 0.5);
+}
+
+.fila-anulada td {
+    color: rgba(53, 45, 57, 0.55);
+}

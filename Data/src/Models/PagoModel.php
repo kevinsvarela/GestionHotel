@@ -21,6 +21,10 @@ class PagoModel extends Model {
         'metodo',
         'referencia',
         'pagado_at',
+        'estado',
+        'anulado_por',
+        'anulado_at',
+        'motivo_anulacion',
     ];
 
     protected $casts = [
@@ -30,5 +34,6 @@ class PagoModel extends Model {
         'registrado_por' => 'integer',
         'monto' => 'float',
         'tipo_cambio' => 'float',
+        'anulado_por' => 'integer',
     ];
 }

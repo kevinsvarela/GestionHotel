@@ -1,0 +1,49 @@
+<div class="dlg-encabezado">
+  <span class="icono-titulo icono-anular"><mat-icon>block</mat-icon></span>
+  <div class="flex-1">
+    <h2 class="dlg-titulo">Anular pago</h2>
+    <p class="dlg-subtitulo">El pago queda en el historial, pero deja de contar en el saldo y en los reportes</p>
+  </div>
+  <button mat-icon-button type="button" class="dlg-cerrar" [mat-dialog-close]="false" aria-label="Cerrar">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<mat-dialog-content class="dlg-contenido">
+  <div class="resumen-anulacion">
+    <div>
+      <div class="font-semibold">{{ pago.codigo_reserva }} · {{ pago.cliente_nombre }} {{ pago.cliente_apellidos }}</div>
+      <div class="text-xs text-[#352D39]/60">{{ pago.metodo }}{{ pago.referencia ? ' · ' + pago.referencia : '' }} · {{ pago.pagado_at }}</div>
+    </div>
+    <strong>{{ pago.monto | currency:pago.moneda:'symbol-narrow':'1.0-2' }}</strong>
+  </div>
+
+  <form id="frmAnulacion" [formRoot]="frmAnulacion" class="grid gap-3 pt-3">
+    <mat-form-field appearance="outline">
+      <mat-label>Motivo de la anulación</mat-label>
+      <textarea matInput rows="3" autocomplete="off" [formField]="frmAnulacion.motivo"></textarea>
+      <mat-hint align="end">{{ objAnulacion().motivo.length }}/200</mat-hint>
+      @if (frmAnulacion.motivo().touched() && frmAnulacion.motivo().invalid()) {
+        @for (error of frmAnulacion.motivo().errors(); track error.kind) {
+          <mat-error>{{ error.message }}</mat-error>
+        }
+      }
+    </mat-form-field>
+
+    <div class="flex flex-wrap gap-2">
+      @for (motivo of motivosRapidos; track motivo) {
+        <button type="button" class="boton-borde motivo-rapido" (click)="usarMotivo(motivo)">{{ motivo }}</button>
+      }
+    </div>
+
+    <p class="aviso-anulacion">
+      <mat-icon>info</mat-icon>
+      Para corregir un error, anule este pago y registre el pago correcto desde Pagos.
+    </p>
+  </form>
+</mat-dialog-content>
+
+<div class="dlg-pie">
+  <button type="button" class="boton-borde" [mat-dialog-close]="false">Volver</button>
+  <button type="submit" form="frmAnulacion" class="boton-lleno boton-anular"><mat-icon>block</mat-icon>Anular pago</button>
+</div>

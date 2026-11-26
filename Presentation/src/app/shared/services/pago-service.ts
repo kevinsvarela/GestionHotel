@@ -55,7 +55,7 @@ export class PagoService {
     return this.http.post<any>(`${_SERVIDOR}/pagos`, cuerpo);
   }
 
-  eliminar(id: number) {
-    return this.http.delete<any>(`${_SERVIDOR}/pagos/${id}`);
+  anular(id: number, motivo: string) {
+    return this.http.patch<any>(`${_SERVIDOR}/pagos/${id}/anular`, { motivo });
   }
 }

@@ -86,6 +86,13 @@ final class PagoValidator {
         return $errores;
     }
 
+    public function validarAnulacion(string $motivo): array {
+        $regla = v::stringType()->length(v::between(5, 200));
+        return $regla->validate($motivo)->hasFailed()
+            ? ['motivo' => 'El motivo es obligatorio y debe tener entre 5 y 200 caracteres.']
+            : [];
+    }
+
     #----- Reglas de negocio: se revisan contra la capa de datos después de validar el formato -----
     #$pago: datos completos del pago (en una actualización, lo que había más los cambios)
     public function aplicarReglas(DataService $dataservice, array $pago): array {

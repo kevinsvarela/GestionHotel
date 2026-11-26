@@ -18,12 +18,14 @@ import { Roles } from '../../shared/models/roles';
 import { PagoInput, PagoModel } from '../../shared/models/pago-model';
 import { FrmPago } from '../forms/frm-pago/frm-pago';
 import { DialogoGeneral } from '../forms/dialogo-general/dialogo-general';
+import { FrmAnularPago } from '../forms/frm-anular-pago/frm-anular-pago';
 
 type FilterForm = {
   codigo: string;
   cliente: string;
   metodo: string;
   fecha: string;
+  estado: string;
 };
 
 @Component({
@@ -50,7 +52,7 @@ export class PagoComponent implements OnInit {
     { valor: 'SINPE', texto: 'SINPE Móvil', icono: 'phone_iphone' },
   ];
 
-  private readonly filtroVacio: FilterForm = { codigo: '', cliente: '', metodo: '', fecha: '' };
+  private readonly filtroVacio: FilterForm = { codigo: '', cliente: '', metodo: '', fecha: '', estado: '' };
   panelFilterState = signal(false);
   objFilter = signal<FilterForm>({ ...this.filtroVacio });
   frmFilter = form(this.objFilter);
@@ -63,6 +65,7 @@ export class PagoComponent implements OnInit {
         cliente: filtro.cliente.trim(),
         metodo: filtro.metodo,
         fecha: filtro.fecha,
+        estado: filtro.estado,
       }));
     });
 
@@ -137,30 +140,32 @@ export class PagoComponent implements OnInit {
     });
   }
 
-  onDelete(pago: PagoModel): void {
-    this.dialog.open(DialogoGeneral, {
-      width: '30vw',
-      maxWidth: '24rem',
-      data: {
-        icono: 'warning',
-        texto: `¿Anular el pago de ${pago.moneda} ${pago.monto} de la reserva ${pago.codigo_reserva}?\nEl monto vuelve a quedar pendiente en la reserva.`,
-        textoAceptar: ' Anular pago ',
-        textoCancelar: ' Volver ',
-      },
-    }).afterClosed().subscribe((confirmado) => {
-      if (confirmado !== true) {
+  onAnular(pago: PagoModel): void {
+    this.dialog.open<FrmAnularPago, PagoModel, string | false | undefined>(FrmAnularPago, {
+      width: '92vw',
+      maxWidth: '32rem',
+      panelClass: 'dialogo-hotel',
+      autoFocus: false,
+      data: pago,
+    }).afterClosed().subscribe((motivo) => {
+      if (motivo === undefined || motivo === false) {
         return;
       }
-      this.srvPago.eliminar(pago.id!).subscribe({
+      this.srvPago.anular(pago.id!, motivo).subscribe({
         complete: () => {
           this.srvPago.pagos.reload();
-          this.alertar('check', 'Pago anulado');
+          this.alertar('check', 'Pago anulado. El monto vuelve a quedar pendiente en la reserva.');
         },
         error: (error: HttpErrorResponse) => {
           this.alertar('error', this.mensajeError(error, 'No se pudo anular el pago'));
         },
       });
     });
+  }
+
+  detalleAnulacion(pago: PagoModel): string {
+    const cuando = pago.anulado_at ? this.aFecha(pago.anulado_at).toLocaleString('es-CR', { dateStyle: 'short', timeStyle: 'short' }) : '';
+    return `Anulado por ${pago.anulado_por_nombre ?? 'usuario'} el ${cuando}. Motivo: ${pago.motivo_anulacion ?? ''}`;
   }
 
   onPage(evento: PageEvent): void {

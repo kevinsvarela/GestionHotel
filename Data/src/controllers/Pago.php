@@ -20,7 +20,7 @@ class Pago {
         $this->container->get('eloquent');
         if(isset($args['id'])){
             $pago = PagoModel::query()
-                ->select(['id', 'reserva_habitacion_id', 'reserva_tour_id', 'registrado_por', 'monto', 'moneda', 'tipo_cambio', 'metodo', 'referencia', 'pagado_at'])
+                ->select(['id', 'reserva_habitacion_id', 'reserva_tour_id', 'registrado_por', 'monto', 'moneda', 'tipo_cambio', 'metodo', 'referencia', 'pagado_at', 'estado', 'anulado_por', 'anulado_at', 'motivo_anulacion'])
                 ->find($args['id']);
  
             if ($pago === null) {
@@ -31,7 +31,7 @@ class Pago {
         }
  
         $pagos = PagoModel::query()
-                ->select(['id', 'reserva_habitacion_id', 'reserva_tour_id', 'registrado_por', 'monto', 'moneda', 'tipo_cambio', 'metodo', 'referencia', 'pagado_at'])
+                ->select(['id', 'reserva_habitacion_id', 'reserva_tour_id', 'registrado_por', 'monto', 'moneda', 'tipo_cambio', 'metodo', 'referencia', 'pagado_at', 'estado', 'anulado_por', 'anulado_at', 'motivo_anulacion'])
                 ->get()
                 ->toArray();
             return $this->json($response, ['data' => $pagos], 200);
@@ -139,6 +139,7 @@ class Pago {
         $metodo = trim((string) ($params['metodo'] ?? ''));
         $referencia = trim((string) ($params['referencia'] ?? ''));
         $fecha = trim((string) ($params['fecha'] ?? ''));
+        $estado = trim((string) ($params['estado'] ?? ''));
 
         $codigo = trim((string) ($params['codigo'] ?? ''));
         $cliente = trim((string) ($params['cliente'] ?? ''));
@@ -155,15 +156,20 @@ class Pago {
                 'pagos.metodo',
                 'pagos.referencia',
                 'pagos.pagado_at',
-                'registradores.nombre as registrado_por_nombre',
+                'pagos.estado',
+                'pagos.anulado_at',
+                'pagos.motivo_anulacion',
             ])
+            ->selectRaw("CONCAT(registradores.nombre, ' ', registradores.apellidos) AS registrado_por_nombre")
+            ->selectRaw("CONCAT(anuladores.nombre, ' ', anuladores.apellidos) AS anulado_por_nombre")
             ->selectRaw('COALESCE(rh.codigo, rt.codigo) AS codigo_reserva')
             ->selectRaw('clientes.nombre AS cliente_nombre')
             ->selectRaw('clientes.apellidos AS cliente_apellidos')
             ->leftJoin('reservas_habitacion as rh', 'pagos.reserva_habitacion_id', '=', 'rh.id')
             ->leftJoin('reservas_tour as rt', 'pagos.reserva_tour_id', '=', 'rt.id')
             ->leftJoin('usuarios as clientes', 'clientes.id', '=', Capsule::raw('COALESCE(rh.cliente_id, rt.cliente_id)'))
-            ->leftJoin('usuarios as registradores', 'pagos.registrado_por', '=', 'registradores.id');
+            ->leftJoin('usuarios as registradores', 'pagos.registrado_por', '=', 'registradores.id')
+            ->leftJoin('usuarios as anuladores', 'pagos.anulado_por', '=', 'anuladores.id');
 
         if ($reservaHabitacionId !== false) {
             $query->where('pagos.reserva_habitacion_id', $reservaHabitacionId);
@@ -185,6 +191,9 @@ class Pago {
         }
         if ($fecha !== '') {
             $query->whereDate('pagos.pagado_at', $fecha);
+        }
+        if ($estado !== '') {
+            $query->where('pagos.estado', $estado);
         }
         if ($codigo !== '') {
             $query->where(function ($condicion) use ($codigo) {
@@ -324,6 +333,54 @@ class Pago {
         }
     }
  
+    public function anular(Request $request, Response $response, array $args): Response {
+        $this->container->get('eloquent');
+        $data = $request->getParsedBody();
+        $data = is_array($data) ? $data : [];
+
+        $errors = [];
+        $anuladoPor = filter_var($data['anulado_por'] ?? '', FILTER_VALIDATE_INT);
+        $anuladoAt = trim((string) ($data['anulado_at'] ?? ''));
+        $motivo = trim((string) ($data['motivo_anulacion'] ?? ''));
+
+        if ($anuladoPor === false || $anuladoPor < 1) {
+            $errors['anulado_por'] = 'Es obligatorio y debe ser un id válido.';
+        }
+        if ($anuladoAt === '' || mb_strlen($anuladoAt) > 19) {
+            $errors['anulado_at'] = 'Es obligatorio.';
+        }
+        if ($motivo === '' || mb_strlen($motivo) > 200) {
+            $errors['motivo_anulacion'] = 'Es obligatorio y debe tener máximo 200 caracteres.';
+        }
+        if ($errors !== []) {
+            return $this->json($response, ['errors' => $errors], 422);
+        }
+
+        $pago = PagoModel::find($args['id']);
+        if ($pago === null) {
+            return $this->json($response, ['error' => 'Pago no encontrado.'], 404);
+        }
+        if ($pago->estado === 'ANULADO') {
+            return $this->json($response, ['error' => 'El pago ya está anulado.'], 409);
+        }
+
+        $pago->estado = 'ANULADO';
+        $pago->anulado_por = $anuladoPor;
+        $pago->anulado_at = $anuladoAt;
+        $pago->motivo_anulacion = $motivo;
+
+        try {
+            $pago->save();
+        } catch (QueryException $exception) {
+            if ((int) ($exception->errorInfo[1] ?? 0) === 1452) {
+                return $this->json($response, ['error' => 'El usuario que anula no existe.'], 422);
+            }
+            throw $exception;
+        }
+
+        return $this->json($response, ['data' => $pago->toArray()], 200);
+    }
+
     public function delete(Request $request, Response $response, array $args): Response {
         $eloquent = $this->container->get('eloquent');
         if (isset($args['id'])) {

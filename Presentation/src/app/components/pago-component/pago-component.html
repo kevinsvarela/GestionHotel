@@ -17,7 +17,7 @@
   </header>
 
   @if (panelFilterState()) {
-    <div class="caja-filtro grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-4">
+    <div class="caja-filtro grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-x-4">
       <mat-form-field>
         <mat-label>Código de reserva</mat-label>
         <input matInput placeholder="RH-0001 o RT-0001" [formField]="frmFilter.codigo">
@@ -41,6 +41,15 @@
       <mat-form-field>
         <mat-label>Fecha</mat-label>
         <input matInput type="date" [formField]="frmFilter.fecha">
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Estado</mat-label>
+        <mat-select [formField]="frmFilter.estado">
+          <mat-option value="">Todos</mat-option>
+          <mat-option value="VIGENTE">Vigentes</mat-option>
+          <mat-option value="ANULADO">Anulados</mat-option>
+        </mat-select>
       </mat-form-field>
     </div>
   }
@@ -87,10 +96,15 @@
       <ng-container matColumnDef="monto">
         <th mat-header-cell *matHeaderCellDef> Monto </th>
         <td mat-cell *matCellDef="let pago" class="font-semibold whitespace-nowrap">
-          {{ pago.monto | currency:pago.moneda:'symbol-narrow':'1.0-2' }}
+          <span [class.monto-anulado]="pago.estado === 'ANULADO'">{{ pago.monto | currency:pago.moneda:'symbol-narrow':'1.0-2' }}</span>
           @if (pago.moneda === 'USD' && pago.tipo_cambio) {
             <div class="text-xs font-normal text-[#352D39]/60">
               {{ pago.monto * pago.tipo_cambio | currency:'CRC':'symbol-narrow':'1.0-2' }} a {{ pago.tipo_cambio | currency:'CRC':'symbol-narrow':'1.2-2' }}
+            </div>
+          }
+          @if (pago.estado === 'ANULADO') {
+            <div>
+              <span class="estado estado-rojo" [matTooltip]="detalleAnulacion(pago)">Anulado</span>
             </div>
           }
         </td>
@@ -105,10 +119,10 @@
         <th mat-header-cell *matHeaderCellDef> Acciones </th>
         <td mat-cell *matCellDef="let pago">
           <div class="acciones">
-            @if (esAdmin()) {
+            @if (esAdmin() && pago.estado !== 'ANULADO') {
               <button mat-icon-button class="accion accion-borrar" matTooltip="Anular pago" aria-label="Anular pago"
-                (click)="onDelete(pago)">
-                <mat-icon>delete_outline</mat-icon>
+                (click)="onAnular(pago)">
+                <mat-icon>block</mat-icon>
               </button>
             }
           </div>
@@ -116,7 +130,7 @@
       </ng-container>
 
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;" [class.fila-anulada]="row.estado === 'ANULADO'"></tr>
       <tr class="mat-row" *matNoDataRow>
         <td class="sin-datos" [attr.colspan]="displayedColumns.length">
           @if (srvPago.pagos.isLoading()) { Cargando... } @else { No hay pagos para mostrar }
