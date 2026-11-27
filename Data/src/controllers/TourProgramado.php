@@ -268,25 +268,7 @@ class TourProgramado {
     public static function actualizarEstados(): void {
         $ahora = (new \DateTimeImmutable('now', new \DateTimeZone('America/Costa_Rica')))->format('Y-m-d H:i:s');
 
-        Capsule::connection()->update(
-            "UPDATE tours_programados tp
-             JOIN tours t ON t.id = tp.tour_id
-             SET tp.estado = CASE
-                 WHEN DATE_ADD(tp.fecha_hora_inicio, INTERVAL t.duracion_minutos MINUTE) <= ? THEN 'FINALIZADO'
-                 ELSE 'EN_CURSO'
-             END
-             WHERE tp.estado IN ('PROGRAMADO', 'EN_CURSO')
-               AND tp.fecha_hora_inicio <= ?",
-            [$ahora, $ahora]
-        );
-
-        Capsule::connection()->update(
-            "UPDATE reservas_tour rt
-             JOIN tours_programados tp ON tp.id = rt.tour_programado_id
-             SET rt.estado = 'FINALIZADA'
-             WHERE tp.estado = 'FINALIZADO'
-               AND rt.estado = 'CONFIRMADA'"
-        );
+        Capsule::connection()->statement('CALL sp_actualizar_estados_tours(?)', [$ahora]);
     }
 
     private function json(Response $response, array $payload, int $status): Response{
