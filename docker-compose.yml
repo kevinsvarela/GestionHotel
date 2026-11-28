@@ -33,6 +33,8 @@ services:
     volumes:
       - ./Business/public:/var/www/html/public
       - ./Business/src:/var/www/html/src
+      - ./Business/tests:/var/www/html/tests
+      - ./Business/phpunit.xml:/var/www/html/phpunit.xml
     build:
       context: .
       dockerfile: ./Business/Dockerfile
