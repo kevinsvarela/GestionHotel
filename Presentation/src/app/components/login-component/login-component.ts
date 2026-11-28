@@ -49,6 +49,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   private mostrarDialogo() {
+    this.dialogo.closeAll();
     this.dialogo.open(FrmLogin, {
       width: '100%',
       maxWidth: '400px',
