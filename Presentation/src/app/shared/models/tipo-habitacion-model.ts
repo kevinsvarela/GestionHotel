@@ -12,3 +12,8 @@ export type TipoHabitacionInput = Omit<TipoHabitacionModel, 'id' | 'foto_url'> &
   descripcion: string;
   activo: number;
 };
+
+export interface TipoConServicios {
+  tipo: TipoHabitacionInput;
+  servicios: number[];
+}

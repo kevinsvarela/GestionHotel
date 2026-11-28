@@ -8,13 +8,19 @@ import { MatSelectModule } from '@angular/material/select';
 import {
   disabled, form, FormField, FormRoot, max, maxLength, min, minLength, pattern, required, RootFieldContext, validate,
 } from '@angular/forms/signals';
-import { TipoHabitacionInput, TipoHabitacionModel } from '../../../shared/models/tipo-habitacion-model';
+import { TipoConServicios, TipoHabitacionInput, TipoHabitacionModel } from '../../../shared/models/tipo-habitacion-model';
+import { ServicioHabitacionService } from '../../../shared/services/servicio-habitacion-service';
 
 interface TipoDialogData {
   title: string;
   data?: TipoHabitacionModel;
+  servicios?: number[];
   info?: boolean;
 }
+
+type TipoForm = TipoHabitacionInput & {
+  servicios: number[];
+};
 
 @Component({
   imports: [MatDialogModule, MatIconModule, MatButtonModule, MatFormFieldModule,
@@ -25,15 +31,17 @@ interface TipoDialogData {
 })
 export class FrmTipoHabitacion implements OnInit {
   titulo: string = '';
-  readonly dialogRef = inject(MatDialogRef<FrmTipoHabitacion, TipoHabitacionInput | false | undefined>);
+  readonly dialogRef = inject(MatDialogRef<FrmTipoHabitacion, TipoConServicios | false | undefined>);
   private readonly data = inject<TipoDialogData>(MAT_DIALOG_DATA);
+  readonly srvServicio = inject(ServicioHabitacionService);
   readonly soloLectura = this.data.info === true;
 
-  objTipo = signal<TipoHabitacionInput>({
+  objTipo = signal<TipoForm>({
     nombre: '',
     descripcion: '',
     capacidad: 1,
     precio_noche: 0,
+    servicios: [],
     activo: 1,
   });
 
@@ -77,17 +85,21 @@ export class FrmTipoHabitacion implements OnInit {
         }
         const tipo = this.objTipo();
         this.dialogRef.close({
-          nombre: tipo.nombre.trim(),
-          descripcion: tipo.descripcion.trim(),
-          capacidad: Number(tipo.capacidad),
-          precio_noche: Number(tipo.precio_noche),
-          activo: Number(tipo.activo),
+          tipo: {
+            nombre: tipo.nombre.trim(),
+            descripcion: tipo.descripcion.trim(),
+            capacidad: Number(tipo.capacidad),
+            precio_noche: Number(tipo.precio_noche),
+            activo: Number(tipo.activo),
+          },
+          servicios: tipo.servicios.map(Number),
         });
       }
     }
   });
 
   ngOnInit(): void {
+    this.srvServicio.catalogo.reload();
     this.titulo = this.data.title;
     if (this.data.data) {
       this.objTipo.set({
@@ -95,6 +107,7 @@ export class FrmTipoHabitacion implements OnInit {
         descripcion: this.data.data.descripcion ?? '',
         capacidad: Number(this.data.data.capacidad),
         precio_noche: Number(this.data.data.precio_noche),
+        servicios: [...(this.data.servicios ?? [])],
         activo: Number(this.data.data.activo ?? 1),
       });
     }

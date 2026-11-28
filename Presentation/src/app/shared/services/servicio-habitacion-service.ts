@@ -27,6 +27,8 @@ export class ServicioHabitacionService {
   readonly offset = signal(0);
   readonly limit = signal(10);
 
+  readonly catalogo = httpResource<{ data: ServicioHabitacionModel[] }>(() => `${_SERVIDOR}/servicios-habitacion`);
+
   readonly servicios = httpResource<RespuestaServicios>(() => {
     const parametros = this.parametros();
     if (parametros === null) {

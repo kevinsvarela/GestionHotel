@@ -1,4 +1,4 @@
-import { Component, effect, inject, OnInit, signal, untracked } from '@angular/core';
+import { Component, computed, effect, inject, OnInit, signal, untracked } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatButtonModule } from '@angular/material/button';
@@ -12,7 +12,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { form, FormField } from '@angular/forms/signals';
 import { TipoHabitacionService } from '../../shared/services/tipo-habitacion-service';
-import { TipoHabitacionInput, TipoHabitacionModel } from '../../shared/models/tipo-habitacion-model';
+import { ServicioHabitacionService } from '../../shared/services/servicio-habitacion-service';
+import { TipoConServicios, TipoHabitacionModel } from '../../shared/models/tipo-habitacion-model';
 import { FrmTipoHabitacion } from '../forms/frm-tipo-habitacion/frm-tipo-habitacion';
 import { DialogoGeneral } from '../forms/dialogo-general/dialogo-general';
 
@@ -30,15 +31,24 @@ type FilterForm = {
   templateUrl: './tipo-habitacion-component.html',
 })
 export class TipoHabitacionComponent implements OnInit {
-  displayedColumns: string[] = ['id', 'nombre', 'capacidad', 'precio_noche', 'activo', 'botonera'];
+  displayedColumns: string[] = ['id', 'nombre', 'capacidad', 'precio_noche', 'servicios', 'activo', 'botonera'];
   dataSource = signal<TipoHabitacionModel[]>([]);
   total = signal(0);
 
   srvTipo = inject(TipoHabitacionService);
+  readonly srvServicio = inject(ServicioHabitacionService);
   dialog = inject(MatDialog);
 
   buscarID = signal<number | null>(null);
   private accion: 'editar' | 'info' = 'editar';
+
+  private readonly nombresServicio = computed(() => {
+    const nombres = new Map<number, string>();
+    for (const servicio of this.srvServicio.catalogo.value()?.data ?? []) {
+      nombres.set(Number(servicio.id), servicio.nombre);
+    }
+    return nombres;
+  });
 
   panelFilterState = signal(false);
   objFilter = signal<FilterForm>({ nombre: '', capacidad: '', activo: '' });
@@ -80,6 +90,13 @@ export class TipoHabitacionComponent implements OnInit {
         this.alertar('error', 'No se pudo cargar el tipo de habitación');
       }
     });
+  }
+
+  serviciosDe(tipo: TipoHabitacionModel): string[] {
+    const nombres = this.nombresServicio();
+    return this.srvTipo.serviciosDe(Number(tipo.id))
+      .map((id) => nombres.get(id) ?? '')
+      .filter((nombre) => nombre !== '');
   }
 
   private filtrarTipos(filtro: FilterForm): void {
@@ -125,12 +142,13 @@ export class TipoHabitacionComponent implements OnInit {
   }
 
   public mostrarDialogo(titulo: string, datos?: TipoHabitacionModel, info?: boolean, id?: number) {
-    const dialogRef = this.dialog.open<FrmTipoHabitacion, unknown, TipoHabitacionInput | false | undefined>(FrmTipoHabitacion, {
+    const servicios = datos?.id !== undefined ? this.srvTipo.serviciosDe(Number(datos.id)) : [];
+    const dialogRef = this.dialog.open<FrmTipoHabitacion, unknown, TipoConServicios | false | undefined>(FrmTipoHabitacion, {
       width: '92vw',
       maxWidth: '36rem',
       panelClass: 'dialogo-hotel',
       autoFocus: false,
-      data: { title: titulo, data: datos, info: info },
+      data: { title: titulo, data: datos, servicios: servicios, info: info },
       disableClose: true,
     });
 
@@ -145,6 +163,7 @@ export class TipoHabitacionComponent implements OnInit {
           this.alertar('check', id === undefined ? 'Tipo de habitación creado' : 'Tipo de habitación actualizado');
         },
         error: (error: HttpErrorResponse) => {
+          this.srvTipo.recargar();
           this.alertar('error', this.mensajeError(error, 'No se pudo guardar el tipo de habitación'));
         },
       });

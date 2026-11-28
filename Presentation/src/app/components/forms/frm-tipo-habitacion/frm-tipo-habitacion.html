@@ -56,6 +56,18 @@
       </mat-form-field>
     </div>
 
+    <p class="dlg-seccion">Servicios incluidos</p>
+    <mat-form-field appearance="outline">
+      <mat-label>Servicios que incluye</mat-label>
+      <mat-icon matPrefix class="dlg-prefijo">room_service</mat-icon>
+      <mat-select multiple [formField]="frmTipo.servicios">
+        @for (servicio of srvServicio.catalogo.value()?.data ?? []; track servicio.id) {
+          <mat-option [value]="servicio.id">{{ servicio.nombre }}</mat-option>
+        }
+      </mat-select>
+      <mat-hint>Puede escoger varios</mat-hint>
+    </mat-form-field>
+
     <p class="dlg-seccion">Estado</p>
     <mat-form-field appearance="outline">
       <mat-label>Estado</mat-label>

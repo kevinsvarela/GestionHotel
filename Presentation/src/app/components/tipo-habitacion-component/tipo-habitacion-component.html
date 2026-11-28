@@ -63,6 +63,19 @@
         <td mat-cell *matCellDef="let tipo"> {{ tipo.precio_noche | currency:'CRC':'symbol-narrow':'1.0-2' }} </td>
       </ng-container>
 
+      <ng-container matColumnDef="servicios">
+        <th mat-header-cell *matHeaderCellDef> Servicios incluidos </th>
+        <td mat-cell *matCellDef="let tipo">
+          <div class="flex flex-wrap gap-1 py-1">
+            @for (servicio of serviciosDe(tipo); track servicio) {
+              <span class="estado estado-turquesa">{{ servicio }}</span>
+            } @empty {
+              <span class="text-[#352D39]/50 italic">Sin servicios</span>
+            }
+          </div>
+        </td>
+      </ng-container>
+
       <ng-container matColumnDef="activo">
         <th mat-header-cell *matHeaderCellDef> Estado </th>
         <td mat-cell *matCellDef="let tipo">
